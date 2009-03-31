@@ -1,2 +1,8 @@
-*.pyc
-*.pyo
+*.py?
+*._*
+.#\*
+service/supervise
+docs/.build
+*/local_settings.py
+*/media/ext
+
