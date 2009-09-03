@@ -1,0 +1,7 @@
+{% extends "nextroom/base.xml" %}
+
+{% block results %}
+{% for tag in results %}
+<tag name='{{ tag.name }}' />
+{% endfor %}
+{% endblock %}

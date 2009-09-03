@@ -1,0 +1,13 @@
+{% extends "nextroom/base.xml" %}
+
+{% block results %}
+{% for user in results %}
+<user name='{{ user.name }}'
+    type='{{ user.type }}'
+    colorr='{{ user.colorr }}'
+    colorg='{{ user.colorg }}'
+    colorb='{{ user.colorb }}'
+    userUID='{{ user.id }}'
+    />
+{% endfor %}
+{% endblock %}

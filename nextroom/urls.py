@@ -1,17 +1,19 @@
 from django.conf.urls.defaults import *
+from django.conf import settings
 
 # Uncomment the next two lines to enable the admin:
-# from django.contrib import admin
-# admin.autodiscover()
+from django.contrib import admin
+admin.autodiscover()
 
 urlpatterns = patterns('',
-    # Example:
-    # (r'^nextroom/', include('nextroom.foo.urls')),
-
-    # Uncomment the admin/doc line below and add 'django.contrib.admindocs' 
-    # to INSTALLED_APPS to enable admin documentation:
-    # (r'^admin/doc/', include('django.contrib.admindocs.urls')),
-
-    # Uncomment the next line to enable the admin:
-    # (r'^admin/', include(admin.site.urls)),
+    (r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT, 'show_indexes': True }),
+    (r'^admin/(.*)', admin.site.root),
 )
+
+urlpatterns += patterns('nextroom.apps.roomqueue.views',
+    (r'^rooms/', 'get_rooms'),
+    (r'^notes/', 'get_tags', {'type': 'note'}),
+    (r'^procedures/', 'get_tags', {'type': 'procedure'}),
+    (r'^users/', 'get_users'),
+)
+
