@@ -3,6 +3,9 @@ from django.shortcuts import render_to_response
 
 from nextroom.apps.roomqueue.models import *
 
+def throw_xml_error():
+    return render_to_response('nextroom/base.xml', {'results': None, 'version': '', 'status': 'error', 'notify': 'No'}, mimetype="text/xml")
+
 def get_rooms(request):
     if request.method == 'GET':
         versionNumber = request.GET.get('version') #    versionNumber is a concatenation of versionNumber for Rooms and versionNumber for this User
@@ -18,7 +21,7 @@ def get_rooms(request):
             user = User.objects.get(pk=userid)
         except User.DoesNotExist:
             #   If we don't recognize this username we'll send back an error
-            return render_to_response('nextroom/rooms.xml', {'results': rooms, 'version': '', 'status': 'error', 'notify': notify}, mimetype="text/xml")
+            return throw_xml_error()
             
         #   Check to see if this user already has a version, otherwise it's the first time and we'll create a version for them       
         try:
@@ -40,7 +43,7 @@ def get_rooms(request):
 
         #   Now, see if that version is the current version for rooms
         if roomsVersionNumber != rooms_version.versionNumber:
-            rooms = Room.objects.filter(assignedto__isnull=False)
+            rooms = Room.objects.filter(assignedto__isnull=False).distinct()
             status = 'update'
 
 
@@ -48,14 +51,12 @@ def get_rooms(request):
         if userVersionNumber != user_version.versionNumber:
             notify = 'YES'        
 
-#        return HttpResponse("roomsVersionNumber: %s<br>userVersionNumber: %s<br>rooms_version: %s<br>user_version: %s<br>" % (roomsVersionNumber, userVersionNumber, rooms_version.versionNumber, user_version.versionNumber))    
         return render_to_response('nextroom/rooms.xml', {'results': rooms, 'version': "%s%s" % (rooms_version.versionNumber, user_version.versionNumber), 'status': status, 'notify': notify}, mimetype="text/xml")
         
         
 def get_tags(request, type):
     if request.method == 'GET':
         version = request.GET.get('version')
-        username = request.GET.get('user')
         
         status = 'current'
         tags = None
@@ -89,7 +90,6 @@ def convertColors(user):
 def get_users(request):
     if request.method == 'GET':
         version = request.GET.get('version')
-        username = request.GET.get('user')
         
         status = 'current'
         users = None
@@ -110,4 +110,80 @@ def get_users(request):
         users = map(convertColors, users)
         
         return render_to_response('nextroom/users.xml', {'results': users, 'version': current_version.versionNumber, 'status': status, 'notify': notify}, mimetype="text/xml")  
+
+#def post_test(request):
+#    return render_to_response('nextroom/post_test.html')
+        
+        
+def update_room(request):
+    if request.method == 'POST':
+        userid = request.GET.get('user')
+        room_xml = request.POST.get('room')
+        
+
+        try:
+            user = User.objects.get(pk=userid)
+        except User.DoesNotExist:
+            #   If we don't recognize this username we'll send back an error
+           return throw_xml_error()
+        
+        from xml.dom import minidom
+        xmldoc = minidom.parseString(room_xml)
+        
+        roomnode = xmldoc.firstChild
+        
+        assignedto_names = roomnode.getAttribute("assignedto").split(',')
+        notes_names = roomnode.getAttribute("notes").split(',')
+        procedures_names = roomnode.getAttribute("procedures").split(',')
+        room_id = roomnode.getAttribute("roomUID")
+        roomnumber = roomnode.getAttribute("roomnumber") #  We'll just use this as a sanity check
+        status = roomnode.getAttribute("status")
+        timestampinqueue = roomnode.getAttribute("timestampinqueue")
+        
+        room = Room.objects.get(pk=room_id)
+        
+        if room.roomnumber != int(roomnumber):
+            #   A dumb sanity check
+            return throw_xml_error()
+
+        
+
+        #   Clear the assignedto users from the room, we're reloading
+        room.assignedto.clear()            
+        for name in assignedto_names:
+            try:
+                assignee = User.objects.get(name=name)
+            except User.DoesNotExist:
+                #   One of the assigned to users is unknown, throw and error
+                return throw_xml_error()
+        
+            room.assignedto.add(assignee)
+       
+        #   Clear the notes from the room, we're reloading
+        room.notes.clear()
+        for name in notes_names:
+            try:
+                note = Note.objects.get(name=name)
+            except Note.DoesNotExist:
+                return throw_xml_error()
+                
+            room.notes.add(note)
+            
+        #   Clear the procedures from the room, we're reloading
+        room.procedures.clear()
+        for name in procedures_names:
+            try:
+                procedure = Procedure.objects.get(name=name)
+            except Procedure.DoesNotExist:
+                return throw_xml_error()
+                
+            room.procedures.add(procedure)
+
+        room.status = status
+        room.save()
+        
+        rooms = Room.objects.filter(assignedto__isnull=False).distinct()
+        rooms_version = Version.objects.get(type="room")
+        
+        return render_to_response('nextroom/rooms.xml', {'results': rooms, 'version': "%s%s" % (rooms_version.versionNumber, user.version.versionNumber), 'status': 'update', 'notify': 'YES'}, mimetype="text/xml")
         

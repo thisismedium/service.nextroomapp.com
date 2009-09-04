@@ -15,5 +15,7 @@ urlpatterns += patterns('nextroom.apps.roomqueue.views',
     (r'^notes/', 'get_tags', {'type': 'note'}),
     (r'^procedures/', 'get_tags', {'type': 'procedure'}),
     (r'^users/', 'get_users'),
+    (r'^update/', 'update_room'),
+#    (r'^post/', 'post_test'),
 )
 

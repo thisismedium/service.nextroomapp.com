@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<rsp version='1.0' resultcount='{{ results.count }}' versionid="{{ version }}" status="{{ status }}" notify='{{ notify }}' >
+<rsp version='1.0' resultcount='{% if results %}{{ results.count }}{% else %}0{% endif %}' versionid="{{ version }}" status="{{ status }}" notify='{{ notify }}' >
 {% block results %}{% endblock %}
 </rsp>
 
