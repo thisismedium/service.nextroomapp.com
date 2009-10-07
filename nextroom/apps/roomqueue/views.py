@@ -9,47 +9,74 @@ def throw_xml_error():
 def get_rooms(request):
     if request.method == 'GET':
         versionNumber = request.GET.get('version') #    versionNumber is a concatenation of versionNumber for Rooms and versionNumber for this User
-        roomsVersionNumber = versionNumber[0:32]
-        userVersionNumber = versionNumber[32:64]
         userid = request.GET.get('user')
         
         status = 'current'
         rooms = None
         notify = 'NO'
-        
-        try:
-            user = User.objects.get(pk=userid)
-        except User.DoesNotExist:
-            #   If we don't recognize this username we'll send back an error
-            return throw_xml_error()
-            
-        #   Check to see if this user already has a version, otherwise it's the first time and we'll create a version for them       
-        try:
-            user_version = user.version
-        except Version.DoesNotExist:
-            user_version = IncrementUserVersion(user)
-
-        #   Figure out what version was passed in
-        try:
-            rooms_version = Version.objects.get(versionNumber=roomsVersionNumber)
-        except Version.DoesNotExist:
-            #   There is no reason that this shouldn't exist, unless we've never given the user a version, so give them the current version
-            try:
-                rooms_version = Version.objects.get(type='room')
-            except Version.DoesNotExist:
-                #   So, maybe we never created a version for rooms, create it now
-                rooms_version = CreateDummyVersion('room')
-                rooms_version = IncrementVersion(rooms_version)
-
-        #   Now, see if that version is the current version for rooms
-        if roomsVersionNumber != rooms_version.versionNumber:
-            rooms = Room.objects.filter(assignedto__isnull=False).distinct()
+                        
+        if versionNumber == "none":
+            rooms = Room.objects.all().distinct()
             status = 'update'
-
-
-        #   Now see if the version for the user is different, if so we'll notify
-        if userVersionNumber != user_version.versionNumber:
-            notify = 'YES'        
+            notify = 'YES'
+            
+            rooms_version = CreateDummyVersion('room')
+            rooms_version = IncrementVersion(rooms_version)
+            
+            if userid:
+                try:
+                    user = User.objects.get(pk=userid)
+                except User.DoesNotExist:
+                    #   If we don't recognize this username we'll send back an error
+                    return throw_xml_error()
+            
+                try:
+                    user_version = user.version
+                except Version.DoesNotExist:
+                    user_version = IncrementUserVersion(user)
+            else:
+                user_version = CreateDummyVersion('user')
+        else:
+        
+            roomsVersionNumber = versionNumber[0:32]
+            userVersionNumber = versionNumber[32:64]
+            
+            
+            
+            
+            try:
+                user = User.objects.get(pk=userid)
+            except User.DoesNotExist:
+                #   If we don't recognize this username we'll send back an error
+                return throw_xml_error()
+                
+            #   Check to see if this user already has a version, otherwise it's the first time and we'll create a version for them       
+            try:
+                user_version = user.version
+            except Version.DoesNotExist:
+                user_version = IncrementUserVersion(user)
+    
+            #   Figure out what version was passed in
+            try:
+                rooms_version = Version.objects.get(versionNumber=roomsVersionNumber)
+            except Version.DoesNotExist:
+                #   There is no reason that this shouldn't exist, unless we've never given the user a version, so give them the current version
+                try:
+                    rooms_version = Version.objects.get(type='room')
+                except Version.DoesNotExist:
+                    #   So, maybe we never created a version for rooms, create it now
+                    rooms_version = CreateDummyVersion('room')
+                    rooms_version = IncrementVersion(rooms_version)
+    
+            #   Now, see if that version is the current version for rooms
+            if roomsVersionNumber != rooms_version.versionNumber:
+                rooms = Room.objects.filter(assignedto__isnull=False).distinct()
+                status = 'update'
+    
+    
+            #   Now see if the version for the user is different, if so we'll notify
+            if userVersionNumber != user_version.versionNumber:
+                notify = 'YES'        
 
         return render_to_response('nextroom/rooms.xml', {'results': rooms, 'version': "%s%s" % (rooms_version.versionNumber, user_version.versionNumber), 'status': status, 'notify': notify}, mimetype="text/xml")
         

@@ -28,7 +28,8 @@ class Version(models.Model):
     
 
 def CreateDummyVersion(type):
-    return Version.objects.create(versionNumber="temp", lastChange=datetime.datetime.now(), type=type)
+    version_number = "X" * 32
+    return Version.objects.create(versionNumber=version_number, lastChange=datetime.datetime.now(), type=type)
 
 
 def IncrementUserVersion(user):
