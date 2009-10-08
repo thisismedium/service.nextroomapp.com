@@ -15,7 +15,7 @@ def get_rooms(request):
         rooms = None
         notify = 'NO'
                         
-        if versionNumber == "none":
+        if not versionNumber or versionNumber == "none":
             rooms = Room.objects.all().distinct()
             status = 'update'
             notify = 'YES'
@@ -23,7 +23,8 @@ def get_rooms(request):
             rooms_version = CreateDummyVersion('room')
             rooms_version = IncrementVersion(rooms_version)
             
-            if userid:
+            try:
+                userid = int(userid)
                 try:
                     user = User.objects.get(pk=userid)
                 except User.DoesNotExist:
@@ -34,27 +35,28 @@ def get_rooms(request):
                     user_version = user.version
                 except Version.DoesNotExist:
                     user_version = IncrementUserVersion(user)
-            else:
+            except ValueError:
                 user_version = CreateDummyVersion('user')
         else:
         
             roomsVersionNumber = versionNumber[0:32]
             userVersionNumber = versionNumber[32:64]
             
-            
-            
-            
             try:
-                user = User.objects.get(pk=userid)
-            except User.DoesNotExist:
-                #   If we don't recognize this username we'll send back an error
-                return throw_xml_error()
+                userid = int(userid)            
+                try:
+                    user = User.objects.get(pk=userid)
+                except User.DoesNotExist:
+                    #   If we don't recognize this username we'll send back an error
+                    return throw_xml_error()
                 
-            #   Check to see if this user already has a version, otherwise it's the first time and we'll create a version for them       
-            try:
-                user_version = user.version
-            except Version.DoesNotExist:
-                user_version = IncrementUserVersion(user)
+                #   Check to see if this user already has a version, otherwise it's the first time and we'll create a version for them       
+                try:
+                    user_version = user.version
+                except Version.DoesNotExist:
+                    user_version = IncrementUserVersion(user)
+            except ValueError:
+                user_version = CreateDummyVersion('user')
     
             #   Figure out what version was passed in
             try:
@@ -95,6 +97,7 @@ def get_tags(request, type):
         except Version.DoesNotExist:
             current_version = CreateDummyVersion(type)
             current_version = IncrementVersion(current_version)
+            status = 'update'
             
         
         #   Compare the current version with the version that was passed
@@ -128,6 +131,7 @@ def get_users(request):
         except Version.DoesNotExist:
             current_version = CreateDummyVersion(type)
             current_version = IncrementVersion(current_version)
+            status = 'update'
             
         
         #   Compare the current version with the version that was passed
