@@ -122,7 +122,7 @@ def get_users(request):
         version = request.GET.get('version')
         
         status = 'current'
-        users = None
+        users = []
         notify = 'NO'
         
         #   Get the current version for notes
@@ -137,6 +137,7 @@ def get_users(request):
         #   Compare the current version with the version that was passed
         if version != current_version.versionNumber:
             users = User.objects.all()
+            status = 'update'
             
         users = map(convertColors, users)
         
