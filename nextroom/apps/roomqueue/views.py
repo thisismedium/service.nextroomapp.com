@@ -76,7 +76,8 @@ def get_rooms(request):
             print "%s != %s" % (roomsVersionNumber, rooms_version.versionNumber)
             #   Now, see if that version is the current version for rooms
             if roomsVersionNumber != rooms_version.versionNumber:
-                rooms = Room.objects.filter(assignedto__isnull=False).distinct()
+                #rooms = Room.objects.filter(assignedto__isnull=False).distinct()
+                rooms = Room.objects.all()
                 status = 'update'
     
     
@@ -217,7 +218,8 @@ def update_room(request):
         room.status = status
         room.save()
         
-        rooms = Room.objects.filter(assignedto__isnull=False).distinct()
+        #rooms = Room.objects.filter(assignedto__isnull=False).distinct()
+        rooms = Room.objects.all()
         rooms_version = Version.objects.filter(type='room').order_by("-lastChange")[0]
         
         return render_to_response('nextroom/rooms.xml', {'results': rooms, 'version': "%s%s" % (rooms_version.versionNumber, user.version.versionNumber), 'status': 'update', 'notify': 'YES'}, mimetype="text/xml")
