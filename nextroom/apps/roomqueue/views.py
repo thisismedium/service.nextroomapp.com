@@ -16,12 +16,12 @@ def get_rooms(request):
         notify = 'NO'
                         
         if not versionNumber or versionNumber == "none":
+            print 'no version'
             rooms = Room.objects.all().distinct()
             status = 'update'
             notify = 'YES'
             
-            rooms_version = CreateDummyVersion('room')
-            rooms_version = IncrementVersion(rooms_version)
+            rooms_version = IncrementTypeVersion('room')
             
             try:
                 userid = int(userid)
@@ -36,7 +36,8 @@ def get_rooms(request):
                 except Version.DoesNotExist:
                     user_version = IncrementUserVersion(user)
             except ValueError:
-                user_version = CreateDummyVersion('user')
+                #user_version = CreateDummyVersion('user')
+                user_version = { "versionNumber": ("X" * 32) }
         else:
         
             roomsVersionNumber = versionNumber[0:32]
@@ -52,11 +53,13 @@ def get_rooms(request):
                 
                 #   Check to see if this user already has a version, otherwise it's the first time and we'll create a version for them       
                 try:
+                    print 'got the user version'
                     user_version = user.version
                 except Version.DoesNotExist:
                     user_version = IncrementUserVersion(user)
             except ValueError:
-                user_version = CreateDummyVersion('user')
+                #user_version = CreateDummyVersion('user')
+                user_version = { "versionNumber": ("X" * 32) }
     
             #   Figure out what version was passed in
             try:
@@ -64,18 +67,20 @@ def get_rooms(request):
             except Version.DoesNotExist:
                 #   There is no reason that this shouldn't exist, unless we've never given the user a version, so give them the current version
                 try:
-                    rooms_version = Version.objects.get(type='room')
+                    print 'get the latest room version'
+                    rooms_version = Version.objects.filter(type='room').order_by("-lastChange")[0]
                 except Version.DoesNotExist:
                     #   So, maybe we never created a version for rooms, create it now
-                    rooms_version = CreateDummyVersion('room')
-                    rooms_version = IncrementVersion(rooms_version)
+                    rooms_version = IncrementTypeVersion('room')
     
+            print "%s != %s" % (roomsVersionNumber, rooms_version.versionNumber)
             #   Now, see if that version is the current version for rooms
             if roomsVersionNumber != rooms_version.versionNumber:
                 rooms = Room.objects.filter(assignedto__isnull=False).distinct()
                 status = 'update'
     
     
+            print "%s != %s" % (userVersionNumber, user_version.versionNumber)
             #   Now see if the version for the user is different, if so we'll notify
             if userVersionNumber != user_version.versionNumber:
                 notify = 'YES'        
@@ -95,8 +100,7 @@ def get_tags(request, type):
         try:
             current_version = Version.objects.get(type=type)
         except Version.DoesNotExist:
-            current_version = CreateDummyVersion(type)
-            current_version = IncrementVersion(current_version)
+            current_version = IncrementTypeVersion(type)
             status = 'update'
             
         
@@ -125,12 +129,11 @@ def get_users(request):
         users = []
         notify = 'NO'
         
-        #   Get the current version for notes
+        #   Get the current version for allusers
         try:
             current_version = Version.objects.get(type='allusers')
         except Version.DoesNotExist:
-            current_version = CreateDummyVersion(type)
-            current_version = IncrementVersion(current_version)
+            current_version = IncrementTypeVersion('allusers')
             status = 'update'
             
         
@@ -215,7 +218,7 @@ def update_room(request):
         room.save()
         
         rooms = Room.objects.filter(assignedto__isnull=False).distinct()
-        rooms_version = Version.objects.get(type="room")
+        rooms_version = Version.objects.filter(type='room').order_by("-lastChange")[0]
         
         return render_to_response('nextroom/rooms.xml', {'results': rooms, 'version': "%s%s" % (rooms_version.versionNumber, user.version.versionNumber), 'status': 'update', 'notify': 'YES'}, mimetype="text/xml")
         

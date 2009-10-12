@@ -121,10 +121,6 @@ class User(models.Model):
     """
         Doctor or Nurse
         
-        Versions:
-            current_version and returned_version may be the same Version
-            current_version is the Version reflecting the most recent changes that affect this User
-            returned_version is the Version reflecting the most recent Version returned to the User, this is used to determine the Notify flag
     """
     TYPE_CHOICES = (
         ('nurse', 'Nurse'),
