@@ -16,7 +16,6 @@ def get_rooms(request):
         notify = 'NO'
                         
         if not versionNumber or versionNumber == "none":
-            print 'no version'
             rooms = Room.objects.all().distinct()
             status = 'update'
             notify = 'YES'
@@ -53,7 +52,6 @@ def get_rooms(request):
                 
                 #   Check to see if this user already has a version, otherwise it's the first time and we'll create a version for them       
                 try:
-                    print 'got the user version'
                     user_version = user.version
                 except Version.DoesNotExist:
                     user_version = IncrementUserVersion(user)
@@ -67,13 +65,11 @@ def get_rooms(request):
             except Version.DoesNotExist:
                 #   There is no reason that this shouldn't exist, unless we've never given the user a version, so give them the current version
                 try:
-                    print 'get the latest room version'
                     rooms_version = Version.objects.filter(type='room').order_by("-lastChange")[0]
                 except Version.DoesNotExist:
                     #   So, maybe we never created a version for rooms, create it now
                     rooms_version = IncrementTypeVersion('room')
     
-            print "%s != %s" % (roomsVersionNumber, rooms_version.versionNumber)
             #   Now, see if that version is the current version for rooms
             if roomsVersionNumber != rooms_version.versionNumber:
                 #rooms = Room.objects.filter(assignedto__isnull=False).distinct()
@@ -81,7 +77,6 @@ def get_rooms(request):
                 status = 'update'
     
     
-            print "%s != %s" % (userVersionNumber, user_version.versionNumber)
             #   Now see if the version for the user is different, if so we'll notify
             if userVersionNumber != user_version.versionNumber:
                 notify = 'YES'        
