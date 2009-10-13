@@ -137,6 +137,7 @@ class User(models.Model):
     status = models.CharField(max_length=32, null=True, blank=True, editable=False) #   This is only here for future purposes, we'll just hide it for now
     
     def save(self, force_insert=False, force_update=False):
+        IncrementTypeVersion('allusers')
         try:
             version = self.version
         except Version.DoesNotExist:
