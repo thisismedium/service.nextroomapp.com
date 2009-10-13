@@ -55,6 +55,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'nextroom.middleware.headers.AddHeaderMiddleware',
 )
 
 ROOT_URLCONF = 'nextroom.urls'
