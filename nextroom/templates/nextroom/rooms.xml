@@ -2,6 +2,6 @@
 
 {% block results %}
 {% for room in results %}
-    {% include nextroom/room.xml" %}
+    {% include "nextroom/room.xml" %}
 {% endfor %}
 {% endblock %}

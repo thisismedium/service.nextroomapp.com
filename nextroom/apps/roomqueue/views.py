@@ -174,7 +174,7 @@ def update_room(request):
         
         room = Room.objects.get(pk=room_id)
         
-        if room.roomnumber != int(roomnumber):
+        if room.roomnumber != roomnumber:
             #   A dumb sanity check
             return throw_xml_error()
 
@@ -183,33 +183,36 @@ def update_room(request):
         #   Clear the assignedto users from the room, we're reloading
         room.assignedto.clear()            
         for name in assignedto_names:
-            try:
-                assignee = User.objects.get(name=name)
-            except User.DoesNotExist:
-                #   One of the assigned to users is unknown, throw and error
-                return throw_xml_error()
-        
-            room.assignedto.add(assignee)
+            if name:
+                try:
+                    assignee = User.objects.get(name=name)
+                except User.DoesNotExist:
+                    #   One of the assigned to users is unknown, throw and error
+                    return throw_xml_error()
+            
+                room.assignedto.add(assignee)
        
         #   Clear the notes from the room, we're reloading
         room.notes.clear()
         for name in notes_names:
-            try:
-                note = Note.objects.get(name=name)
-            except Note.DoesNotExist:
-                return throw_xml_error()
-                
-            room.notes.add(note)
+            if name:
+                try:
+                    note = Note.objects.get(name=name)
+                except Note.DoesNotExist:
+                    return throw_xml_error()
+                    
+                room.notes.add(note)
             
         #   Clear the procedures from the room, we're reloading
         room.procedures.clear()
         for name in procedures_names:
-            try:
-                procedure = Procedure.objects.get(name=name)
-            except Procedure.DoesNotExist:
-                return throw_xml_error()
-                
-            room.procedures.add(procedure)
+            if name:
+                try:
+                    procedure = Procedure.objects.get(name=name)
+                except Procedure.DoesNotExist:
+                    return throw_xml_error()
+                    
+                room.procedures.add(procedure)
 
         room.status = status
         room.save()

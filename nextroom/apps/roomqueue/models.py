@@ -193,7 +193,7 @@ class Room(models.Model):
 
         
     def __unicode__(self):
-        return "Room #%d" % self.roomnumber
+        return "Room %s" % self.roomnumber
         
         
         
