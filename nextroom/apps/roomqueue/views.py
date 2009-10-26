@@ -1,5 +1,6 @@
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
+from django import forms
 
 from nextroom.apps.roomqueue.models import *
 
@@ -10,7 +11,6 @@ def get_rooms(request):
     if request.method == 'GET':
         versionNumber = request.GET.get('version') #    versionNumber is a concatenation of versionNumber for Rooms and versionNumber for this User
         userid = request.GET.get('user')
-        
         status = 'current'
         rooms = None
         notify = 'NO'
@@ -35,7 +35,6 @@ def get_rooms(request):
                 except Version.DoesNotExist:
                     user_version = IncrementUserVersion(user)
             except ValueError:
-                #user_version = CreateDummyVersion('user')
                 user_version = { "versionNumber": ("X" * 32) }
         else:
         
@@ -56,7 +55,6 @@ def get_rooms(request):
                 except Version.DoesNotExist:
                     user_version = IncrementUserVersion(user)
             except ValueError:
-                #user_version = CreateDummyVersion('user')
                 user_version = { "versionNumber": ("X" * 32) }
     
             #   Figure out what version was passed in
@@ -72,7 +70,6 @@ def get_rooms(request):
     
             #   Now, see if that version is the current version for rooms
             if roomsVersionNumber != rooms_version.versionNumber:
-                #rooms = Room.objects.filter(assignedto__isnull=False).distinct()
                 rooms = Room.objects.order_by('roomnumber')
                 status = 'update'
     
@@ -82,6 +79,13 @@ def get_rooms(request):
                 notify = 'YES'        
 
         return render_to_response('nextroom/rooms.xml', {'results': rooms, 'version': "%s%s" % (rooms_version.versionNumber, user_version.versionNumber), 'status': status, 'notify': notify}, mimetype="text/xml")
+
+def get_room(request):
+    if request.method == 'GET':
+        room_id = request.GET.get("room")
+        room = Room.objects.get(pk=room_id) 
+        
+        return render_to_response('nextroom/room.xml', {'room': room}, mimetype="text/xml")       
         
         
 def get_tags(request, type):
@@ -142,9 +146,6 @@ def get_users(request):
         
         return render_to_response('nextroom/users.xml', {'results': users, 'version': current_version.versionNumber, 'status': status, 'notify': notify}, mimetype="text/xml")  
 
-#def post_test(request):
-#    return render_to_response('nextroom/post_test.html')
-        
         
 def update_room(request):
     if request.method == 'POST':
@@ -213,9 +214,19 @@ def update_room(request):
         room.status = status
         room.save()
         
-        #rooms = Room.objects.filter(assignedto__isnull=False).distinct()
         rooms = Room.objects.order_by('roomnumber')
         rooms_version = Version.objects.filter(type='room').order_by("-lastChange")[0]
         
         return render_to_response('nextroom/rooms.xml', {'results': rooms, 'version': "%s%s" % (rooms_version.versionNumber, user.version.versionNumber), 'status': 'update', 'notify': 'YES'}, mimetype="text/xml")
+        
+
+class PostTestForm(forms.Form):
+    user = forms.ModelChoiceField(queryset=User.objects.all(), empty_label=None)
+    room = forms.ModelChoiceField(queryset=Room.objects.all(), empty_label=None)
+
+        
+        
+def post_test(request):
+    form = PostTestForm()
+    return render_to_response('nextroom/post_test.html', {'form': form})        
         

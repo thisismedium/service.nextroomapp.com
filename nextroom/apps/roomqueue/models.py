@@ -4,7 +4,7 @@ from django.db.models.signals import post_save
 from nextroom.apps.roomqueue.customfields import ColorField
 
 import datetime
-import md5
+import hashlib
 
 
 class Version(models.Model):
@@ -69,7 +69,7 @@ def IncrementVersion(version):
     """
         
     version.lastChange = datetime.datetime.now()
-    m = md5.new()
+    m = hashlib.md5()
     m.update(str(version.lastChange))
     version.versionNumber = m.hexdigest()
     version.save()
@@ -180,7 +180,7 @@ class Room(models.Model):
     notes = models.ManyToManyField(Note, null=True, blank=True)
     procedures = models.ManyToManyField(Procedure, null=True, blank=True)
     status = models.CharField(max_length=8, choices=STATUS_CHOICES, default='EMPTY')
-    roomnumber = models.IntegerField(unique=True, verbose_name="Room Number")
+    roomnumber = models.CharField(max_length=64, unique=True, verbose_name="Room Number")
     timestampinqueue = models.TimeField(null=True, blank=True, verbose_name="Time Put in Queue")
     
     def save(self, force_insert=False, force_update=False):

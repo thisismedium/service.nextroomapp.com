@@ -1,0 +1,18 @@
+<html>
+
+<body>
+{{ form.as_p }}    
+
+<form action="/update/?user=1" method="POST" id="post_test_form">
+    <input type="hidden" name="user" id="user" value="" />    
+    <textarea id="room" name="room" cols="80" rows="20"></textarea>
+    <input type="submit">
+</form>
+
+<script src="http://www.google.com/jsapi"></script>
+<script type="text/javascript">
+    google.load("jquery", "1.3.2");
+</script>
+<script type="text/javascript" src="/media/js/post_test.js"></script>
+</body>
+</html>
