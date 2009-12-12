@@ -4,7 +4,7 @@ import os.path
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
-
+APPLICATION_NAME = "NextRoom"
 PROJECT_DIR = os.path.dirname(os.path.dirname(__file__))
 MEDIA_ROOT = os.path.join(PROJECT_DIR, 'media')
 #MEDIA_ROOT = "/Users/ben/django/mgit/aefa.com/aefa/media"
