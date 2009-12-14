@@ -5,4 +5,5 @@ service/supervise
 docs/.build
 */local_settings.py
 */media/ext
-
+lib/python2.5/*
+lib/python2.6/*

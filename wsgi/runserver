@@ -1,6 +1,8 @@
 import sys
 import os
-
+import site
+vstr = "%s.%s"%(sys.version_info[0],sys.version_info[1])
+site.addsitedir(os.path.realpath("%s/../lib/python%s"%(sys.path[0],vstr)))
 sys.path = [os.path.realpath("%s/../"%sys.path[0])]+sys.path
 
 from django.core.handlers.wsgi import WSGIHandler
