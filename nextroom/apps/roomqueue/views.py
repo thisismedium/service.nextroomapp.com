@@ -222,6 +222,8 @@ def update_room(request):
         
         return render_to_response('nextroom/rooms.xml', {'results': rooms, 'version': "%s%s" % (rooms_version.versionNumber, user.version.versionNumber), 'status': 'update', 'notify': 'YES'}, mimetype="text/xml")
         
+def screen_display(request):
+    return render_to_response('nextroom/screen_display.html')
 
 class PostTestForm(forms.Form):
     user = forms.ModelChoiceField(queryset=User.objects.all(), empty_label=None)
