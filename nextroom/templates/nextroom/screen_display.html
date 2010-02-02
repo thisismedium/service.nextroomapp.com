@@ -1,7 +1,162 @@
-<html>
-
-<body>
-Timmy's static build goes on this page
-</body>
-
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+	<head>
+		<title>NextRoom // Screen Display</title>
+		<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=utf-8" />
+		<meta name="Author" content="Tim Willison"/>
+		<meta name="Description" content=""/>
+		<meta name="Keywords" content=""/>
+		<link rel="stylesheet" type="text/css" href="../../media/css/screenDisplay.css" />
+	</head>
+	<body>
+	   <!--Header-->
+	   <div id="screenHeader">
+	       <div class="wWrapper">
+    	       <div id="status">
+        	       <span>Occupied Rooms</span>
+        	       <span class="numOutput">7</span>
+        	       <span id="availableRooms">Available Rooms</span>
+        	       <span id="numOutput2" class="numOutput">14</span>
+        	   </div><!--/status-->
+        	   <img alt="NextRoom Logo" id="logo" src="../../media/images/nextRoom-logo.png" />
+            </div><!--/.wWrapper-->
+	   </div><!--/screenHeader-->
+	   <!--Content-->
+	   <div id="screenContent">
+	       <!--Corners and Hr-->
+    	   <span class="corner leftCorner"></span>
+    	   <div class="hr headerHr"><hr></div><!--/.hr-->
+    	   <span class="corner rightCorner"></span>
+    	   <div class="wWrapper">
+        	   <div class="list">
+        	       <div class="contentHeader">Doctors</div><!--/.contentHeader-->
+        	       <div class="contentList">
+        	           <span class="corner contentTopLeft"></span>
+        	           <span class="corner contentTopRight"></span>
+        	           <!--Start any listings here after the corners-->
+        	           <div class="listing">
+        	               <div class="listingLeft">
+            	               <div class="name">Dr. Evil</div>
+            	               <div class="audio"></div>
+            	               <div class="inQueue">3 In Queue</div>
+            	               <div class="numRoom">105, 107, 108</div>
+        	               </div>
+        	               <div class="listingRight blue"><span class="padTop">105</span></div>
+        	           </div><!--/.listing-->
+        	           <div class="hr listingHr"><hr></div><!--/.hr-->
+        	           <div class="listing alt">
+            	           <div class="listingLeft">
+            	               <div class="name">Dr. Frederick Frankenstein</div>
+            	               <div class="audio"></div>
+            	               <div class="inQueue">7 in Queue</div>
+            	               <span class="numRoom">106, 210, 220, 300, 315, 316, 414</span>
+        	               </div>
+        	               <div class="listingRight red"><span class="padTop">106</span></div>
+        	           </div><!--/.listing-->
+        	           <div class="hr listingHr"><hr></div><!--/.hr-->
+        	           <div class="listing">
+        	               <div class="listingLeft">
+        	                   <div class="name">Dr. Henry Jeckyll</div>
+        	                   <div class="audio"></div>
+        	                   <div class="inQueue">2 In Queue</div>
+        	                   <span class="numRoom">107</span>
+        	               </div>
+        	               <div class="listingRight purple"><span class="padTop">107</span></div>
+        	           </div><!--/.listing-->
+        	           <div class="hr listingHr"><hr></div><!--/.hr-->
+        	           <div class="listing alt">
+        	               <div class="listingLeft">
+        	                   <div class="name">Dr. Martin</div>
+        	                   <!--simply add the class 'on' to show the 'audio-on' image-->
+        	                   <div class="audio on"></div>
+        	                   <div class="inQueue">1 In Queue</div>
+        	                   <span class="numRoom">303, 415</span>
+        	               </div>
+        	               <div class="listingRight green"><span class="padTop">303</span></div>
+        	           </div><!--/.listing-->
+        	           <div class="hr listingHr"><hr></div><!--/.hr-->
+        	           <div class="listing">
+        	               <div class="listingLeft">
+        	                   <div class="name">Dr. Pepper</div>
+        	                   <div class="audio"></div>
+        	                   <div class="inQueue">9 In Queue</div>
+        	                   <span class="numRoom">110</span>
+        	               </div>
+        	               <div class="listingRight orange"><span class="padTop">110</span></div>
+        	           </div><!--/.listing-->
+        	           <div class="hr listingHr"><hr></div><!--/.hr-->
+        	           <div class="listing alt">
+        	               <div class="listingLeft">
+        	                   <div class="name">Dr. Strangelove</div>
+        	                   <div class="audio"></div>
+        	                   <div class="inQueue">3 In Queue</div>
+        	                   <span class="numRoom">232, 245, 116, 212, 218, 500, 501, 508, 600</span>
+        	               </div>
+        	               <div class="listingRight aqua"><span class="padTop">232</span></div>
+        	           </div><!--/.listing-->
+        	           <div class="hr listingHr"><hr></div><!--/.hr-->
+        	           <div class="listing">
+        	               <div class="listingLeft">
+        	                   <div class="name">Any Doctor</div>
+        	                   <div class="audio"></div>
+        	                   <div class="inQueue">1 In Queue</div>
+        	                   <span class="numRoom">301, 213, 400</span>
+        	               </div>
+        	               <div class="listingRight grey"><span class="padTop">301</span></div>
+        	           </div><!--/.listing-->
+        	           <span class="corner contentBottomLeft"></span>
+           	           <span class="corner contentBottomRight"></span>
+        	       </div><!--/.contentList-->
+        	   </div><!--/.list-->
+        	   <div class="list">
+        	       <div class="contentHeader">Nurses</div><!--/contentHeader-->
+        	       <div class="contentList">
+        	           <span class="corner contentTopLeft"></span>
+        	           <span class="corner contentTopRight"></span>
+        	           <div class="listing">
+        	               <div class="listingLeft">
+        	                   <div class="name">Nurse Bettie</div>
+        	                   <div class="audio"></div>
+        	                   <div class="inQueue">3 In Queue</div>
+        	                   <span class="numRoom">330</span>
+        	               </div>
+        	               <div class="listingRight darkGreen"><span class="padTop">330</span></div>
+        	           </div><!--/.listing-->
+        	           <div class="hr listingHr"><hr></div><!--/.hr-->
+        	           <div class="listing alt">
+        	               <div class="listingLeft">
+        	                   <div class="name">Nurse Espinosa</div>
+        	                   <div class="audio"></div>
+        	                   <div class="inQueue">1 In Queue</div>
+        	                   <span class="numRoom">400, 215, 312</span>
+        	               </div>
+        	               <div class="listingRight yellow"><span class="padTop">400</span></div>
+        	           </div><!--/.listing-->
+        	           <div class="hr listingHr"><hr></div><!--/.hr-->
+        	           <div class="listing">
+        	               <div class="listingLeft">
+        	                   <div class="name">Nurse Nightingale</div>
+        	                   <div class="audio"></div>
+        	                   <div class="inQueue">5 In Queue</div>
+        	                   <span class="numRoom">216, 315, 316, 401, 402</span>
+        	               </div>
+        	               <div class="listingRight darkPurple"><span class="padTop">216</span></div>
+        	           </div><!--/.listing-->
+        	           <div class="hr listingHr"><hr></div><!--/.hr-->
+        	           <div class="listing alt">
+        	               <div class="listingLeft">
+        	                   <div class="name">Any Nurse</div>
+        	                   <div class="audio on"></div>
+        	                   <div class="inQueue">2 In Queue</div>
+        	                   <span class="numRoom">108, 212</span>
+        	               </div>
+        	               <div class="listingRight grey"><span class="padTop">108</span></div>
+        	           </div><!--/.listing-->
+        	           <span class="corner contentBottomLeft"></span>
+        	           <span class="corner contentBottomRight"></span>
+        	       </div><!--/.contentList-->
+        	   </div><!--/.list-->
+            </div><!--/.wWrapper-->
+	   </div><!--/screenContent-->
+	</body>
 </html>

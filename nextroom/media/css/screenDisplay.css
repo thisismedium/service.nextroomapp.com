@@ -1,0 +1,79 @@
+/* 
+ Tim Willison
+ Project for Medium
+ screenDisplay.css
+ css file for screen_display.html
+*/
+/* {
+    border: 1px solid blue;
+}
+
+/* RESET */
+html,body,div,ul,ol,li,dl,dt,dd,h1,h2,h3,h4,h5,h6,pre,form,p,blockquote,fieldset,input { margin: 0; padding: 0; }
+h1,h2,h3,h4,h5,h6,pre,code,address,caption,cite,code,em,strong,th { font-size: 1em; font-weight: normal; font-style: normal; }
+ul,ol { list-style: none; }
+fieldset,img { border: 0 none; }
+caption,th { text-align: left; }
+table { border-collapse: collapse; border-spacing: 0; }
+:focus { outline: 0; }
+#screenHeader span.numOutput, #screenContent div.audio, #screenContent span.contentTopLeft, #screenContent span.contentTopRight, #screenContent span.contentBottomLeft, #screenContent span.contentBottomRight { behavior: url(/nextroom/media/css/iepngfix.htc); }
+
+/* TYPE */
+body { background-color: rgb(183, 183, 183); font-family: 'Helvetica Neue', Arial, sans-serif; color: #fff; font-size: 20px; font-weight: 500; }
+div.clear { clear: both; }
+.hr { height: 1px; color: rgb(197, 195, 195); background: rgb(197, 195, 195) scroll center top; }
+.hr hr { display: none; }
+
+/***** SCREEN DISPLAY *****/
+div.wWrapper { width: 1000px; left: 0; right: 0; margin-left: auto; margin-right: auto; } /* used to keep header and content in line */
+
+/* SCREEN HEADER */
+#screenHeader { width: 100%; height: 100px; background-color: rgb(54, 125, 162); font-size: 27px;  }
+#screenHeader #status { position: relative; float: left; width: 600px; height: 100px; }
+#screenHeader #status span { position: absolute; top: 32px; }
+#screenHeader #status span#availableRooms { left: 300px; }
+#screenHeader #status span.numOutput { position: absolute; width: 46px; height: 25px; background: url('../images/nextRoom-numOutput.png') no-repeat center right; text-align: center; color: rgb(54, 125, 162); line-height: 25px; margin-top: 5px; font-size: 22px; left: 225px; }
+#screenHeader #status span#numOutput2 { left: 520px; }
+#screenHeader img#logo { position: relative; float: right; width: 104px; height: 22px; top: 40px; margin-right: 30px; }
+
+/* SCREEN CONTENT */
+/* Hr and corners */
+#screenContent .headerHr { position: absolute; width: 100%; z-index: 0; }
+#screenContent span.corner { position: relative; width: 3px; height: 3px; z-index: 3; }
+#screenContent span.leftCorner { float: left; background: url('../images/nextRoom-leftCorner.png') no-repeat center; }
+#screenContent span.rightCorner { float: right; background: url('../images/nextRoom-rightCorner.png') no-repeat center; }
+/* List of Doctors or Nurses */
+#screenContent div.list { position: relative; float: left; width: 470px; margin-top: 50px; margin-right: 30px; z-index:0; }
+#screenContent div.list div.contentHeader { color: rgb(102, 102, 102); font-size: 25px;  margin-bottom: 15px; }
+#screenContent div.list div.contentList { position: absolute; background: #fff; min-height: 60px; z-index: 0; }
+#screenContent div.list div.contentList span.contentTopLeft { position: absolute; margin: 0; padding: 0; float: left; top: 0; background: url('../images/nextRoom-content-top-left.png') no-repeat center; }
+#screenContent div.list div.contentList span.contentTopRight { position: absolute; float: right; top: 0; right: 0; background: url('../images/nextRoom-content-top-right.png') no-repeat center; }
+/* A single listing of a doctor or a nurse */
+#screenContent div.list div.contentList div.listing { width: 470px; height: 60px; z-index: 0; }
+#screenContent div.list div.contentList div.listing.alt { background-color: rgb(248, 248, 248); }
+#screenContent div.list div.contentList div.listing div.listingLeft { float: left; width: 380px; height: 60px; }
+#screenContent div.list div.contentList div.listing div.listingLeft div.name { position: relative; float: left; left: 10px; margin-top: 5px; color: #000; }
+#screenContent div.list div.contentList div.listing div.listingLeft div.audio { position: relative; float: left; width: 8px; height: 13px; margin-top: 12px; margin-left: 15px; background: url('../images/nextRoom-audio-off.png') no-repeat center; z-index: 1; }
+#screenContent div.list div.contentList div.listing div.listingLeft div.audio.on { width: 15px; height: 14px; background: url('../images/nextRoom-audio-on.png') no-repeat center; }
+#screenContent div.list div.contentList div.listing div.listingLeft div.inQueue { position: absolute; width: 74px; height: 18px; margin-top: 34px; left: 10px; background: url('../images/nextRoom-inQueue.png') no-repeat center; text-align: center; color: #fff; font-size: 12px; line-height: 18px; }
+#screenContent div.list div.contentList div.listing div.listingLeft .numRoom { position: absolute; color: #666666; font-size: 12px; left: 90px; margin-top: 36px; }
+#screenContent div.list div.contentList div.listing div.listingRight { float: right; width: 42px; height: 42px; margin-top: 10px; margin-right: 10px; color: #fff; font-weight: normal; font-size: 17px; text-align: center; }
+#screenContent div.list div.contentList div.listing div.listingRight span.padTop { position: relative; top: 10px; }
+
+/* Different Colored boxes for count */
+#screenContent div.list div.contentList div.listing div.listingRight.blue { background: url('../images/littleBox-blue.png') no-repeat center; }
+#screenContent div.list div.contentList div.listing div.listingRight.red { background: url('../images/littleBox-red.png') no-repeat center; }
+#screenContent div.list div.contentList div.listing div.listingRight.purple { background: url('../images/littleBox-purple.png') no-repeat center; }
+#screenContent div.list div.contentList div.listing div.listingRight.green { background: url('../images/littleBox-green.png') no-repeat center; }
+#screenContent div.list div.contentList div.listing div.listingRight.orange { background: url('../images/littleBox-orange.png') no-repeat center; }
+#screenContent div.list div.contentList div.listing div.listingRight.aqua { background: url('../images/littleBox-aqua.png') no-repeat center; }
+#screenContent div.list div.contentList div.listing div.listingRight.grey { background: url('../images/littleBox-grey.png') no-repeat center; }
+#screenContent div.list div.contentList div.listing div.listingRight.darkGreen { background: url('../images/littleBox-darkGreen.png') no-repeat center; }
+#screenContent div.list div.contentList div.listing div.listingRight.yellow { background: url('../images/littleBox-yellow.png') no-repeat center; }
+#screenContent div.list div.contentList div.listing div.listingRight.darkPurple { background: url('../images/littleBox-darkPurple.png') no-repeat center; }
+
+/* Bottom corners for lists and listing hr*/
+#screenContent div.list div.contentList div.listingHr { color: rgb(232, 232, 232); background-color: rgb(232, 232, 232); }
+#screenContent div.list span.contentBottomLeft { position: absolute; float: left; margin-top: -3px; background: url('../images/nextRoom-content-bottom-left.png') no-repeat center; }
+#screenContent div.list span.contentBottomRight { position: absolute; float: right; right: 0; margin-top: -3px; background: url('../images/nextRoom-content-bottom-right.png') no-repeat center; }
+
