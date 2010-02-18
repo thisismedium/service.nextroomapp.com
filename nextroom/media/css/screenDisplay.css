@@ -60,6 +60,10 @@ div.wWrapper { width: 1000px; left: 0; right: 0; margin-left: auto; margin-right
 #screenContent div.list div.contentList div.listing div.listingRight { float: right; width: 42px; height: 42px; margin-top: 10px; margin-right: 10px; color: #fff; font-weight: normal; font-size: 17px; text-align: center; }
 #screenContent div.list div.contentList div.listing div.listingRight span.padTop { position: relative; top: 10px; }
 
+
+#screenContent div.list div.contentList div.listing div.listingRight { background: url('../images/littleBox.png') no-repeat center; }
+
+
 /* Different Colored boxes for count */
 #screenContent div.list div.contentList div.listing div.listingRight.blue { background: url('../images/littleBox-blue.png') no-repeat center; }
 #screenContent div.list div.contentList div.listing div.listingRight.red { background: url('../images/littleBox-red.png') no-repeat center; }
@@ -67,7 +71,7 @@ div.wWrapper { width: 1000px; left: 0; right: 0; margin-left: auto; margin-right
 #screenContent div.list div.contentList div.listing div.listingRight.green { background: url('../images/littleBox-green.png') no-repeat center; }
 #screenContent div.list div.contentList div.listing div.listingRight.orange { background: url('../images/littleBox-orange.png') no-repeat center; }
 #screenContent div.list div.contentList div.listing div.listingRight.aqua { background: url('../images/littleBox-aqua.png') no-repeat center; }
-#screenContent div.list div.contentList div.listing div.listingRight.grey { background: url('../images/littleBox-grey.png') no-repeat center; }
+#screenContent div.list div.contentList div.listing div.listingRight.grey { background: url('../images/littleBox.png') no-repeat center; background-color:purple; }
 #screenContent div.list div.contentList div.listing div.listingRight.darkGreen { background: url('../images/littleBox-darkGreen.png') no-repeat center; }
 #screenContent div.list div.contentList div.listing div.listingRight.yellow { background: url('../images/littleBox-yellow.png') no-repeat center; }
 #screenContent div.list div.contentList div.listing div.listingRight.darkPurple { background: url('../images/littleBox-darkPurple.png') no-repeat center; }

@@ -6,6 +6,14 @@
 		<meta name="Author" content="Tim Willison"/>
 		<meta name="Description" content=""/>
 		<meta name="Keywords" content=""/>
+		<script type="text/javascript" src="/media/js/jquery-1.4.1.min.js"></script>
+		<script type="text/javascript" src="/media/js/screen-updater.js"></script>
+		<script src="/js/site.js"></script>
+		<script>
+		  $(document).ready(function(){
+		     updateit();
+		  });
+		</script>
 		<link rel="stylesheet" type="text/css" href="../../media/css/screenDisplay.css" />
 	</head>
 	<body>
@@ -14,9 +22,9 @@
 	       <div class="wWrapper">
     	       <div id="status">
         	       <span>Occupied Rooms</span>
-        	       <span class="numOutput">7</span>
+        	       <span id="numOutput" class="numOutput">0</span>
         	       <span id="availableRooms">Available Rooms</span>
-        	       <span id="numOutput2" class="numOutput">14</span>
+        	       <span id="numOutput2" class="numOutput">0</span>
         	   </div><!--/status-->
         	   <img alt="NextRoom Logo" id="logo" src="../../media/images/nextRoom-logo.png" />
             </div><!--/.wWrapper-->
@@ -34,6 +42,7 @@
         	           <span class="corner contentTopLeft"></span>
         	           <span class="corner contentTopRight"></span>
         	           <!--Start any listings here after the corners-->
+<div id="doctorlistings">
         	           <div class="listing">
         	               <div class="listingLeft">
             	               <div class="name">Dr. Evil</div>
@@ -104,6 +113,7 @@
         	               </div>
         	               <div class="listingRight grey"><span class="padTop">301</span></div>
         	           </div><!--/.listing-->
+</div><!--/.end doctorlistings-->
         	           <span class="corner contentBottomLeft"></span>
            	           <span class="corner contentBottomRight"></span>
         	       </div><!--/.contentList-->
@@ -113,6 +123,7 @@
         	       <div class="contentList">
         	           <span class="corner contentTopLeft"></span>
         	           <span class="corner contentTopRight"></span>
+<div id="nurselistings">
         	           <div class="listing">
         	               <div class="listingLeft">
         	                   <div class="name">Nurse Bettie</div>
@@ -152,6 +163,8 @@
         	               </div>
         	               <div class="listingRight grey"><span class="padTop">108</span></div>
         	           </div><!--/.listing-->
+					   <div class="hr listingHr"><hr></div><!--/.hr-->
+</div><!--/.end nurselistings-->
         	           <span class="corner contentBottomLeft"></span>
         	           <span class="corner contentBottomRight"></span>
         	       </div><!--/.contentList-->

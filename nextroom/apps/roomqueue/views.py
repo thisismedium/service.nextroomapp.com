@@ -1,8 +1,9 @@
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django import forms
-
+from nextroom.apps.roomqueue.screendisplay import *
 from nextroom.apps.roomqueue.models import *
+import json
 
 def throw_xml_error():
     return render_to_response('nextroom/base.xml', {'results': None, 'version': '', 'status': 'error', 'notify': 'No'}, mimetype="text/xml")
@@ -224,6 +225,10 @@ def update_room(request):
         
 def screen_display(request):
     return render_to_response('nextroom/screen_display.html')
+    
+def screen_display_js(request):
+    return HttpResponse(json.dumps({'occupied': len(get_occupied_rooms()), 'available': len(get_available_rooms()), 'doctors':get_doctor_rooms(), 'nurses' : get_nurse_rooms() }))
+    #return render_to_response('nextroom/screen_display.js', { 'json' : json.dumps({'occupied': len(get_occupied_rooms()), 'available': len(get_available_rooms()), 'doctors':get_doctor_rooms(), 'nurses' : get_nurse_rooms() })}, mimetype="application/javascript")
 
 class PostTestForm(forms.Form):
     user = forms.ModelChoiceField(queryset=User.objects.all(), empty_label=None)
