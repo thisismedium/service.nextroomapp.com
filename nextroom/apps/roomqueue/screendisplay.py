@@ -3,10 +3,10 @@ from django.db.models import Q
 
 
 def get_occupied_rooms():
-    return Room.objects.exclude(status = 'EMPTY')
+    return Room.objects.exclude(status = 'EMPTY').order_by('timestampinqueue')
 
 def get_available_rooms():
-    return Room.objects.filter(status = 'EMPTY')
+    return Room.objects.filter(status = 'EMPTY').order_by('timestampinqueue')
     
 def get_nurse_rooms():
     return [get_user_room_status_dict(r) for r in get_users_by_type('nurse')]
