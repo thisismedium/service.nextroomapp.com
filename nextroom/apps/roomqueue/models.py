@@ -186,6 +186,14 @@ class Room(models.Model):
     def save(self, force_insert=False, force_update=False):
         IncrementTypeVersion('room')
         
+        # Handle timestampinqueue appropriately
+        import time
+        if self.pk:
+            if self.status == 'WAITING' and self.timestampinqueue == None:
+                self.timestampinqueue = time.strftime('%H:%M:%S')
+            elif self.status == 'EMPTY' and self.timestampinqueue is not None:
+                self.timestampinqueue = None
+        
         super(Room, self).save(force_insert, force_update)
         
         for user in self.assignedto.all():
