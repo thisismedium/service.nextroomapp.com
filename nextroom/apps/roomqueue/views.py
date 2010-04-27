@@ -215,13 +215,13 @@ def update_room(request):
                     
                 room.procedures.add(procedure)
         
-        if room.status != status and status == 'ACCEPTED':
+        if room.status != status and status == 'A':
             user.num_accepted += 1
             user.save()
         
         room.status = status
         room.save()
-        rooms = Room.objects.order_by('timestampinqueue','roomnumber')
+        rooms = Room.objects.order_by('status','timestampinqueue', 'lasttimeinqueue', 'roomnumber')
         rooms_version = Version.objects.filter(type='room').order_by("-lastChange")[0]
         
         return render_to_response('nextroom/rooms.xml', {'results': rooms, 'version': "%s%s" % (rooms_version.versionNumber, user.version.versionNumber), 'status': 'update', 'notify': 'YES'}, mimetype="text/xml")
