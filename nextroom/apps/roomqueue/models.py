@@ -180,7 +180,7 @@ class Room(models.Model):
     assignedto = models.ManyToManyField(User, null=True, blank=True, verbose_name="Assigned To")
     notes = models.ManyToManyField(Note, null=True, blank=True)
     procedures = models.ManyToManyField(Procedure, null=True, blank=True)
-    status = models.CharField(max_length=8, choices=STATUS_CHOICES, default='EMPTY')
+    status = models.CharField(max_length=8, choices=STATUS_CHOICES, default='C')
     roomnumber = models.CharField(max_length=64, unique=True, verbose_name="Room Number")
     timestampinqueue = models.TimeField(null=True, blank=True, verbose_name="Time Put in Queue")
     lasttimeinqueue = models.TimeField(null=True, blank=True, verbose_name="Last Time Put in Queue")
@@ -191,9 +191,9 @@ class Room(models.Model):
         # Handle timestampinqueue appropriately
         import time
         if self.pk:
-            if self.status == 'WAITING' and self.timestampinqueue == None:
+            if self.status == 'B' and self.timestampinqueue == None:
                 self.timestampinqueue = time.strftime('%H:%M:%S')
-            elif self.status == 'EMPTY' and self.timestampinqueue is not None:
+            elif self.status == 'C' and self.timestampinqueue is not None:
                 self.lasttimeinqueue = time.strftime('%H:%M:%S')
                 self.timestampinqueue = None
         
