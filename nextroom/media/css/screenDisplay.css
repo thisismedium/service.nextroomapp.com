@@ -35,6 +35,7 @@ div.wWrapper { width: 1000px; left: 0; right: 0; margin-left: auto; margin-right
 #screenHeader #status span.numOutput { position: absolute; width: 46px; height: 25px; background: url('../images/nextRoom-numOutput.png') no-repeat center right; text-align: center; color: rgb(54, 125, 162); line-height: 25px; margin-top: 5px; font-size: 22px; left: 225px; }
 #screenHeader #status span#numOutput2 { left: 520px; }
 #screenHeader img#logo { position: relative; float: right; width: 104px; height: 22px; top: 40px; margin-right: 30px; }
+#screenHeader .resetRooms a { position: relative; float: right; width: 100px; height: 20px; top: 70px; left:110px; font-size: 16px; color: white; text-decoration: none; display: inline; }
 
 /* SCREEN CONTENT */
 /* Hr and corners */
@@ -55,8 +56,9 @@ div.wWrapper { width: 1000px; left: 0; right: 0; margin-left: auto; margin-right
 #screenContent div.list div.contentList div.listing div.listingLeft div.name { position: relative; float: left; left: 10px; margin-top: 5px; color: #000; }
 #screenContent div.list div.contentList div.listing div.listingLeft div.audio { position: relative; float: left; width: 8px; height: 13px; margin-top: 12px; margin-left: 15px; background: url('../images/nextRoom-audio-off.png') no-repeat center; z-index: 1; }
 #screenContent div.list div.contentList div.listing div.listingLeft div.audio.on { width: 15px; height: 14px; background: url('../images/nextRoom-audio-on.png') no-repeat center; }
-#screenContent div.list div.contentList div.listing div.listingLeft div.inQueue { position: absolute; width: 74px; height: 18px; margin-top: 34px; left: 10px; background: url('../images/nextRoom-inQueue.png') no-repeat center; text-align: center; color: #fff; font-size: 12px; line-height: 18px; }
-#screenContent div.list div.contentList div.listing div.listingLeft .numRoom { position: absolute; color: #666666; font-size: 12px; left: 90px; margin-top: 36px; }
+#screenContent div.list div.contentList div.listing div.listingLeft div.numAccepted { position: absolute; width: 74px; height: 18px; margin-top: 34px; left: 10px; background: url('../images/nextRoom-inQueue.png') no-repeat center; text-align: center; color: #fff; font-size: 12px; line-height: 18px; }
+#screenContent div.list div.contentList div.listing div.listingLeft div.inQueue { position: absolute; width: 74px; height: 18px; margin-top: 34px; left: 90px; background: url('../images/nextRoom-inQueue.png') no-repeat center; text-align: center; color: #fff; font-size: 12px; line-height: 18px; }
+#screenContent div.list div.contentList div.listing div.listingLeft .numRoom { position: absolute; color: #666666; font-size: 12px; left: 170px; margin-top: 36px; }
 #screenContent div.list div.contentList div.listing div.listingRight { float: right; width: 42px; height: 42px; margin-top: 10px; margin-right: 10px; color: #fff; font-weight: normal; font-size: 17px; text-align: center; }
 #screenContent div.list div.contentList div.listing div.listingRight span.padTop { position: relative; top: 10px; }
 

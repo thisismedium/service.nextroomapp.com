@@ -135,6 +135,7 @@ class User(models.Model):
     color = ColorField(help_text="Click to set the color") #    Stored as hex, converted to RGB when rendered in the xml
     version = models.OneToOneField(Version, editable=False)
     status = models.CharField(max_length=32, null=True, blank=True, editable=False) #   This is only here for future purposes, we'll just hide it for now
+    num_accepted = models.IntegerField(default=0)
     
     def save(self, force_insert=False, force_update=False):
         IncrementTypeVersion('allusers')
@@ -171,9 +172,9 @@ class Room(models.Model):
         Room
     """
     STATUS_CHOICES = (
-        ('ACCEPTED', 'ACCEPTED'),
-        ('EMPTY', 'EMPTY'),
-        ('WAITING', 'WAITING'),
+        ('A', 'ACCEPTED'),
+        ('C', 'EMPTY'),
+        ('B', 'WAITING'),
     )
     
     assignedto = models.ManyToManyField(User, null=True, blank=True, verbose_name="Assigned To")
@@ -182,6 +183,7 @@ class Room(models.Model):
     status = models.CharField(max_length=8, choices=STATUS_CHOICES, default='EMPTY')
     roomnumber = models.CharField(max_length=64, unique=True, verbose_name="Room Number")
     timestampinqueue = models.TimeField(null=True, blank=True, verbose_name="Time Put in Queue")
+    lasttimeinqueue = models.TimeField(null=True, blank=True, verbose_name="Last Time Put in Queue")
     
     def save(self, force_insert=False, force_update=False):
         IncrementTypeVersion('room')
@@ -192,6 +194,7 @@ class Room(models.Model):
             if self.status == 'WAITING' and self.timestampinqueue == None:
                 self.timestampinqueue = time.strftime('%H:%M:%S')
             elif self.status == 'EMPTY' and self.timestampinqueue is not None:
+                self.lasttimeinqueue = time.strftime('%H:%M:%S')
                 self.timestampinqueue = None
         
         super(Room, self).save(force_insert, force_update)

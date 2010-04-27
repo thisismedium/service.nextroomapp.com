@@ -1,4 +1,4 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django import forms
 from nextroom.apps.roomqueue.screendisplay import *
@@ -17,7 +17,7 @@ def get_rooms(request):
         notify = 'NO'
                         
         if not versionNumber or versionNumber == "none":
-            rooms = Room.objects.all().distinct()
+            rooms = Room.objects.all().distinct().order_by('-status', 'timestampinqueue', 'lasttimeinqueue', 'roomnumber')
             status = 'update'
             notify = 'YES'
             
@@ -71,10 +71,9 @@ def get_rooms(request):
     
             #   Now, see if that version is the current version for rooms
             if roomsVersionNumber != rooms_version.versionNumber:
-                rooms = Room.objects.order_by('timestampinqueue', 'roomnumber')
+                rooms = Room.objects.all().order_by('-status','timestampinqueue', 'lasttimeinqueue', 'roomnumber')
                 status = 'update'
-    
-    
+            
             #   Now see if the version for the user is different, if so we'll notify
             if userVersionNumber != user_version.versionNumber:
                 notify = 'YES'        
@@ -112,6 +111,7 @@ def get_tags(request, type):
             elif type == 'procedure':
                 tags = Procedure.objects.all()
             status = 'update'
+            notify = 'YES'
             
         return render_to_response('nextroom/tags.xml', {'results': tags, 'version': current_version.versionNumber, 'status': status, 'notify': notify}, mimetype="text/xml")
         
@@ -140,9 +140,9 @@ def get_users(request):
         
         #   Compare the current version with the version that was passed
         if version != current_version.versionNumber:
-            users = User.objects.all()
+            users = User.objects.all().order_by('name','type')
             status = 'update'
-            
+        
         users = map(convertColors, users)
         
         return render_to_response('nextroom/users.xml', {'results': users, 'version': current_version.versionNumber, 'status': status, 'notify': notify}, mimetype="text/xml")  
@@ -215,15 +215,36 @@ def update_room(request):
                     
                 room.procedures.add(procedure)
         
+        if room.status != status and status == 'ACCEPTED':
+            user.num_accepted += 1
+            user.save()
+        
         room.status = status
         room.save()
         rooms = Room.objects.order_by('timestampinqueue','roomnumber')
         rooms_version = Version.objects.filter(type='room').order_by("-lastChange")[0]
         
         return render_to_response('nextroom/rooms.xml', {'results': rooms, 'version': "%s%s" % (rooms_version.versionNumber, user.version.versionNumber), 'status': 'update', 'notify': 'YES'}, mimetype="text/xml")
-        
+
+def reset_rooms(request):
+    for r in Room.objects.all():
+        r.assignedto.clear()
+        r.notes.clear()
+        r.procedures.clear()
+        r.status = "C"
+        r.timestampinqueue = None
+        r.lasttimeinqueue = None
+        r.save()
+    for u in User.objects.all():
+        u.num_accepted = 0
+        u.save()
+    return HttpResponseRedirect('/screen-display/')
+
 def screen_display(request):
     return render_to_response('nextroom/screen_display.html')
+
+def alt_screen_display(request):
+    return render_to_response('nextroom/alt_screen_display.html')
     
 def screen_display_js(request):
     return HttpResponse(json.dumps({'occupied': len(get_occupied_rooms()), 'available': len(get_available_rooms()), 'doctors':get_doctor_rooms(), 'nurses' : get_nurse_rooms() }))

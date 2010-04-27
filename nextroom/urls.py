@@ -18,6 +18,8 @@ urlpatterns += patterns('nextroom.apps.roomqueue.views',
     (r'^users/', 'get_users'),
     (r'^update/', 'update_room'),
     (r'^screen-display/', 'screen_display'),
+    (r'^alt-screen-display/', 'alt_screen_display'),
+    (r'^reset-rooms/', 'reset_rooms'),
     (r'^screen-display-js/','screen_display_js'),
     (r'^post/', 'post_test'),
 )

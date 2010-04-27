@@ -37,6 +37,8 @@ function makeuserlisting(user, alt){
            '<div class="listingLeft">' +
            '<div class="name">'+ user.name + '</div>' +
            '<div class="audio on"></div>' +
+           
+           '<div class="numAccepted">'+ user.num_accepted +' Accepted</div>' +
            '<div class="inQueue">'+ user.assignedrooms.length+' In Queue</div>' +
            '<span class="numRoom">'+ user.assignedrooms.join(', ')+'</span>' +
            '</div>' +

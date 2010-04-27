@@ -27,6 +27,7 @@ def get_user_room_status_dict(user):
     def only_roomnumber(roomlist):
         return [r.roomnumber for r in roomlist]
     return { 'name' : user.name,
+             'num_accepted': user.num_accepted,
              'color' : user.color,
              'assignedrooms' : only_roomnumber(get_room_assignments_for_user(user)),
              'acceptedrooms' : only_roomnumber(get_accepted_rooms_for_user(user)) }    

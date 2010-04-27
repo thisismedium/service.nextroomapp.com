@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+	<head>
+		<title>NextRoom // Screen Display</title>
+		<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=utf-8" />
+		<meta name="Author" content="Tim Willison"/>
+		<meta name="Description" content=""/>
+		<meta name="Keywords" content=""/>
+		<script type="text/javascript" src="/media/js/jquery-1.4.1.min.js"></script>
+		<script type="text/javascript" src="/media/js/screen-updater.js"></script>
+		<script src="/js/site.js"></script>
+		<script>
+		  $(document).ready(function(){
+		     updateit();
+		  });
+		</script>
+		<link rel="stylesheet" type="text/css" href="../../media/css/screenDisplay.css" />
+	</head>
+	<body>
+	   <!--Header-->
+	   <div id="screenHeader">
+	       <div class="wWrapper">
+        	   <img alt="NextRoom Logo" id="logo" src="../../media/images/nextRoom-logo.png" />
+        	   <div class="resetRooms"><a href="/reset-rooms/">Reset Rooms</a></div>
+            </div><!--/.wWrapper-->
+	   </div><!--/screenHeader-->
+	   <!--Content-->
+	   <div id="screenContent">
+	       <!--Corners and Hr-->
+    	   <span class="corner leftCorner"></span>
+    	   <div class="hr headerHr"><hr></div><!--/.hr-->
+    	   <span class="corner rightCorner"></span>
+    	   <div class="wWrapper">
+        	           	   <div class="list">
+        	       <div class="contentHeader">Nurses</div><!--/contentHeader-->
+        	       <div class="contentList">
+        	           <span class="corner contentTopLeft"></span>
+        	           <span class="corner contentTopRight"></span>
+<div id="nurselistings">
+        	           <div class="listing">
+        	               <div class="listingLeft">
+        	                   <div class="name">Nurse Bettie</div>
+        	                   <div class="audio"></div>
+        	                   <div class="inQueue">3 In Queue</div>
+        	                   <span class="numRoom">330</span>
+        	               </div>
+        	               <div class="listingRight darkGreen"><span class="padTop">330</span></div>
+        	           </div><!--/.listing-->
+        	           <div class="hr listingHr"><hr></div><!--/.hr-->
+        	           <div class="listing alt">
+        	               <div class="listingLeft">
+        	                   <div class="name">Nurse Espinosa</div>
+        	                   <div class="audio"></div>
+        	                   <div class="inQueue">1 In Queue</div>
+        	                   <span class="numRoom">400, 215, 312</span>
+        	               </div>
+        	               <div class="listingRight yellow"><span class="padTop">400</span></div>
+        	           </div><!--/.listing-->
+        	           <div class="hr listingHr"><hr></div><!--/.hr-->
+        	           <div class="listing">
+        	               <div class="listingLeft">
+        	                   <div class="name">Nurse Nightingale</div>
+        	                   <div class="audio"></div>
+        	                   <div class="inQueue">5 In Queue</div>
+        	                   <span class="numRoom">216, 315, 316, 401, 402</span>
+        	               </div>
+        	               <div class="listingRight darkPurple"><span class="padTop">216</span></div>
+        	           </div><!--/.listing-->
+        	           <div class="hr listingHr"><hr></div><!--/.hr-->
+        	           <div class="listing alt">
+        	               <div class="listingLeft">
+        	                   <div class="name">Any Nurse</div>
+        	                   <div class="audio on"></div>
+        	                   <div class="inQueue">2 In Queue</div>
+        	                   <span class="numRoom">108, 212</span>
+        	               </div>
+        	               <div class="listingRight grey"><span class="padTop">108</span></div>
+        	           </div><!--/.listing-->
+					   <div class="hr listingHr"><hr></div><!--/.hr-->
+</div><!--/.end nurselistings-->
+        	           <span class="corner contentBottomLeft"></span>
+        	           <span class="corner contentBottomRight"></span>
+        	       </div><!--/.contentList-->
+        	   </div><!--/.list-->
+            </div><!--/.wWrapper-->
+	   </div><!--/screenContent-->
+	</body>
+</html>
