@@ -17,7 +17,7 @@ def get_rooms(request):
         notify = 'NO'
                         
         if not versionNumber or versionNumber == "none":
-            rooms = Room.objects.all().distinct().order_by('-status', 'timestampinqueue', 'lasttimeinqueue', 'roomnumber')
+            rooms = Room.objects.all().distinct().order_by('status', 'timestampinqueue', 'lasttimeinqueue', 'roomnumber')
             status = 'update'
             notify = 'YES'
             
@@ -71,7 +71,7 @@ def get_rooms(request):
     
             #   Now, see if that version is the current version for rooms
             if roomsVersionNumber != rooms_version.versionNumber:
-                rooms = Room.objects.all().order_by('-status','timestampinqueue', 'lasttimeinqueue', 'roomnumber')
+                rooms = Room.objects.all().order_by('status','timestampinqueue', 'lasttimeinqueue', 'roomnumber')
                 status = 'update'
             
             #   Now see if the version for the user is different, if so we'll notify
