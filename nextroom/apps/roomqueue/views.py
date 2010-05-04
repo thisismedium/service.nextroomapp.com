@@ -192,6 +192,13 @@ def update_room(request):
                     return throw_xml_error()
             
                 room.assignedto.add(assignee)
+                
+                if assignee.type == 'alldoctors':
+                    for u in User.objects.all().filter(type='doctor'):
+                        u.save()
+                elif assignee.type == 'allnurses':
+                    for u in User.objects.all().filter(type='nurse'):
+                        u.save()
        
         #   Clear the notes from the room, we're reloading
         room.notes.clear()
