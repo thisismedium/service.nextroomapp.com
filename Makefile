@@ -9,6 +9,7 @@ package:  clean
 	@echo "Creating package tree in build"
 	mkdir -p    $(lib_path)
 	cp -R start-nextroom.sh $(lib_path)
+	cp -R nextroom.db $(lib_path)
 	cp -R nextroom $(lib_path)
 	cp -R wsgi     $(lib_path)	
 	cp -R lib      $(lib_path)
