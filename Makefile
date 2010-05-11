@@ -4,6 +4,7 @@ lib_path = $(pkg_root)/Library/Nextroom
 dep_path = $(lib_path)/lib/python2.5
 clean: 
 	rm -Rf $(lib_path)
+	rm -Rf nextroom.pkg
 package:  clean
 	@echo "Creating package tree in build"
 	mkdir -p    $(lib_path)
