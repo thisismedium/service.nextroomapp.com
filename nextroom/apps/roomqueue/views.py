@@ -3,7 +3,10 @@ from django.shortcuts import render_to_response
 from django import forms
 from nextroom.apps.roomqueue.screendisplay import *
 from nextroom.apps.roomqueue.models import *
-import simplejson as json
+try:
+    import simplejson as json
+except ImportError:
+    import json
 
 def throw_xml_error():
     return render_to_response('nextroom/base.xml', {'results': None, 'version': '', 'status': 'error', 'notify': 'No'}, mimetype="text/xml")
