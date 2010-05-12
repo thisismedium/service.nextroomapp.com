@@ -248,7 +248,7 @@ def reset_rooms(request):
     for u in User.objects.all():
         u.num_accepted = 0
         u.save()
-    return HttpResponseRedirect('/screen-display/')
+    return HttpResponseRedirect('/')
 
 def screen_display(request):
     return render_to_response('nextroom/screen_display.html')
