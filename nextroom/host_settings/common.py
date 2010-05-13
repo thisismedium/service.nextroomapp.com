@@ -10,6 +10,8 @@ MEDIA_ROOT = os.path.join(PROJECT_DIR, 'media')
 #MEDIA_ROOT = "/Users/ben/django/mgit/aefa.com/aefa/media"
 MEDIA_URL = '/media/'
 ADMIN_MEDIA_PREFIX = '/media/admin/'
+LOGIN_URL = '/admin/login/'
+LOGIN_REDIRECT_URL = '/admin/'
 
 ADMINS = (
     # ('Your Name', 'your_email@domain.com'),

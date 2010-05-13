@@ -250,11 +250,18 @@ def reset_rooms(request):
         u.save()
     return HttpResponseRedirect('/')
 
+
 def screen_display(request):
-    return render_to_response('nextroom/screen_display.html')
+    if request.user.is_authenticated() and request.user.is_staff:
+        return render_to_response('nextroom/screen_display.html')
+    else:
+        return HttpResponseRedirect('/admin/')
 
 def alt_screen_display(request):
-    return render_to_response('nextroom/alt_screen_display.html')
+    if request.user.is_authenticated() and request.user.is_staff:
+        return render_to_response('nextroom/alt_screen_display.html')
+    else:
+        return HttpResponseRedirect('/admin/')
     
 def screen_display_js(request):
     return HttpResponse(json.dumps({'occupied': len(get_occupied_rooms()), 'available': len(get_available_rooms()), 'doctors':get_doctor_rooms(), 'nurses' : get_nurse_rooms() }))
