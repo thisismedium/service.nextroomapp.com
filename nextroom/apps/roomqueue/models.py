@@ -136,6 +136,7 @@ class User(models.Model):
     version = models.OneToOneField(Version, editable=False)
     status = models.CharField(max_length=32, null=True, blank=True, editable=False) #   This is only here for future purposes, we'll just hide it for now
     num_accepted = models.IntegerField(default=0)
+    pin = models.CharField(max_length=4, default='0000')
     
     def save(self, force_insert=False, force_update=False):
         IncrementTypeVersion('allusers')
