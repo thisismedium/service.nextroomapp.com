@@ -11,6 +11,22 @@ except ImportError:
 def throw_xml_error():
     return render_to_response('nextroom/base.xml', {'results': None, 'version': '', 'status': 'error', 'notify': 'No'}, mimetype="text/xml")
 
+def hostname_check(request):
+    return HttpResponse("TRUE")
+
+def pin_check(request):
+    if request.method == 'GET':
+        userid = request.GET.get('user')
+        pin = request.GET.get('pin')
+        try:
+            user = User.objects.get(pk=userid, pin=pin)
+        except User.DoesNotExist:
+            return HttpResponse("FALSE")
+        else:
+            return HttpResponse("TRUE")
+    else:
+        return HttpResponse("FALSE")
+
 def get_rooms(request):
     if request.method == 'GET':
         versionNumber = request.GET.get('version') #    versionNumber is a concatenation of versionNumber for Rooms and versionNumber for this User
