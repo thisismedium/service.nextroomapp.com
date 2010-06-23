@@ -16,6 +16,8 @@ def hostname_check(request):
 
 def pin_check(request):
     if request.method == 'GET':
+        
+        # First ensure we have a valid User making this request
         userid = request.GET.get('user')
         pin = request.GET.get('pin')
         try:
@@ -29,8 +31,13 @@ def pin_check(request):
 
 def get_rooms(request):
     if request.method == 'GET':
-        versionNumber = request.GET.get('version') #    versionNumber is a concatenation of versionNumber for Rooms and versionNumber for this User
+        # versionNumber is a concatenation of versionNumber for Rooms and versionNumber for this User
+        versionNumber = request.GET.get('version')
+        
+        # Make sure we have a valid user
         userid = request.GET.get('user')
+        pin = request.GET.get('pin')
+        
         status = 'current'
         rooms = None
         notify = 'NO'
@@ -45,9 +52,8 @@ def get_rooms(request):
             try:
                 userid = int(userid)
                 try:
-                    user = User.objects.get(pk=userid)
+                    user = User.objects.get(pk=userid, pin=pin)
                 except User.DoesNotExist:
-                    #   If we don't recognize this username we'll send back an error
                     return throw_xml_error()
             
                 try:
@@ -64,7 +70,7 @@ def get_rooms(request):
             try:
                 userid = int(userid)            
                 try:
-                    user = User.objects.get(pk=userid)
+                    user = User.objects.get(pk=userid, pin=pin)
                 except User.DoesNotExist:
                     #   If we don't recognize this username we'll send back an error
                     return throw_xml_error()
@@ -100,17 +106,35 @@ def get_rooms(request):
         return render_to_response('nextroom/rooms.xml', {'results': rooms, 'version': "%s%s" % (rooms_version.versionNumber, user_version.versionNumber), 'status': status, 'notify': notify}, mimetype="text/xml")
 
 def get_room(request):
-    if request.method == 'GET':
+    if request.method == 'GET': 
+        
+        # First ensure we have a valid User making this request
+        userid = request.GET.get('user')
+        pin = request.GET.get('pin')
+        
+        try:
+            user = User.objects.get(pk=userid, pin=pin)
+        except User.DoesNotExist:
+            return throw_xml_error()
+        
         room_id = request.GET.get("room")
-        room = Room.objects.get(pk=room_id) 
+        room = Room.objects.get(pk=room_id)
         
         return render_to_response('nextroom/room.xml', {'room': room}, mimetype="text/xml")       
         
         
 def get_tags(request, type):
-    if request.method == 'GET':
-        version = request.GET.get('version')
+    if request.method == 'GET': 
+        # First ensure we have a valid User making this request
+        userid = request.GET.get('user')
+        pin = request.GET.get('pin')
         
+        try:
+            user = User.objects.get(pk=userid, pin=pin)
+        except User.DoesNotExist:
+            return throw_xml_error()
+        
+        version = request.GET.get('version')
         status = 'current'
         tags = None
         notify = 'NO'
@@ -143,8 +167,8 @@ def convertColors(user):
         
 def get_users(request):
     if request.method == 'GET':
-        version = request.GET.get('version')
         
+        version = request.GET.get('version')
         status = 'current'
         users = []
         notify = 'NO'
@@ -169,15 +193,22 @@ def get_users(request):
         
 def update_room(request):
     if request.method == 'POST':
-        userid = request.GET.get('user')
-        room_xml = request.POST.get('room')
         
-
+        # First ensure we have a valid User making this request
+        userid = request.GET.get('user')
+        print "##### UPDATE ROOM ######"
+        print userid
+        pin = request.GET.get('pin')
+        print pin
+        
         try:
-            user = User.objects.get(pk=userid)
+            user = User.objects.get(pk=int(userid), pin=pin)
         except User.DoesNotExist:
-            #   If we don't recognize this username we'll send back an error
-           return throw_xml_error()
+            return throw_xml_error()
+        
+        print user
+        
+        room_xml = request.POST.get('room')
         
         from xml.dom import minidom
         xmldoc = minidom.parseString(room_xml)
