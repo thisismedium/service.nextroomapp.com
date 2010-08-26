@@ -1,4 +1,4 @@
-from nextroom.apps.roomqueue.models import *
+from nextroomapp.apps.service.models import *
 from django.db.models import Q
 
 
@@ -32,7 +32,7 @@ def get_user_room_status_dict(user):
              'assignedrooms' : only_roomnumber(get_room_assignments_for_user(user)),
              'acceptedrooms' : only_roomnumber(get_accepted_rooms_for_user(user)) }    
     
-#from nextroom.apps.roomqueue.screendisplay import *
+#from nextroomapp.apps.service.screendisplay import *
 # get_room_assignments_for_user(User.objects.get(name='Dr. Pepper'))
 
 # get_user_room_status_dict(User.objects.get(name='Dr. Pepper'))

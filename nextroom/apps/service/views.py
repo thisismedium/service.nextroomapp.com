@@ -1,8 +1,8 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django import forms
-from nextroom.apps.roomqueue.screendisplay import *
-from nextroom.apps.roomqueue.models import *
+from nextroomapp.apps.service.screendisplay import *
+from nextroomapp.apps.service.models import *
 try:
     import simplejson as json
 except ImportError:
@@ -47,7 +47,7 @@ def get_rooms(request):
             status = 'update'
             notify = 'YES'
             
-            rooms_version = IncrementTypeVersion('room')
+            rooms_version = increment_type_version('room')
             
             try:
                 userid = int(userid)
@@ -59,7 +59,7 @@ def get_rooms(request):
                 try:
                     user_version = user.version
                 except Version.DoesNotExist:
-                    user_version = IncrementUserVersion(user)
+                    user_version = increment_user_version(user)
             except ValueError:
                 user_version = { "versionNumber": ("X" * 32) }
         else:
@@ -79,7 +79,7 @@ def get_rooms(request):
                 try:
                     user_version = user.version
                 except Version.DoesNotExist:
-                    user_version = IncrementUserVersion(user)
+                    user_version = increment_user_version(user)
             except ValueError:
                 user_version = { "versionNumber": ("X" * 32) }
     
@@ -92,7 +92,7 @@ def get_rooms(request):
                     rooms_version = Version.objects.filter(type='room').order_by("-lastChange")[0]
                 except Version.DoesNotExist:
                     #   So, maybe we never created a version for rooms, create it now
-                    rooms_version = IncrementTypeVersion('room')
+                    rooms_version = increment_type_version('room')
     
             #   Now, see if that version is the current version for rooms
             if roomsVersionNumber != rooms_version.versionNumber:
@@ -143,7 +143,7 @@ def get_tags(request, type):
         try:
             current_version = Version.objects.get(type=type)
         except Version.DoesNotExist:
-            current_version = IncrementTypeVersion(type)
+            current_version = increment_type_version(type)
             status = 'update'
             
         
@@ -177,7 +177,7 @@ def get_users(request):
         try:
             current_version = Version.objects.get(type='allusers')
         except Version.DoesNotExist:
-            current_version = IncrementTypeVersion('allusers')
+            current_version = increment_type_version('allusers')
             status = 'update'
             
         

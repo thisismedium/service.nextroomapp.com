@@ -1,11 +1,26 @@
 from django.db import models
 from django.db.models.signals import post_save
 
-from nextroom.apps.roomqueue.customfields import ColorField
+from nextroom.apps.service.customfields import ColorField
 
 import datetime
 import hashlib
 
+class Practice(Model):
+    """
+        Practices are the owner of NR app data
+    """
+    account_name = CharField(max_length=250, blank=False, null=False)
+    practice_name = CharField(max_length=255, blank=True, null=True)
+    email = EmailField(blank=False, null=False)
+    active = BooleanField(default=True, blank=True)
+    
+    @property
+    def full_name(self):
+        return self.user.get_full_name()
+    
+    def __unicode__(self):
+        return u'%s' % self.practice_name
 
 class Version(models.Model):
     """
@@ -23,59 +38,6 @@ class Version(models.Model):
     def __unicode__(self):
         return self.versionNumber
         
-            
-            
-    
-
-def CreateDummyVersion(type):
-    version_number = "X" * 32
-    return Version.objects.create(versionNumber=version_number, lastChange=datetime.datetime.now(), type=type)
-
-
-def IncrementUserVersion(user):
-    """
-        Increment the version row for a user
-    """
-    try:
-        version = user.version
-    except Version.DoesNotExist:
-        version = CreateDummyVersion('user') # Just create a dummy row, it's going to be changed
-        
-    version = IncrementVersion(version)
-    user.version = version
-    user.save()
-    
-    return version
-
-
-def IncrementTypeVersion(type):
-    """
-        Increment version based up on type
-    """
-    try:
-        version = Version.objects.filter(type=type).order_by("-lastChange")[0]  # Should only be one, but we'll get the most recent just to be sure
-    except IndexError:
-        version = CreateDummyVersion(type)
-        
-    version = IncrementVersion(version)
-    
-    return version
-
-    
-        
-def IncrementVersion(version):
-    """
-        Calculate and change the version row
-    """
-        
-    version.lastChange = datetime.datetime.now()
-    m = hashlib.md5()
-    m.update(str(version.lastChange))
-    version.versionNumber = m.hexdigest()
-    version.save()
-    
-    return version
-        
 
 class Tag(models.Model):
     """
@@ -91,7 +53,7 @@ class Tag(models.Model):
         
         for room in self.room_set.all():
             for user in room.assignedto.all():
-                IncrementUserVersion(user)
+                increment_user_version(user)
 
     
 
@@ -103,7 +65,7 @@ class Note(Tag):
     
     def save(self, force_insert=False, force_update=False):
         super(Note, self).save(force_insert, force_update)
-        IncrementTypeVersion('note')
+        increment_type_version('note')
     
 
 class Procedure(Tag):
@@ -114,7 +76,7 @@ class Procedure(Tag):
     
     def save(self, force_insert=False, force_update=False):
         super(Procedure, self).save(force_insert, force_update)
-        IncrementTypeVersion('procedure')
+        increment_type_version('procedure')
     
     
 class User(models.Model):
@@ -139,13 +101,13 @@ class User(models.Model):
     pin = models.CharField(max_length=4, default='0000')
     
     def save(self, force_insert=False, force_update=False):
-        IncrementTypeVersion('allusers')
+        increment_type_version('allusers')
         try:
             version = self.version
         except Version.DoesNotExist:
-            version = CreateDummyVersion('user') # Just create a dummy row, it's going to be changed
+            version = create_dummy_version('user') # Just create a dummy row, it's going to be changed
 
-        version = IncrementVersion(version)
+        version = increment_version(version)
         self.version = version
         super(User, self).save(force_insert, force_update)
         
@@ -161,7 +123,7 @@ def user_save_receiver(sender, **kwargs):
     created = kwargs['created']
     
     if created:
-        IncrementTypeVersion('allusers')
+        increment_type_version('allusers')
 
 post_save.connect(user_save_receiver, sender=User)   
 
@@ -187,7 +149,7 @@ class Room(models.Model):
     lasttimeinqueue = models.TimeField(null=True, blank=True, verbose_name="Last Time Put in Queue")
     
     def save(self, force_insert=False, force_update=False):
-        IncrementTypeVersion('room')
+        increment_type_version('room')
         
         # Handle timestampinqueue appropriately
         import time
@@ -201,7 +163,7 @@ class Room(models.Model):
         super(Room, self).save(force_insert, force_update)
         
         for user in self.assignedto.all():
-            IncrementUserVersion(user)
+            increment_user_version(user)
 
         
     def __unicode__(self):
@@ -219,7 +181,7 @@ def room_save_receiver(sender, **kwargs):
     
     if created:
         for user in User.objects.all():
-            IncrementUserVersion(user)
+            increment_user_version(user)
     
 
 post_save.connect(room_save_receiver, sender=Room)   

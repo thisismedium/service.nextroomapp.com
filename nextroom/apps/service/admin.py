@@ -1,8 +1,8 @@
 from django.contrib import admin
 from django.contrib.auth.models import User as djUser, Group
 from django.contrib.sites.models import Site
-from nextroom.apps.roomqueue.models import Version, Note, Procedure, User, Room
-from nextroom.apps.roomqueue.customfields import ColorPickerWidget, ColorField
+from nextroomapp.apps.service.models import Version, Note, Procedure, User, Room
+from nextroomapp.apps.service.customfields import ColorPickerWidget, ColorField
 
 #admin.site.register(Version)
 admin.site.unregister(djUser)
