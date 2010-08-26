@@ -1,19 +1,22 @@
+from django.contrib.auth.models import get_hexdigest, check_password
 from django.db import models
 from django.db.models.signals import post_save
+from django.utils.hashcompat import md5_constructor, sha_constructor
 
-from nextroom.apps.service.customfields import ColorField
+from apps.service.customfields import ColorField
+from apps.service.utils import *
 
 import datetime
 import hashlib
 
-class Practice(Model):
+class Practice(models.Model):
     """
         Practices are the owner of NR app data
     """
-    account_name = CharField(max_length=250, blank=False, null=False)
-    practice_name = CharField(max_length=255, blank=True, null=True)
-    email = EmailField(blank=False, null=False)
-    active = BooleanField(default=True, blank=True)
+    account_name = models.CharField(max_length=250, blank=False, null=False)
+    practice_name = models.CharField(max_length=255, blank=True, null=True)
+    email = models.EmailField(blank=False, null=False)
+    active = models.BooleanField(default=True, blank=True)
     
     @property
     def full_name(self):
@@ -43,7 +46,9 @@ class Tag(models.Model):
     """
         Base class for tag objects
     """
+    practice = models.ForeignKey(Practice, blank=False, null=False)
     name = models.CharField(max_length=256, unique=True)
+    sort_order = models.IntegerField(default=0, blank=True)
     
     def __unicode__(self):
         return self.name
@@ -90,22 +95,40 @@ class User(models.Model):
         ('allnurses', 'All Nurses'),
         ('alldoctors', 'All Doctors'),
         ('allusers', 'All Users'),
+        ('site', 'Site User'),
     )
-    
+    practice = models.ForeignKey(Practice, blank=False, null=False)
     name = models.CharField(max_length=256)
     type = models.CharField(max_length=10, choices=TYPE_CHOICES)
-    color = ColorField(help_text="Click to set the color") #    Stored as hex, converted to RGB when rendered in the xml
+    # Stored as hex, converted to RGB when rendered in the xml
+    color = ColorField(help_text="Click to set the color")
     version = models.OneToOneField(Version, editable=False)
-    status = models.CharField(max_length=32, null=True, blank=True, editable=False) #   This is only here for future purposes, we'll just hide it for now
     num_accepted = models.IntegerField(default=0)
     pin = models.CharField(max_length=4, default='0000')
+    is_site_user = models.BooleanField(default=False,blank=True)
+    is_admin = models.BooleanField(default=False,blank=True)
+    email = models.EmailField(blank=True, null=True)
+    password = models.CharField(max_length=128)
+    
+    def set_password(self, raw_password):
+        # Taken from Django.contrib.auth.models.User.set_password()
+        import random
+        algo = 'sha1'
+        salt = get_hexdigest(algo, str(random.random()), str(random.random()))[:5]
+        hsh = get_hexdigest(algo, salt, raw_password)
+        self.password = '%s$%s$%s' % (algo, salt, hsh)
+    
+    def check_password(self, raw_password):
+        # Taken from Django.contrib.auth.models.User.check_password()
+        return check_password(raw_password, self.password)
     
     def save(self, force_insert=False, force_update=False):
         increment_type_version('allusers')
         try:
             version = self.version
         except Version.DoesNotExist:
-            version = create_dummy_version('user') # Just create a dummy row, it's going to be changed
+            # Just create a dummy row, it's going to be changed
+            version = create_dummy_version('user')
 
         version = increment_version(version)
         self.version = version
@@ -139,7 +162,7 @@ class Room(models.Model):
         ('C', 'EMPTY'),
         ('B', 'WAITING'),
     )
-    
+    practice = models.ForeignKey(Practice, blank=False, null=False)
     assignedto = models.ManyToManyField(User, null=True, blank=True, verbose_name="Assigned To")
     notes = models.ManyToManyField(Note, null=True, blank=True)
     procedures = models.ManyToManyField(Procedure, null=True, blank=True)
@@ -147,6 +170,7 @@ class Room(models.Model):
     roomnumber = models.CharField(max_length=64, unique=True, verbose_name="Room Number")
     timestampinqueue = models.TimeField(null=True, blank=True, verbose_name="Time Put in Queue")
     lasttimeinqueue = models.TimeField(null=True, blank=True, verbose_name="Last Time Put in Queue")
+    sort_order = models.IntegerField(default=0, blank=True)
     
     def save(self, force_insert=False, force_update=False):
         increment_type_version('room')
