@@ -8,21 +8,8 @@ admin.autodiscover()
 urlpatterns = patterns('',
     (r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT, 'show_indexes': True }),
     (r'^admin/(.*)', admin.site.root),
+    (r'^svc/', include('apps.service.urls'))
 )
 
-urlpatterns += patterns('nextroom.apps.roomqueue.views',
-    (r'^rooms/', 'get_rooms'),
-    (r'^room/', 'get_room'),
-    (r'^notes/', 'get_tags', {'type': 'note'}),
-    (r'^procedures/', 'get_tags', {'type': 'procedure'}),
-    (r'^users/', 'get_users'),
-    (r'^update/', 'update_room'),
-    (r'^$', 'screen_display'),
-    (r'^alt-screen-display/', 'alt_screen_display'),
-    (r'^reset-rooms/', 'reset_rooms'),
-    (r'^screen-display-js/','screen_display_js'),
-    (r'^post/', 'post_test'),
-    (r'^pin_check/', 'pin_check'),
-    (r'^hostname_check/', 'hostname_check')
-)
+
 
