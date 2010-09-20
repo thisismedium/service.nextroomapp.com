@@ -130,14 +130,14 @@ class Note(Tag):
         increment_type_version('note')
     
 
-class Procedure(Tag):
+class Task(Tag):
     """
         Doctor-given tag for a room
     """
     pass
     
     def save(self, force_insert=False, force_update=False):
-        super(Procedure, self).save(force_insert, force_update)
+        super(Task, self).save(force_insert, force_update)
         increment_type_version('procedure')
     
     
@@ -208,7 +208,7 @@ class Room(models.Model):
     practice = models.ForeignKey(Practice, blank=False, null=False)
     assignedto = models.ManyToManyField(User, null=True, blank=True, verbose_name="Assigned To")
     notes = models.ManyToManyField(Note, null=True, blank=True)
-    procedures = models.ManyToManyField(Procedure, null=True, blank=True)
+    procedures = models.ManyToManyField(Task, null=True, blank=True)
     status = models.CharField(max_length=8, choices=STATUS_CHOICES, default='C')
     roomnumber = models.CharField(max_length=64, unique=True, verbose_name="Room Number")
     timestampinqueue = models.TimeField(null=True, blank=True, verbose_name="Time Put in Queue")
@@ -313,7 +313,7 @@ def practice_save_receiver(sender, instance, created, **kwargs):
             note = Note(practice=instance, name='Note %s' % i, sort_order=i)
             note.save()
         for i in range(1,4):
-            proc = Procedure(practice=instance, name='Procedure %s' % i, sort_order=i)
+            proc = Task(practice=instance, name='Task %s' % i, sort_order=i)
             proc.save()
         
 

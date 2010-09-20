@@ -151,7 +151,7 @@ def get_tags(request, type):
             if type == 'note':
                 tags = Note.objects.all().filter(practice=user.practice).order_by('sort_order')
             elif type == 'procedure':
-                tags = Procedure.objects.all().filter(practice=user.practice).order_by('sort_order')
+                tags = Task.objects.all().filter(practice=user.practice).order_by('sort_order')
             status = 'update'
             notify = 'YES'
             
@@ -253,8 +253,8 @@ def update_room(request):
         for name in procedures_names:
             if name:
                 try:
-                    procedure = Procedure.objects.get(name=name, practice=user.practice)
-                except Procedure.DoesNotExist:
+                    procedure = Task.objects.get(name=name, practice=user.practice)
+                except Task.DoesNotExist:
                     return throw_xml_error()
                     
                 room.procedures.add(procedure)
