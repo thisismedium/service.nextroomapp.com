@@ -75,7 +75,7 @@ class Practice(models.Model):
         Practices are the owner of NR app data
     """
     practice_name = models.CharField(max_length=255, blank=False, null=False)
-    app_auth_name = models.CharField(max_length=250, blank=False, null=False)
+    app_auth_name = models.CharField(max_length=250, blank=False, null=False, unique=True)
     email = models.EmailField(blank=False, null=False)
     active = models.BooleanField(default=True, blank=True)
     
@@ -83,16 +83,16 @@ class Practice(models.Model):
         return u'%s' % self.practice_name
     
     def users(self):
-        return User.objects.filter(practice=self)
+        return User.objects.filter(practice=self).order_by('sort_order', 'name')
     
     def rooms(self):
-        return Room.objects.filter(practice=self)
+        return Room.objects.filter(practice=self).order_by('sort_order', 'name')
     
     def notes(self):
-        return Note.objects.filter(practice=self)
+        return Note.objects.filter(practice=self).order_by('sort_order', 'name')
     
     def tasks(self):
-        return Task.objects.filter(practice=self)
+        return Task.objects.filter(practice=self).order_by('sort_order', 'name')
 
 class Version(models.Model):
     """
@@ -178,8 +178,7 @@ class User(models.Model):
     is_admin = models.BooleanField(default=False,blank=True)
     email = models.EmailField(blank=True, null=True)
     password = models.CharField(max_length=128, blank=True, null=True)
-    
-    get_and_delete_messages = []
+    sort_order = models.IntegerField(default=0, blank=True)
     
     def set_password(self, raw_password):
         # Taken from Django.contrib.auth.models.User.set_password()
