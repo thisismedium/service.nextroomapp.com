@@ -10,7 +10,9 @@ urlpatterns = patterns('',
     (r'^admin/(.*)', admin.site.root),
     (r'^svc/', include('apps.service.urls')),
     (r'^(?P<model>)/list', 'apps.service.views.get_item_list'),
-    (r'^$', 'apps.service.admin')
+    (r'^login/$', 'apps.service.views.login'),
+    (r'^logout/$', 'apps.service.views.logout'),
+    (r'^$', 'apps.service.views.admin')
 )
 
 

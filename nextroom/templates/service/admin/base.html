@@ -1,0 +1,24 @@
+<h1>Admin</h1>
+
+<p>Logged-in user: {{ user }}</p>
+<p>Logged-in Practice: {{ user.practice }}</p>
+
+<h3>Users</h3>
+{% for u in user.practice.users %}
+<p>{{ u }}</p>
+{% endfor %}
+
+<h3>Rooms</h3>
+{% for r in user.practice.rooms %}
+<p>{{ r }}</p>
+{% endfor %}
+
+<h3>Notes</h3>
+{% for n in user.practice.notes %}
+<p>{{ n }}</p>
+{% endfor %}
+
+<h3>Tasks</h3>
+{% for t in user.practice.tasks %}
+<p>{{ t }}</p>
+{% endfor %}

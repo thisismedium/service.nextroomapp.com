@@ -1,6 +1,7 @@
 import functools
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
+from django.template import RequestContext
 from django import forms
 from nextroom.apps.service.screendisplay import *
 from nextroom.apps.service.models import *
@@ -29,10 +30,12 @@ def login_required(view):
     # Verify admin user is authenticated & valid
     @functools.wraps(view)
     def internal(request, *args, **kwargs):
-        if request.session.get(USER_KEY, None) is not None:
+        u = request.session.get(USER_KEY, None)
+        if u is not None and isinstance(u, User):
             return view(request, *args, **kwargs)
         else:
-            return admin_login(request)
+            print "no request.user? %s" % request.user
+            return login(request)
     return internal
 
 ################################
@@ -291,16 +294,46 @@ def update_room(request):
 #   NextRoom web URLs
 #######################################
 
-def admin_login(request):
-    # Authenticate admin user
-    if request.method == 'POST':
-        pass
+def authenticate(email=None, password=None):
+    users = User.objects.filter(email=email)
+    user = None
+    for u in users:
+        if u.check_password(password):
+            user = u
+            break
     else:
-        pass
+        u = None
+    return u
 
+def login(request):
+    # Authenticate admin user
+    valid, user = True, None
+    if request.method == 'POST':
+        # Process form
+        email = request.POST.get('email', None)
+        password = request.POST.get('password', None)
+        user = authenticate(email,password)
+        if user is not None and isinstance(user, User):
+            request.session[USER_KEY] = user
+            return HttpResponseRedirect('/')
+        else:
+            request.session[USER_KEY] = None
+            valid = False
+    
+    return render_to_response('service/admin/login.html', 
+        {'user':user, 
+        'valid':valid}
+        )
+
+def logout(request):
+    request.session[USER_KEY] = None
+    return HttpResponseRedirect('/')
+
+@login_required
 def admin(request):
     # Show user admin landing page.
-    return HttpResponse("admin page here")
+    user = request.session.get(USER_KEY, None)
+    return render_to_response('service/admin/base.html', {'user':user})
 
 def get_item_list(request, model=None):
     # Return list of objects for given model

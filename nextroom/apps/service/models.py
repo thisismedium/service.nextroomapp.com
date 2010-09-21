@@ -74,13 +74,25 @@ class Practice(models.Model):
     """
         Practices are the owner of NR app data
     """
-    account_name = models.CharField(max_length=250, blank=False, null=False)
-    practice_name = models.CharField(max_length=255, blank=True, null=True)
+    practice_name = models.CharField(max_length=255, blank=False, null=False)
+    app_auth_name = models.CharField(max_length=250, blank=False, null=False)
     email = models.EmailField(blank=False, null=False)
     active = models.BooleanField(default=True, blank=True)
     
     def __unicode__(self):
         return u'%s' % self.practice_name
+    
+    def users(self):
+        return User.objects.filter(practice=self)
+    
+    def rooms(self):
+        return Room.objects.filter(practice=self)
+    
+    def notes(self):
+        return Note.objects.filter(practice=self)
+    
+    def tasks(self):
+        return Task.objects.filter(practice=self)
 
 class Version(models.Model):
     """
@@ -167,6 +179,8 @@ class User(models.Model):
     email = models.EmailField(blank=True, null=True)
     password = models.CharField(max_length=128, blank=True, null=True)
     
+    get_and_delete_messages = []
+    
     def set_password(self, raw_password):
         # Taken from Django.contrib.auth.models.User.set_password()
         import random
@@ -210,7 +224,7 @@ class Room(models.Model):
     notes = models.ManyToManyField(Note, null=True, blank=True)
     procedures = models.ManyToManyField(Task, null=True, blank=True)
     status = models.CharField(max_length=8, choices=STATUS_CHOICES, default='C')
-    roomnumber = models.CharField(max_length=64, unique=True, verbose_name="Room Number")
+    roomnumber = models.CharField(max_length=64, verbose_name="Room Number")
     timestampinqueue = models.TimeField(null=True, blank=True, verbose_name="Time Put in Queue")
     lasttimeinqueue = models.TimeField(null=True, blank=True, verbose_name="Last Time Put in Queue")
     sort_order = models.IntegerField(default=0, blank=True)
@@ -267,12 +281,12 @@ def practice_save_receiver(sender, instance, created, **kwargs):
     """
     if created == True:
         site_admin = User(practice=instance,
-                            name='Admin',
+                            name='%s Admin' % instance.practice_name,
                             type='site',
                             is_site_user=True,
                             is_admin=True,
                             email=instance.email)
-        site_admin.set_password(instance.account_name)
+        site_admin.set_password(instance.app_auth_name)
         site_admin.save()
         # Create Any Nurse
         any_nurse = User(practice=instance, 
