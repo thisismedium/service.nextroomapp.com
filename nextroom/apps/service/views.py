@@ -11,8 +11,9 @@ except ImportError:
 
 USER_KEY = 'app_user'
 
-def throw_xml_error():
-    return render_to_response('nextroom/base.xml', {'results': None, 'version': '', 'status': 'error', 'notify': 'No'}, mimetype="text/xml")
+################################
+#   NextRoom decorators
+################################
 
 def app_auth(view):
     # Verify app user is authenticated & valid
@@ -23,7 +24,23 @@ def app_auth(view):
         else:
             return throw_xml_error()
     return internal
-            
+
+def login_required(view):
+    # Verify admin user is authenticated & valid
+    @functools.wraps(view)
+    def internal(request, *args, **kwargs):
+        if request.session.get(USER_KEY, None) is not None:
+            return view(request, *args, **kwargs)
+        else:
+            return admin_login(request)
+    return internal
+
+################################
+#   NextRoom iPhone URLs
+################################
+
+def throw_xml_error():
+    return render_to_response('service/app/base.xml', {'results': None, 'version': '', 'status': 'error', 'notify': 'No'}, mimetype="text/xml")            
 
 def app_login(request):
     # Authenticate app user
@@ -116,7 +133,7 @@ def get_rooms(request):
             if userVersionNumber != user_version.versionNumber:
                 notify = 'YES'        
 
-        return render_to_response('nextroom/rooms.xml', {'results': rooms, 'version': "%s%s" % (rooms_version.versionNumber, user_version.versionNumber), 'status': status, 'notify': notify}, mimetype="text/xml")
+        return render_to_response('service/app/rooms.xml', {'results': rooms, 'version': "%s%s" % (rooms_version.versionNumber, user_version.versionNumber), 'status': status, 'notify': notify}, mimetype="text/xml")
 
 @app_auth
 def get_room(request):
@@ -125,7 +142,7 @@ def get_room(request):
         room_id = request.GET.get("room")
         room = Room.objects.get(pk=room_id)
         
-        return render_to_response('nextroom/room.xml', {'room': room}, mimetype="text/xml")       
+        return render_to_response('service/app/room.xml', {'room': room}, mimetype="text/xml")       
         
 @app_auth
 def get_tags(request, type):
@@ -155,7 +172,7 @@ def get_tags(request, type):
             status = 'update'
             notify = 'YES'
             
-        return render_to_response('nextroom/tags.xml', {'results': tags, 'version': current_version.versionNumber, 'status': status, 'notify': notify}, mimetype="text/xml")
+        return render_to_response('service/app/tags.xml', {'results': tags, 'version': current_version.versionNumber, 'status': status, 'notify': notify}, mimetype="text/xml")
         
 
 def convertColors(user):
@@ -191,7 +208,7 @@ def get_users(request, practice):
             
             users = map(convertColors, users)
             
-            return render_to_response('nextroom/users.xml', {'results': users, 'version': current_version.versionNumber, 'status': status, 'notify': notify}, mimetype="text/xml")  
+            return render_to_response('service/app/users.xml', {'results': users, 'version': current_version.versionNumber, 'status': status, 'notify': notify}, mimetype="text/xml")  
 
 @app_auth
 def update_room(request):
@@ -268,7 +285,26 @@ def update_room(request):
         rooms = Room.objects.filter(practice=user.practice).order_by('status','timestampinqueue', 'lasttimeinqueue', 'sort_order')
         rooms_version = Version.objects.filter(type='room').order_by("-lastChange")[0]
         
-        return render_to_response('nextroom/rooms.xml', {'results': rooms, 'version': "%s%s" % (rooms_version.versionNumber, user.version.versionNumber), 'status': 'update', 'notify': 'YES'}, mimetype="text/xml")
+        return render_to_response('service/app/rooms.xml', {'results': rooms, 'version': "%s%s" % (rooms_version.versionNumber, user.version.versionNumber), 'status': 'update', 'notify': 'YES'}, mimetype="text/xml")
+
+#######################################
+#   NextRoom web URLs
+#######################################
+
+def admin_login(request):
+    # Authenticate admin user
+    if request.method == 'POST':
+        pass
+    else:
+        pass
+
+def admin(request):
+    # Show user admin landing page.
+    return HttpResponse("admin page here")
+
+def get_item_list(request, model=None):
+    # Return list of objects for given model
+    return HttpResponse("list goes here")
 
 def reset_rooms(request):
     for r in Room.objects.all():
@@ -291,13 +327,13 @@ def screen_display(request):
     except Practice.DoesNotExist:
         practice = None
     if request.user.is_authenticated() and request.user.is_staff and practice is not None:
-        return render_to_response('nextroom/screen_display.html')
+        return render_to_response('service/app/screen_display.html')
     else:
         return HttpResponseRedirect('/admin/')
 
 def alt_screen_display(request, practice):
     if request.user.is_authenticated() and request.user.is_staff:
-        return render_to_response('nextroom/alt_screen_display.html')
+        return render_to_response('service/app/alt_screen_display.html')
     else:
         return HttpResponseRedirect('/admin/')
     
@@ -312,5 +348,5 @@ class PostTestForm(forms.Form):
         
 def post_test(request):
     form = PostTestForm()
-    return render_to_response('nextroom/post_test.html', {'form': form})        
+    return render_to_response('service/app/post_test.html', {'form': form})        
         
