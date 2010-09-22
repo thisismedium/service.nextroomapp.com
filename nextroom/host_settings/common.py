@@ -1,69 +1,20 @@
-import os.path
-
-# Django settings for nextroom project.
-
-DEBUG = True
-TEMPLATE_DEBUG = DEBUG
 APPLICATION_NAME = "NextRoom"
-PROJECT_DIR = os.path.dirname(os.path.dirname(__file__))
-MEDIA_ROOT = os.path.join(PROJECT_DIR, 'media')
-#MEDIA_ROOT = "/Users/ben/django/mgit/aefa.com/aefa/media"
-MEDIA_URL = '/media/'
-ADMIN_MEDIA_PREFIX = '/media/admin/'
+
 LOGIN_URL = '/admin/login/'
 LOGIN_REDIRECT_URL = '/admin/'
 
-ADMINS = (
-    # ('Your Name', 'your_email@domain.com'),
-)
-
-MANAGERS = ADMINS
-
-DATABASE_ENGINE = 'postgresql_psycopg2'           # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-DATABASE_NAME = 'nextroom'             # Or path to database file if using sqlite3.
-DATABASE_USER = 'postgres'             # Not used with sqlite3.
-DATABASE_PASSWORD = ''         # Not used with sqlite3.
-DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
-DATABASE_PORT = ''             # Set to empty string for default. Not used with sqlite3.
-
-# Local time zone for this installation. Choices can be found here:
-# http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
-# although not all choices may be available on all operating systems.
-# If running in a Windows environment this must be set to the same as your
-# system time zone.
-TIME_ZONE = 'America/Chicago'
-
-# Language code for this installation. All choices can be found here:
-# http://www.i18nguy.com/unicode/language-identifiers.html
-LANGUAGE_CODE = 'en-us'
-
-SITE_ID = 1
-
-# If you set this to False, Django will make some optimizations so as not
-# to load the internationalization machinery.
-USE_I18N = True
-
-# Make this unique, and don't share it with anybody.
 SECRET_KEY = 'l2jck#tvpr%@xz-x$(vx#6(1^dmk4-nbjvf43a!s6=h^sfy$5t'
 
-# List of callables that know how to import templates from various sources.
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.load_template_source',
-    'django.template.loaders.app_directories.load_template_source',
-#     'django.template.loaders.eggs.load_template_source',
+AUTHENTICATION_BACKENDS = (
+    'pykk.auth.backends.HtpasswdBackend',
+    'django.contrib.auth.backends.ModelBackend'
 )
 
 MIDDLEWARE_CLASSES = (
-    'django.middleware.common.CommonMiddleware',
+    'servermedium.django.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'pykk.apps.auth.middleware.AuthenticationMiddleware',
     'nextroom.middleware.headers.AddHeaderMiddleware',
-)
-
-ROOT_URLCONF = 'nextroom.urls'
-
-TEMPLATE_DIRS = (
-    os.path.join(PROJECT_DIR, 'templates'),
 )
 
 INSTALLED_APPS = (
