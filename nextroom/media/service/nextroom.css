@@ -9,6 +9,7 @@ body {
     width: 60em;
     margin: 2em auto; }
 
+
 /* ## Header ## */
 
 header {
@@ -24,15 +25,40 @@ header nav {
     bottom: 0;
     right: 0; }
 
+
 /* ## Footer ## */
 
 footer {
     clear: both; }
 
+
+/* ## Main ## */
+
+[role="main"] section {
+    display: none; }
+
+#template {
+    display: none; }
+
+.fields {
+    display: block; }
+
+.field {
+    display: block;
+    list-style-type: none; }
+
+.field label {
+    display: block;
+    font-weight: bold; }
+
+.buttons {
+    text-align: right; }
+
+
 /* ## App ## */
 
 #app {
-    font-size: 1.2em; }
+    font-size: 1.6em; }
 
 #app .panel {
     display: block;
@@ -48,6 +74,8 @@ footer {
     display: block;
     padding: 0.2em 0.4em;
     color: blue;
+    background-color: #eee;
+    border-radius: 4pt;
     text-decoration: none; }
 
 #app .entry a:hover {

@@ -8,24 +8,42 @@
 
     <header>
       <h1>NextRoom // {{user.practice}}</h1>
-      <nav>
-	<a href="#">App</a>
+      <nav id="main-nav">
+	<a href="#app">App</a>
 	<a href="/logout/">Logout</a>
       </nav>
     </header>
 
-    <section id="app" role="main">
-      <ul class="panel">
-	<li class="entry"><a href="#users">Users</a></li>
-	<li class="entry"><a href="#rooms">Rooms</a></li>
-	<li class="entry"><a href="#notes">Notes</a></li>
-	<li class="entry"><a href="#tasks">Tasks</a></li>
-      </ul>
-    </section>
+    <div role="main">
+      <section id="app">
+	<ul class="panel">
+	  <li class="entry"><a href="#app/user">Users</a></li>
+	  <li class="entry"><a href="#app/room">Rooms</a></li>
+	  <li class="entry"><a href="#app/note">Notes</a></li>
+	  <li class="entry"><a href="#app/task">Tasks</a></li>
+	</ul>
+      </section>
+    </div>
 
     <footer></footer>
 
-    <script type="text/css" href="{{media}}jquery-1.4.2.min.js"></script>
-    <script type="text/css" href="{{media}}nextroom.js"></script>
+    <div id="template">
+      <form class="panel entry-detail">
+	<ul class="fields">
+	  <li class="field">
+	    <label>Name</label>
+	    <input type="text" name="name" />
+	  </li>
+	</ul>
+	<div class="buttons">
+	  <input type="button" value="Cancel" class="cancel button" />
+	  <input type="submit" value="Save" class="submit button" />
+	</div>
+      </form>
+    </div>
+
+    <script type="text/javascript" src="{{media}}jquery-1.4.2.min.js"></script>
+    <script type="text/javascript" src="{{media}}jquery.history.js"></script>
+    <script type="text/javascript" src="{{media}}nextroom.js"></script>
   </body>
 </html>

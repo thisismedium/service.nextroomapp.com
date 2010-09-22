@@ -343,6 +343,21 @@ def get_item_list(request, model=None):
     # Return list of objects for given model
     return HttpResponse("list goes here")
 
+def app_model(request, name):
+    return json_response([
+        dict(name='%s %d' % (name.title(), i), uri='app/%s/%d' % (name, i))
+        for i in xrange(5)
+    ])
+
+def app_instance(request, name, key):
+    return json_response({
+        'name': '%s %d' % (name.title(), int(key)),
+        'uri': 'app/%s/%d' % (name, int(key))
+    })
+
+def json_response(obj):
+    return HttpResponse(json.dumps(obj), mimetype='application/json')
+
 def reset_rooms(request):
     for r in Room.objects.all():
         r.assignedto.clear()
