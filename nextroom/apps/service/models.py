@@ -1,4 +1,4 @@
-#########################################################   
+#########################################################
 # Imports
 #########################################################
 
@@ -13,7 +13,7 @@ import datetime
 import hashlib
 
 
-#########################################################   
+#########################################################
 # Helper methods
 #########################################################
 
@@ -25,13 +25,13 @@ def increment_version(version):
     """
         Calculate and change the version row
     """
-        
+
     version.lastChange = datetime.datetime.now()
     m = hashlib.md5()
     m.update(str(version.lastChange))
     version.versionNumber = m.hexdigest()
     version.save()
-    
+
     return version
 
 
@@ -41,15 +41,15 @@ def increment_type_version(type):
     """
     try:
         # Should only be one, but we'll get the most recent just to be sure
-        version = Version.objects.filter(type=type).order_by("-lastChange")[0]  
+        version = Version.objects.filter(type=type).order_by("-lastChange")[0]
     except IndexError:
         version = create_dummy_version(type)
-        
+
     version = increment_version(version)
-    
+
     return version
 
-    
+
 def increment_user_version(user):
     """
         Increment the version row for a user
@@ -59,14 +59,14 @@ def increment_user_version(user):
     except Version.DoesNotExist:
         # Just create a dummy row, it's going to be changed
         version = create_dummy_version('user')
-        
+
     version = increment_version(version)
     user.version = version
     user.save()
-    
+
     return version
 
-#########################################################   
+#########################################################
 # Models
 #########################################################
 
@@ -78,26 +78,26 @@ class Practice(models.Model):
     app_auth_name = models.CharField(max_length=250, blank=False, null=False, unique=True)
     email = models.EmailField(blank=False, null=False)
     active = models.BooleanField(default=True, blank=True)
-    
+
     def __unicode__(self):
         return u'%s' % self.practice_name
-    
+
     def users(self):
         return User.objects.filter(practice=self).order_by('sort_order', 'name')
-    
+
     def rooms(self):
-        return Room.objects.filter(practice=self).order_by('sort_order', 'name')
-    
+        return Room.objects.filter(practice=self).order_by('sort_order', 'roomnumber')
+
     def notes(self):
         return Note.objects.filter(practice=self).order_by('sort_order', 'name')
-    
+
     def tasks(self):
         return Task.objects.filter(practice=self).order_by('sort_order', 'name')
 
 class Version(models.Model):
     """
         Version Data Types:
-            1) Version for each User 
+            1) Version for each User
             2) Version for All Users (in case we add users)
             3) Version for Notes
             4) Version for Specifications
@@ -106,10 +106,10 @@ class Version(models.Model):
     versionNumber = models.CharField(max_length=32)
     lastChange = models.DateTimeField()
     type = models.CharField(max_length=10)
-    
+
     def __unicode__(self):
         return self.versionNumber
-        
+
 
 class Tag(models.Model):
     """
@@ -118,45 +118,45 @@ class Tag(models.Model):
     practice = models.ForeignKey(Practice, blank=False, null=False)
     name = models.CharField(max_length=256)
     sort_order = models.IntegerField(default=0, blank=True)
-    
+
     def __unicode__(self):
         return self.name
-        
+
     def save(self, force_insert=False, force_update=False):
         super(Tag, self).save(force_insert, force_update)
-        
+
         for room in self.room_set.all():
             for user in room.assignedto.all():
                 increment_user_version(user)
 
-    
+
 
 class Note(Tag):
     """
         Nurse-given tag for a room
     """
     pass
-    
+
     def save(self, force_insert=False, force_update=False):
         super(Note, self).save(force_insert, force_update)
         increment_type_version('note')
-    
+
 
 class Task(Tag):
     """
         Doctor-given tag for a room
     """
     pass
-    
+
     def save(self, force_insert=False, force_update=False):
         super(Task, self).save(force_insert, force_update)
         increment_type_version('procedure')
-    
-    
+
+
 class User(models.Model):
     """
         Doctor or Nurse
-        
+
     """
     TYPE_CHOICES = (
         ('nurse', 'Nurse'),
@@ -179,7 +179,7 @@ class User(models.Model):
     email = models.EmailField(blank=True, null=True)
     password = models.CharField(max_length=128, blank=True, null=True)
     sort_order = models.IntegerField(default=0, blank=True)
-    
+
     def set_password(self, raw_password):
         # Taken from Django.contrib.auth.models.User.set_password()
         import random
@@ -187,11 +187,11 @@ class User(models.Model):
         salt = get_hexdigest(algo, str(random.random()), str(random.random()))[:5]
         hsh = get_hexdigest(algo, salt, raw_password)
         self.password = '%s$%s$%s' % (algo, salt, hsh)
-    
+
     def check_password(self, raw_password):
         # Taken from Django.contrib.auth.models.User.check_password()
         return check_password(raw_password, self.password)
-    
+
     def save(self, force_insert=False, force_update=False):
         increment_type_version('allusers')
         try:
@@ -203,8 +203,8 @@ class User(models.Model):
         version = increment_version(version)
         self.version = version
         super(User, self).save(force_insert, force_update)
-        
-        
+
+
     def __unicode__(self):
         return self.name
 
@@ -227,10 +227,10 @@ class Room(models.Model):
     timestampinqueue = models.TimeField(null=True, blank=True, verbose_name="Time Put in Queue")
     lasttimeinqueue = models.TimeField(null=True, blank=True, verbose_name="Last Time Put in Queue")
     sort_order = models.IntegerField(default=0, blank=True)
-    
+
     def save(self, force_insert=False, force_update=False):
         increment_type_version('room')
-        
+
         # Handle timestampinqueue appropriately
         import time
         if self.pk:
@@ -239,23 +239,23 @@ class Room(models.Model):
             elif self.status == 'C' and self.timestampinqueue is not None:
                 self.lasttimeinqueue = time.strftime('%H:%M:%S')
                 self.timestampinqueue = None
-        
+
         super(Room, self).save(force_insert, force_update)
-        
+
         for user in self.assignedto.all():
             increment_user_version(user)
 
-        
+
     def __unicode__(self):
         return "Room %s" % self.roomnumber
 
-#########################################################   
+#########################################################
 # Signal listeners
 #########################################################
 
 def user_save_receiver(sender, **kwargs):
     """ We'll update the allusers Version, but only if a new user has been created
-    
+
     """
     created = kwargs['created']
     if created:
@@ -266,7 +266,7 @@ def room_save_receiver(sender, **kwargs):
     Many-to-Many relationships are not in place in the save method or the post_save signal, so we don't know who it is assigned to.
     Therefore we'll just update everyone.
     Hopefully this won't happen often.  However, there's really no way around it.  It's a known django bug.
-    
+
     """
     created = kwargs['created']
     if created:
@@ -276,7 +276,7 @@ def room_save_receiver(sender, **kwargs):
 def practice_save_receiver(sender, instance, created, **kwargs):
     """ Handles post-save routine for new Practice setups.
     Create a new site user with admin privileges, using the Practice email.
-    
+
     """
     if created == True:
         site_admin = User(practice=instance,
@@ -288,32 +288,32 @@ def practice_save_receiver(sender, instance, created, **kwargs):
         site_admin.set_password(instance.app_auth_name)
         site_admin.save()
         # Create Any Nurse
-        any_nurse = User(practice=instance, 
-                            name='Any Nurse', 
+        any_nurse = User(practice=instance,
+                            name='Any Nurse',
                             type='allnurses',
                             is_site_user=False,
                             is_admin=False,
                             color="#ff99cc")
         any_nurse.save()
         # Create Any Doctor
-        any_doc = User(practice=instance, 
-                            name='Any Doctor', 
+        any_doc = User(practice=instance,
+                            name='Any Doctor',
                             type='alldoctors',
                             is_site_user=False,
                             is_admin=False,
                             color="#808080")
         any_doc.save()
         # Create Any Nurse
-        test_nurse = User(practice=instance, 
-                            name='Test Nurse', 
+        test_nurse = User(practice=instance,
+                            name='Test Nurse',
                             type='nurse',
                             is_site_user=False,
                             is_admin=False,
                             color="#ff00ff")
         test_nurse.save()
         # Create Any Doctor
-        test_doc = User(practice=instance, 
-                            name='Test Doctor', 
+        test_doc = User(practice=instance,
+                            name='Test Doctor',
                             type='doctor',
                             is_site_user=False,
                             is_admin=False,
@@ -328,11 +328,11 @@ def practice_save_receiver(sender, instance, created, **kwargs):
         for i in range(1,4):
             proc = Task(practice=instance, name='Task %s' % i, sort_order=i)
             proc.save()
-        
 
-#########################################################   
+
+#########################################################
 # Connect signals
 #########################################################
-post_save.connect(user_save_receiver, sender=User)   
+post_save.connect(user_save_receiver, sender=User)
 post_save.connect(room_save_receiver, sender=Room)
 post_save.connect(practice_save_receiver, sender=Practice)
