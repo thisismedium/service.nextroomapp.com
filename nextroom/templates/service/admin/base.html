@@ -1,25 +1,31 @@
-<h1>Admin</h1>
-<a href='/logout/'>Logout</a>
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{{user.practice}} // NextRoom</title>
+    <link rel="stylesheet" type="text/css" href="{{media}}nextroom.css" />
+  </head>
+  <body>
 
-<p>Logged-in user: {{ user }}</p>
-<p>Logged-in Practice: {{ user.practice }}</p>
+    <header>
+      <h1>NextRoom // {{user.practice}}</h1>
+      <nav>
+	<a href="#">App</a>
+	<a href="/logout/">Logout</a>
+      </nav>
+    </header>
 
-<h3>Users</h3>
-{% for u in user.practice.users %}
-<p>{{ u }}</p>
-{% endfor %}
+    <section id="app" role="main">
+      <ul class="panel">
+	<li class="entry"><a href="#users">Users</a></li>
+	<li class="entry"><a href="#rooms">Rooms</a></li>
+	<li class="entry"><a href="#notes">Notes</a></li>
+	<li class="entry"><a href="#tasks">Tasks</a></li>
+      </ul>
+    </section>
 
-<h3>Rooms</h3>
-{% for r in user.practice.rooms %}
-<p>{{ r }}</p>
-{% endfor %}
+    <footer></footer>
 
-<h3>Notes</h3>
-{% for n in user.practice.notes %}
-<p>{{ n }}</p>
-{% endfor %}
-
-<h3>Tasks</h3>
-{% for t in user.practice.tasks %}
-<p>{{ t }}</p>
-{% endfor %}
+    <script type="text/css" href="{{media}}jquery-1.4.2.min.js"></script>
+    <script type="text/css" href="{{media}}nextroom.js"></script>
+  </body>
+</html>

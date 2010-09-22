@@ -1,0 +1,57 @@
+@import url(reset.css);
+
+/* ## Base ## */
+
+html {
+    font-size: 12pt; }
+
+body {
+    width: 60em;
+    margin: 2em auto; }
+
+/* ## Header ## */
+
+header {
+    position: relative;
+    margin-bottom: 2em; }
+
+header h1 {
+    font-size: 1.4em; }
+
+header nav {
+    position: absolute;
+    line-height: 1.4em;
+    bottom: 0;
+    right: 0; }
+
+/* ## Footer ## */
+
+footer {
+    clear: both; }
+
+/* ## App ## */
+
+#app {
+    font-size: 1.2em; }
+
+#app .panel {
+    display: block;
+    float: left;
+    margin-right: 1em; }
+
+#app .entry {
+    display: block;
+    list-style-type: none;
+    margin-bottom: 0.4em; }
+
+#app .entry a {
+    display: block;
+    padding: 0.2em 0.4em;
+    color: blue;
+    text-decoration: none; }
+
+#app .entry a:hover {
+    background-color: blue;
+    color: white; }
+
+
