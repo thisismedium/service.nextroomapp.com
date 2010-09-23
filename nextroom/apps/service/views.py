@@ -316,7 +316,7 @@ def login(request):
         user = authenticate(email,password)
         if user is not None and isinstance(user, User):
             request.session[USER_KEY] = user
-            return HttpResponseRedirect('/')
+            return HttpResponseRedirect('/#app')
         else:
             request.session[USER_KEY] = None
             valid = False
@@ -339,20 +339,87 @@ def admin(request):
         'media': '%sservice/' % settings.MEDIA_URL
     })
 
-def get_item_list(request, model=None):
-    # Return list of objects for given model
-    return HttpResponse("list goes here")
+def get_model(model):
+    return PUBLIC.get(model)
 
-def app_model(request, name):
+def get_items(model, practice):
+    try:
+        return model.objects.filter(practice=practice).order_by('sort_order', 'name')
+    except AttributeError:
+        return []
+
+def get_item(model, practice, id):
+    try:
+        return model.objects.get(id=id)
+    except model.DoesNotExist:
+        return None
+
+def app_model(request, model):
+    # GET: Return list of items for given model
+    # POST: Create a new object for given model
+    # PUT: Update sort_order for given model
+    
+    # if request.META['CONTENT_TYPE'] == 'application/json':
+    #         pass
+    #     else:
+    #         response = HttpResponse()
+    #         response.status_code = 400
+    #         return response
+    
+    # Get User and Practice
+    user = request.session.get(USER_KEY, None)
+    if user is not None:
+        practice = user.practice
+    else:
+        practice = None
+    
+    if request.method == 'GET':
+        items = get_items(get_model(model), practice)
+    elif request.method == 'POST':
+        #item = post_item(get_model(model), practice, data)
+        pass
+    elif request.method == 'PUT':
+        #item = put_items(get_model(model), practice, data)
+        pass
+    else:
+        response = json_response({})
+        response.status_code = 400
+        return response
+    
     return json_response([
-        dict(name='%s %d' % (name.title(), i), uri='app/%s/%d' % (name, i))
-        for i in xrange(5)
+        dict(name='%s' % (i.name), uri='app/%s/%d' % (model, i.pk))
+        for i in items
     ])
 
-def app_instance(request, name, key):
+def app_instance(request, model, id):
+    # GET: Return item for given model
+    # PUT: Update item for given model
+    # DELETE: Delete item for given model
+    
+    # Get User and Practice
+    user = request.session.get(USER_KEY, None)
+    if user is not None:
+        practice = user.practice
+    else:
+        practice = None
+    
+    # Process request
+    if request.method == 'GET':
+        item = get_item(get_model(model), practice, id)
+    elif request.method == 'PUT':
+        #item = put_item(get_model(model), practice, id, data)
+        pass
+    elif request.method == 'DELETE':
+        #item = delete_item(get_model(model), practice, id)
+        pass
+    else:
+        response = json_response({})
+        response.status_code = 400
+        return response
+    
     return json_response({
-        'name': '%s %d' % (name.title(), int(key)),
-        'uri': 'app/%s/%d' % (name, int(key))
+        'name': '%s' % (item.name),
+        'uri': 'app/%s/%d' % (model, int(id))
     })
 
 def json_response(obj):

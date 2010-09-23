@@ -65,6 +65,12 @@ def increment_user_version(user):
     user.save()
 
     return version
+    
+PUBLIC = {}
+
+def public(cls):
+    PUBLIC[cls.__name__.lower()] = cls
+    return cls    
 
 #########################################################
 # Models
@@ -81,18 +87,6 @@ class Practice(models.Model):
 
     def __unicode__(self):
         return u'%s' % self.practice_name
-
-    def users(self):
-        return User.objects.filter(practice=self).order_by('sort_order', 'name')
-
-    def rooms(self):
-        return Room.objects.filter(practice=self).order_by('sort_order', 'roomnumber')
-
-    def notes(self):
-        return Note.objects.filter(practice=self).order_by('sort_order', 'name')
-
-    def tasks(self):
-        return Task.objects.filter(practice=self).order_by('sort_order', 'name')
 
 class Version(models.Model):
     """
@@ -130,7 +124,7 @@ class Tag(models.Model):
                 increment_user_version(user)
 
 
-
+@public
 class Note(Tag):
     """
         Nurse-given tag for a room
@@ -141,7 +135,7 @@ class Note(Tag):
         super(Note, self).save(force_insert, force_update)
         increment_type_version('note')
 
-
+@public
 class Task(Tag):
     """
         Doctor-given tag for a room
@@ -152,7 +146,7 @@ class Task(Tag):
         super(Task, self).save(force_insert, force_update)
         increment_type_version('procedure')
 
-
+@public
 class User(models.Model):
     """
         Doctor or Nurse
@@ -208,7 +202,7 @@ class User(models.Model):
     def __unicode__(self):
         return self.name
 
-
+@public
 class Room(models.Model):
     """
         Room
@@ -223,7 +217,7 @@ class Room(models.Model):
     notes = models.ManyToManyField(Note, null=True, blank=True)
     procedures = models.ManyToManyField(Task, null=True, blank=True)
     status = models.CharField(max_length=8, choices=STATUS_CHOICES, default='C')
-    roomnumber = models.CharField(max_length=64, verbose_name="Room Number")
+    name = models.CharField(max_length=64, verbose_name="Room Number")
     timestampinqueue = models.TimeField(null=True, blank=True, verbose_name="Time Put in Queue")
     lasttimeinqueue = models.TimeField(null=True, blank=True, verbose_name="Last Time Put in Queue")
     sort_order = models.IntegerField(default=0, blank=True)
@@ -247,7 +241,7 @@ class Room(models.Model):
 
 
     def __unicode__(self):
-        return "Room %s" % self.roomnumber
+        return "Room %s" % self.name
 
 #########################################################
 # Signal listeners
@@ -320,7 +314,7 @@ def practice_save_receiver(sender, instance, created, **kwargs):
                             color="#993300")
         test_doc.save()
         for i in range(1,4):
-            room = Room(practice=instance, roomnumber='%s' % i, sort_order=i)
+            room = Room(practice=instance, name='%s' % i, sort_order=i)
             room.save()
         for i in range(1,4):
             note = Note(practice=instance, name='Note %s' % i, sort_order=i)

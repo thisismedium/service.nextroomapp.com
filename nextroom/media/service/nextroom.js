@@ -13,7 +13,7 @@ var NR = {};
   NR.init = function() {
     root = Router.window();
     $('[role=main] > section').each(initSection);
-    Router.window('app');
+    Router.window(Router.location());
     return this;
   };
 
