@@ -45,14 +45,19 @@ footer {
 
 .field {
     display: block;
-    list-style-type: none; }
+    list-style-type: none;
+    margin-bottom: 0.6em; }
 
 .field label {
     display: block;
     font-weight: bold; }
 
+.checkbox-field label {
+    display: inline; }
+
 .buttons {
-    text-align: right; }
+    margin-top: 0.4em;
+    text-align: left; }
 
 
 /* ## App ## */
@@ -71,7 +76,8 @@ footer {
     list-style-type: none;
     margin-bottom: 0.4em; }
 
-#app .header span, #app .entry a {
+#app .header span,
+#app .entry a {
     display: block;
     padding: 0.2em 1.8em 0.2em 0.4em;
     border-radius: 4pt;
@@ -87,7 +93,8 @@ footer {
 #app .over a {
     background-color: yellow; }
 
-#app .panel .delete, #app .panel .add {
+#app .panel .delete,
+#app .panel .add {
     position: absolute;
     bottom: 0;
     right: 0; }
@@ -96,4 +103,6 @@ footer {
     background-color: blue;
     color: white; }
 
-
+.user-detail .website-fields {
+    margin-top: 1em;
+    display: none; }

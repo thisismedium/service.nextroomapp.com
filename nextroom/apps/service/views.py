@@ -336,6 +336,7 @@ def admin(request):
     user = request.session.get(USER_KEY, None)
     return render_to_response('service/admin/base.html', {
         'user': user,
+        'user_types': User.TYPE_CHOICES,
         'media': '%sservice/' % settings.MEDIA_URL
     })
 

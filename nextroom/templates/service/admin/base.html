@@ -28,7 +28,8 @@
     <footer></footer>
 
     <div id="template">
-      <form class="panel entry-detail">
+      <!-- This form is used for Room, Note, and Task details. -->
+      <form class="panel room-detail note-detail task-detail">
 	<ul class="fields">
 	  <li class="field">
 	    <label>Name</label>
@@ -36,10 +37,59 @@
 	  </li>
 	</ul>
 	<div class="buttons">
-	  <input type="button" value="Cancel" class="cancel button" />
 	  <input type="submit" value="Save" class="submit button" />
+	  <input type="button" value="Cancel" class="cancel button" />
 	</div>
       </form>
+
+      <!-- This form is used for User details. -->
+      <form class="panel user-detail">
+	<ul class="fields">
+	  <li class="field">
+	    <label>Name</label>
+	    <input type="text" name="name" />
+	  </li>
+	  <li class="field">
+	    <label>Role</label>
+	    <select name="type">
+	      <option value="">Choose...</option>
+	      {% for val, key in user_types %}
+	        <option value="{{val}}">{{key}}</option>
+	      {% endfor %}
+	    </select>
+	  </li>
+	  <li class="field">
+	    <label>PIN</label>
+	    <input type="text" name="pin" />
+	  </li>
+	  <li class="field">
+	    <a>Choose Color</a>
+	  </li>
+	  <li class="field checkbox-field">
+	    <label>Website?</label>
+	    <input type="checkbox" name="is_site_user" />
+	  </li>
+	</ul>
+	<ul class="fields website-fields">
+	  <li class="field">
+	    <label>Email</label>
+	    <input type="text" name="email" />
+	  </li>
+	  <li class="field">
+	    <label>Password</label>
+	    <input type="password" name="password" />
+	  </li>
+	  <li class="field checkbox-field">
+	    <label>Admin?</label>
+	    <input type="checkbox" name="is_admin_user" />
+	  </li>
+	</ul>
+	<div class="buttons">
+	  <input type="submit" value="Save" class="submit button" />
+	  <input type="button" value="Cancel" class="cancel button" />
+	</div>
+      </form>
+
     </div>
 
     <script type="text/javascript" src="{{media}}jquery-1.4.2.min.js"></script>

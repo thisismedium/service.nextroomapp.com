@@ -102,7 +102,7 @@ var NR = {};
         return obj;
       }
 
-      sortable(el, '.entry', function(entries) {
+      el.sortable('.entry', function(entries) {
         var data = entries.map(function() {
           return $.data(this, 'nextroom');
         });
@@ -160,9 +160,31 @@ var NR = {};
     }
 
     function detailForm(method, area, data) {
-      var form = $('#template .entry-detail').clone();
+      var probe = data.uri.match(/app\/([^\/]+)\/.*/),
+          kind = probe[1],
+          ctor = { 'user': user },
+          form = (ctor[kind] || setup)($('#template .' + kind + '-detail').clone());
 
-      form.submit(function(ev) {
+      // Extra setup for the User form.
+      function user(form) {
+        return setup(form)
+          .find('[name=is_site_user]').change(function() {
+            form.find('.website-fields')[this.checked ? 'slideDown' : 'slideUp']('fast');
+          }).change()
+          .end();
+      }
+
+      // Standard setup.
+      function setup(form) {
+        return form
+          .formData(data)
+          .labelFields()
+          .submit(submit)
+          .find('.cancel').click(cancel)
+          .end();
+      }
+
+      function submit(ev) {
         ev.preventDefault();
         request(method, data.uri, {
           data: formData(form),
@@ -172,12 +194,11 @@ var NR = {};
             console.debug('Saved!', data);
           }
         });
-      });
+      }
 
-      formData(form, data)
-        .find('.buttons .cancel').click(function() {
-          root.up();
-        });
+      function cancel() {
+        root.up();
+      }
 
       return {
         load: function(next) {
@@ -193,6 +214,13 @@ var NR = {};
     }
   });
 
+  // Make a JSON AJAX request.
+  //
+  // + type - String HTTP method.
+  // + url  - String resource identifier.
+  // + opt  - Object additional options (see $.ajax())
+  //
+  // Returns nothing.
   function request(type, url, opt) {
     opt.type = type;
     opt.url = url;
@@ -206,7 +234,36 @@ var NR = {};
     $.ajax(opt);
   }
 
-  function formData(form, data) {
+  // Add `id` and `for` attribute to input/label pairs that don't
+  // already have them.
+  //
+  // + selector - identify input/label groups (default: '.field')
+  //
+  // Returns original jQuery
+  $.fn.labelFields = function labelFields(selector) {
+    return this
+      .find(selector || '.field').each(function() {
+        var input = $(':input', this),
+            label = $('label', this),
+            id = input.attr('id');
+
+        if (!id) {
+          id = label.text() + (new Date()).getTime();
+          input.attr('id', id);
+          label.attr('for', id);
+        }
+      })
+      .end();
+  };
+
+  // Serialize a form or update its inputs values if `data` is given.
+  //
+  // + data - Object update the form with these values (optional).
+  //
+  // Returns original jQuery or data object.
+  $.fn.formData = function formData(data) {
+    var form = this;
+
     if (data !== undefined) {
       $.each(data, function(key, val) {
         form.find('[name=' + key + ']:input').val(val);
@@ -220,10 +277,18 @@ var NR = {};
       });
       return data;
     }
-  }
 
-  function sortable(list, selector, onDrop) {
-    var dragItem,
+  };
+
+  // Use HTML5 drag/drop events to make a list sortable.
+  //
+  // + selector - String identifies draggable elements.
+  // + onDrop   - Function called when sort order has changed.
+  //
+  // Returns original jQuery.
+  $.fn.sortable = function sortable(selector, onSort) {
+    var list = this,
+        dragItem,
         nested;
 
     items()
@@ -297,7 +362,7 @@ var NR = {};
       var drop = item(ev.target);
       drop[(drop.index() > dragItem.index()) ? 'after' : 'before'](dragItem);
       dragItem = undefined;
-      onDrop(items());
+      onSort(items());
       return false;
     }
 
