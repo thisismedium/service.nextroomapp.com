@@ -187,7 +187,7 @@ var NR = {};
       function submit(ev) {
         ev.preventDefault();
         request(method, data.uri, {
-          data: formData(form),
+          data: form.formData(),
           success: function(data) {
             // FIXME: update form
             // FIXME: update list
