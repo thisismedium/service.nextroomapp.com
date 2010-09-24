@@ -81,7 +81,7 @@ var NR = {};
       var el = $('<ul class="panel" />');
 
       $('<span/>')
-        .text('FIXME: Header')
+        .html('&nbsp;')
         .append('<input type="button" class="add" value="+" />')
         .wrap('<li class="header" />')
           .parent()
@@ -223,13 +223,15 @@ var NR = {};
   }
 
   function sortable(list, selector, onDrop) {
-    var dragItem;
+    var dragItem,
+        nested;
 
     items()
       .attr('draggable', 'true')
       .bind('dragstart', dragStart)
       .bind('dragend', dragEnd)
       .bind('dragenter', dragEnter)
+      .bind('dragleave', dragLeave)
       .bind('dragover', dragOver)
       .bind('drop', drop);
 
@@ -257,19 +259,32 @@ var NR = {};
       );
     }
 
-    function dragEnter(ev) {
-      var target = item(ev.target);
-      if (!target.is('.over'))
-        target
-          // Do this here instead of dragleave because of the order
-          // WebKit fires events for nested elements.
-          .siblings('.over').removeClass('over').end()
-          .addClass('over');
+    function dragOver(ev) {
+      // Default behavior is not to allow dropping.  Return `false` to
+      // override this.
+      return !isDrop(item(ev.target).get(0));
     }
 
-    function dragOver(ev) {
-      // Return "false" if dropping is allowed.
-      return !isDrop(item(ev.target).get(0));
+    function dragEnter(ev) {
+      var target = item(ev.target);
+      if (target.is('.over'))
+        // A `dragenter` event has been fired on a nested element of
+        // the current drop target.  Inform `dragLeave` that this
+        // happened by setting `nested`.
+        nested = target;
+      else if (isDrop(target.get(0))) {
+        // Default behavior is not to allow dropping.  Return `false`
+        // to override this.
+        target.addClass('over');
+        return false;
+      }
+    }
+
+    function dragLeave(ev) {
+      var target = item(ev.target);
+      if (!nested || nested.get(0) != target.get(0))
+        target.removeClass('over');
+      nested = undefined;
     }
 
     function dragEnd(ev) {

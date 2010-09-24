@@ -74,13 +74,10 @@ footer {
 #app .header span, #app .entry a {
     display: block;
     padding: 0.2em 1.8em 0.2em 0.4em;
-    border-radius: 4pt; }
-
-#app .header span {
-    background-color: #666; }
+    border-radius: 4pt;
+    background-color: #eee; }
 
 #app .entry a {
-    background-color: #eee;
     color: blue;
     text-decoration: none; }
 
