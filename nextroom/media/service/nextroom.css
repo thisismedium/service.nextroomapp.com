@@ -65,20 +65,37 @@ footer {
     float: left;
     margin-right: 1em; }
 
-#app .entry {
+#app .header, #app .entry {
+    position: relative;
     display: block;
     list-style-type: none;
     margin-bottom: 0.4em; }
 
-#app .entry a {
+#app .header span, #app .entry a {
     display: block;
-    padding: 0.2em 0.4em;
-    color: blue;
+    padding: 0.2em 1.8em 0.2em 0.4em;
+    border-radius: 4pt; }
+
+#app .header span {
+    background-color: #666; }
+
+#app .entry a {
     background-color: #eee;
-    border-radius: 4pt;
+    color: blue;
     text-decoration: none; }
 
-#app .entry a:hover {
+#app .drag a {
+    background-color: red; }
+
+#app .over a {
+    background-color: yellow; }
+
+#app .panel .delete, #app .panel .add {
+    position: absolute;
+    bottom: 0;
+    right: 0; }
+
+#app .panel a:hover {
     background-color: blue;
     color: white; }
 

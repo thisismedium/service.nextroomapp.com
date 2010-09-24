@@ -358,34 +358,34 @@ def app_model(request, model):
     # GET: Return list of items for given model
     # POST: Create a new object for given model
     # PUT: Update sort_order for given model
-    
+
     # if request.META['CONTENT_TYPE'] == 'application/json':
     #         pass
     #     else:
     #         response = HttpResponse()
     #         response.status_code = 400
     #         return response
-    
+
     # Get User and Practice
     user = request.session.get(USER_KEY, None)
     if user is not None:
         practice = user.practice
     else:
         practice = None
-    
+
     if request.method == 'GET':
         items = get_items(get_model(model), practice)
     elif request.method == 'POST':
         #item = post_item(get_model(model), practice, data)
-        pass
+        return json_response({ 'uri': 'app/%s/some-id' % model, 'name': Data.load(request).name }) # stub
     elif request.method == 'PUT':
         #item = put_items(get_model(model), practice, data)
-        pass
+        return json_response({}) # stub
     else:
         response = json_response({})
         response.status_code = 400
         return response
-    
+
     return json_response([
         dict(name='%s' % (i.name), uri='app/%s/%d' % (model, i.pk))
         for i in items
@@ -395,32 +395,42 @@ def app_instance(request, model, id):
     # GET: Return item for given model
     # PUT: Update item for given model
     # DELETE: Delete item for given model
-    
+
     # Get User and Practice
     user = request.session.get(USER_KEY, None)
     if user is not None:
         practice = user.practice
     else:
         practice = None
-    
+
     # Process request
     if request.method == 'GET':
         item = get_item(get_model(model), practice, id)
     elif request.method == 'PUT':
         #item = put_item(get_model(model), practice, id, data)
-        pass
+        item = Data.load(request) # stub
     elif request.method == 'DELETE':
         #item = delete_item(get_model(model), practice, id)
-        pass
+        return json_response({}) # stub
     else:
         response = json_response({})
         response.status_code = 400
         return response
-    
+
     return json_response({
         'name': '%s' % (item.name),
         'uri': 'app/%s/%d' % (model, int(id))
     })
+
+class Data(object):
+    """Stub: load JSON, wrap it in an object so it looks like a model
+    instance."""
+
+    @classmethod
+    def load(cls, request):
+        obj = cls()
+        obj.__dict__.update(json.loads(request.raw_post_data))
+        return obj
 
 def json_response(obj):
     return HttpResponse(json.dumps(obj), mimetype='application/json')

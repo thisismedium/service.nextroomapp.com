@@ -61,7 +61,7 @@ var NR = {};
       return {
         get: function(uri, next) {
           $.getJSON(uri, function(data, status) {
-            next(null, listPanel(root, data));
+            next(null, listPanel(uri, root, data));
           });
         },
 
@@ -77,19 +77,73 @@ var NR = {};
       };
     }
 
-    function listPanel(area, data) {
+    function listPanel(uri, area, data) {
       var el = $('<ul class="panel" />');
 
+      $('<span/>')
+        .text('FIXME: Header')
+        .append('<input type="button" class="add" value="+" />')
+        .wrap('<li class="header" />')
+          .parent()
+          .appendTo(el);
+
       $.each(data, function(index, obj) {
-        var anchor = $('<a/>').attr('href', '#' + obj.uri);
-        anchor.html(obj.name);
-        anchor.wrap('<li class="entry" />').parent().appendTo(el);
+        makeEntry(obj);
+      });
+
+      function makeEntry(obj) {
+        $('<a/>').attr('href', '#' + obj.uri)
+          .text(obj.name || '')
+          .append('<input type="button" class="delete" value="x" />')
+          .wrap('<li class="entry" />')
+            .parent()
+            .data('nextroom', obj)
+            .appendTo(el);
+        return obj;
+      }
+
+      sortable('.entry', el, function(entries) {
+        var data = entries.map(function() {
+          return $.data(this, 'nextroom');
+        });
+
+        request('put', uri, {
+          data: data.get(),
+          success: function(data) {
+            console.debug('FIXME: SORTED!');
+          }
+        });
+      });
+
+      el.find('.add').click(function(ev) {
+        // FIXME: using "/new" is cheating.
+        // FIXME: better name
+        // FIXME: hook up sortable and delete
+        var obj = makeEntry({ uri: uri, name: 'New Item' });
+        Router.window(uri);
+        detailForm('post', area, obj).load(function() {
+          console.debug('FIXME: get this on the stack.');
+        });
+      });
+
+      el.find('.delete').click(function(ev) {
+        var uri = this.parentNode.href.replace(/^.*#/, ''),
+            entry = $(this).parents('.entry');
+
+        request('delete', uri, {
+          success: function() {
+            // FIXME: maybe blur form first?
+            entry.remove();
+          }
+        });
+
+        return false;
       });
 
       return {
         get: function(uri, next) {
           $.getJSON(uri, function(data, status) {
-            next(null, detailForm(area, data));
+            next(null, detailForm('put', area, data));
           });
         },
 
@@ -105,21 +159,25 @@ var NR = {};
       };
     }
 
-    function detailForm(area, data) {
+    function detailForm(method, area, data) {
       var form = $('#template .entry-detail').clone();
 
       form.submit(function(ev) {
         ev.preventDefault();
-        console.debug('TODO: save form');
+        request(method, data.uri, {
+          data: formData(form),
+          success: function(data) {
+            // FIXME: update form
+            // FIXME: update list
+            console.debug('Saved!', data);
+          }
+        });
       });
 
-      form.find('.buttons .cancel').click(function() {
-        root.up();
-      });
-
-      $.each(data, function(key, val) {
-        form.find('[name=' + key + ']:input').val(val);
-      });
+      formData(form, data)
+        .find('.buttons .cancel').click(function() {
+          root.up();
+        });
 
       return {
         load: function(next) {
@@ -135,11 +193,119 @@ var NR = {};
     }
   });
 
-  
-  // ## State ##
+  function request(type, url, opt) {
+    opt.type = type;
+    opt.url = url;
+    opt.contentType = 'application/json';
+    opt.data = opt.data && JSON.stringify(opt.data);
 
-  var STATE = [];
+    opt.error = opt.error || function(xhr, status) {
+      NR.error('Failed to save', data.uri, status);
+    };
 
+    $.ajax(opt);
+  }
+
+  function formData(form, data) {
+    if (data !== undefined) {
+      $.each(data, function(key, val) {
+        form.find('[name=' + key + ']:input').val(val);
+      });
+      return form;
+    }
+    else {
+      data = {};
+      form.find('[name]:input').each(function() {
+        data[this.name] = $(this).val();
+      });
+      return data;
+    }
+  }
+
+  function sortable(selector, list, onDrop) {
+    var _drag,
+        items = list.children(selector)
+          .attr('draggable', 'true')
+          .bind('dragstart', drag_start)
+          .bind('dragend', drag_end)
+          .bind('dragenter', drag_enter)
+          .bind('dragover', drag_over)
+          .bind('drop', drop);
+
+    function item(obj) {
+      return $(obj).up(selector);
+    }
+
+    function drag_start(ev) {
+      _drag = item(ev.target).addClass('drag');
+      ev.originalEvent.dataTransfer.setData('FireFox', 'requires this');
+      return true;
+    }
+
+    function drag_end(ev) {
+      item(ev.target).removeClass('drag')
+        .siblings().andSelf().removeClass('over');
+    }
+
+    function drag_enter(ev) {
+      item(ev.target)
+      // Do this here instead of dragleave because of the order
+      // WebKit fires events for nested elements.
+        .siblings('.over').removeClass('over').end()
+        .addClass('over');
+    }
+
+    function is_drop(elem) {
+      return (elem != _drag[0]) && (elem.parentNode == _drag[0].parentNode);
+    }
+
+    function drag_over(ev) {
+      // Return "false" if dropping is allowed.
+      return !is_drop(item(ev.target).get(0));
+    }
+
+    function drop(ev) {
+      // Place the dragged node on the "other side" of the drop
+      // target depending on their relative position.
+      var drop = item(ev.target).removeClass('over');
+      drop[(drop.index() > _drag.index()) ? 'after' : 'before'](_drag);
+      _drag = undefined;
+      onDrop(items);
+      return false;
+    }
+
+    return list;
+  }
+
+   // Starting with the current query, try to match the selector
+   // otherwise try parent().
+   $.fn.up = function(sel) {
+     var item = this;
+     while (item && !item.is(sel)) {
+       item = item.parent();
+     }
+     return item;
+   };
+
+   // down() -- a shallow find/each
+   //
+   // Walk downward, until the selector is matched.  Call fn() on
+   // matched each matched item.  Don't traverse into matched item.
+   $.fn.down = function(sel, fn) {
+     var queue = this.get(),
+         elem, item, idx, lim;
+
+     while (queue.length > 0) {
+       elem = queue.shift();
+       item = $(elem);
+       if (!item.is(sel))
+         $.merge(queue, item.children());
+       else if (false === fn.call(queue[idx], item))
+       break;
+     }
+
+     return this;
+   };
 
   
   // ## Router ##
