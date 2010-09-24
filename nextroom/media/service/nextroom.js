@@ -102,7 +102,7 @@ var NR = {};
         return obj;
       }
 
-      sortable('.entry', el, function(entries) {
+      sortable(el, '.entry', function(entries) {
         var data = entries.map(function() {
           return $.data(this, 'nextroom');
         });
@@ -222,55 +222,67 @@ var NR = {};
     }
   }
 
-  function sortable(selector, list, onDrop) {
-    var _drag,
-        items = list.children(selector)
-          .attr('draggable', 'true')
-          .bind('dragstart', drag_start)
-          .bind('dragend', drag_end)
-          .bind('dragenter', drag_enter)
-          .bind('dragover', drag_over)
-          .bind('drop', drop);
+  function sortable(list, selector, onDrop) {
+    var dragItem;
+
+    items()
+      .attr('draggable', 'true')
+      .bind('dragstart', dragStart)
+      .bind('dragend', dragEnd)
+      .bind('dragenter', dragEnter)
+      .bind('dragover', dragOver)
+      .bind('drop', drop);
 
     function item(obj) {
       return $(obj).up(selector);
     }
 
-    function drag_start(ev) {
-      _drag = item(ev.target).addClass('drag');
-      ev.originalEvent.dataTransfer.setData('FireFox', 'requires this');
+    function items() {
+      return list.children(selector);
+    }
+
+    function dragStart(ev) {
+      var dt = ev.originalEvent.dataTransfer;
+      dragItem = item(ev.target).addClass('drag');
+      dt.setData('FireFox', 'requires this');
+      dt.effectAllowed = 'move';
       return true;
     }
 
-    function drag_end(ev) {
-      item(ev.target).removeClass('drag')
-        .siblings().andSelf().removeClass('over');
+    function isDrop(elem) {
+      return (
+        (elem != dragItem[0])
+          && elem.draggable
+          && (elem.parentNode == dragItem[0].parentNode)
+      );
     }
 
-    function drag_enter(ev) {
-      item(ev.target)
-      // Do this here instead of dragleave because of the order
-      // WebKit fires events for nested elements.
-        .siblings('.over').removeClass('over').end()
-        .addClass('over');
+    function dragEnter(ev) {
+      var target = item(ev.target);
+      if (!target.is('.over'))
+        target
+          // Do this here instead of dragleave because of the order
+          // WebKit fires events for nested elements.
+          .siblings('.over').removeClass('over').end()
+          .addClass('over');
     }
 
-    function is_drop(elem) {
-      return (elem != _drag[0]) && (elem.parentNode == _drag[0].parentNode);
-    }
-
-    function drag_over(ev) {
+    function dragOver(ev) {
       // Return "false" if dropping is allowed.
-      return !is_drop(item(ev.target).get(0));
+      return !isDrop(item(ev.target).get(0));
+    }
+
+    function dragEnd(ev) {
+      items().removeClass('drag over');
     }
 
     function drop(ev) {
       // Place the dragged node on the "other side" of the drop
       // target depending on their relative position.
-      var drop = item(ev.target).removeClass('over');
-      drop[(drop.index() > _drag.index()) ? 'after' : 'before'](_drag);
-      _drag = undefined;
-      onDrop(items);
+      var drop = item(ev.target);
+      drop[(drop.index() > dragItem.index()) ? 'after' : 'before'](dragItem);
+      dragItem = undefined;
+      onDrop(items());
       return false;
     }
 
