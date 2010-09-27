@@ -73,7 +73,7 @@ def public(cls):
     return cls    
 
 #########################################################
-# Base & Helper Models
+# Base & Helper Models -- private
 #########################################################
 
 class Version(models.Model):
@@ -97,7 +97,7 @@ class Tag(models.Model):
     """
         Base class for tag objects
     """
-    practice = models.ForeignKey(Practice, blank=False, null=False)
+    practice = models.ForeignKey('Practice', blank=False, null=False)
     name = models.CharField(max_length=256)
     sort_order = models.IntegerField(default=0, blank=True)
 
@@ -112,7 +112,7 @@ class Tag(models.Model):
                 increment_user_version(user)
 
 #########################################################
-# NextRoom App/Service Models
+# NextRoom App/Service Models - public
 #########################################################
 @public
 class Practice(models.Model):
