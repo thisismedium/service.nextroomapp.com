@@ -73,20 +73,8 @@ def public(cls):
     return cls    
 
 #########################################################
-# Models
+# Base & Helper Models
 #########################################################
-
-class Practice(models.Model):
-    """
-        Practices are the owner of NR app data
-    """
-    practice_name = models.CharField(max_length=255, blank=False, null=False)
-    app_auth_name = models.CharField(max_length=250, blank=False, null=False, unique=True)
-    email = models.EmailField(blank=False, null=False)
-    active = models.BooleanField(default=True, blank=True)
-
-    def __unicode__(self):
-        return u'%s' % self.practice_name
 
 class Version(models.Model):
     """
@@ -94,7 +82,7 @@ class Version(models.Model):
             1) Version for each User
             2) Version for All Users (in case we add users)
             3) Version for Notes
-            4) Version for Specifications
+            4) Version for Tasks
             5) Version for Rooms
     """
     versionNumber = models.CharField(max_length=32)
@@ -123,6 +111,21 @@ class Tag(models.Model):
             for user in room.assignedto.all():
                 increment_user_version(user)
 
+#########################################################
+# NextRoom App/Service Models
+#########################################################
+@public
+class Practice(models.Model):
+    """
+        Practices are the owner of NR app data
+    """
+    practice_name = models.CharField(max_length=255, blank=False, null=False)
+    app_auth_name = models.CharField(max_length=250, blank=False, null=False, unique=True)
+    email = models.EmailField(blank=False, null=False)
+    active = models.BooleanField(default=True, blank=True)
+
+    def __unicode__(self):
+        return u'%s' % self.practice_name
 
 @public
 class Note(Tag):
@@ -144,7 +147,7 @@ class Task(Tag):
 
     def save(self, force_insert=False, force_update=False):
         super(Task, self).save(force_insert, force_update)
-        increment_type_version('procedure')
+        increment_type_version('task')
 
 @public
 class User(models.Model):
