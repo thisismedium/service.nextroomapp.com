@@ -291,6 +291,46 @@ def update_room(request):
 
         return render_to_response('service/app/rooms.xml', {'results': rooms, 'version': "%s%s" % (rooms_version.versionNumber, user.version.versionNumber), 'status': 'update', 'notify': 'YES'}, mimetype="text/xml")
 
+
+
+#######################################
+#   NextRoom web helpers
+#######################################
+
+def get_model(model):
+    # Return model based on URL arg
+    return PUBLIC.get(model)
+
+def get_items(model, practice):
+    # Return all objects for given model & practice
+    try:
+        return model.objects.filter(practice=practice).order_by('sort_order', 'name')
+    except AttributeError:
+        return []
+
+def get_item(model, practice, id):
+    # Return object for given model, practice, & id
+    try:
+        return model.objects.get(id=id)
+    except model.DoesNotExist:
+        return None
+
+def post_item(model, practice, data):
+    # Create a new object for given model & practice
+    pass
+
+def put_items(model, practice, data):
+    # Re-sort all objects for given model & practice
+    pass
+
+def put_item(model, practice, id, data):
+    # Update given object for model, practice, & id with data
+    pass
+
+def delete_item(model, practice, id):
+    # Delete object for model & practice
+    pass
+
 #######################################
 #   NextRoom web URLs
 #######################################
@@ -340,21 +380,7 @@ def admin(request):
         'media': '%sservice/' % settings.MEDIA_URL
     })
 
-def get_model(model):
-    return PUBLIC.get(model)
-
-def get_items(model, practice):
-    try:
-        return model.objects.filter(practice=practice).order_by('sort_order', 'name')
-    except AttributeError:
-        return []
-
-def get_item(model, practice, id):
-    try:
-        return model.objects.get(id=id)
-    except model.DoesNotExist:
-        return None
-
+@login_required
 def app_model(request, model):
     # GET: Return list of items for given model
     # POST: Create a new object for given model
@@ -392,6 +418,7 @@ def app_model(request, model):
         for i in items
     ])
 
+@login_required
 def app_instance(request, model, id):
     # GET: Return item for given model
     # PUT: Update item for given model
@@ -436,6 +463,7 @@ class Data(object):
 def json_response(obj):
     return HttpResponse(json.dumps(obj), mimetype='application/json')
 
+@login_required
 def reset_rooms(request):
     for r in Room.objects.all():
         r.assignedto.clear()
@@ -450,7 +478,7 @@ def reset_rooms(request):
         u.save()
     return HttpResponseRedirect('/')
 
-
+@login_required
 def screen_display(request):
     try:
         practice = Practice.objects.get(account_name=practice)
@@ -461,6 +489,7 @@ def screen_display(request):
     else:
         return HttpResponseRedirect('/admin/')
 
+@login_required
 def alt_screen_display(request, practice):
     if request.user.is_authenticated() and request.user.is_staff:
         return render_to_response('service/app/alt_screen_display.html')
