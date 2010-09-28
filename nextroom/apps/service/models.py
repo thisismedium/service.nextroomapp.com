@@ -155,6 +155,11 @@ class User(models.Model):
         Doctor or Nurse
 
     """
+    ADD_CHOICES = (
+        ('nurse', 'Nurse'),
+        ('doctor', 'Doctor'),
+        ('site', 'Site User'),
+    )
     TYPE_CHOICES = (
         ('nurse', 'Nurse'),
         ('doctor', 'Doctor'),
