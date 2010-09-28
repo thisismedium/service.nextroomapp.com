@@ -51,9 +51,15 @@
 	  </li>
 	  <li class="field">
 	    <label>Role</label>
-	    <select name="type">
+	    <select name="type" id="edit_types">
 	      <option value="">Choose...</option>
 	      {% for val, key in user_types %}
+	        <option value="{{val}}">{{key}}</option>
+	      {% endfor %}
+	    </select>
+	    <select name="type" id="add_types">
+	      <option value="">Choose...</option>
+	      {% for val, key in add_types %}
 	        <option value="{{val}}">{{key}}</option>
 	      {% endfor %}
 	    </select>
