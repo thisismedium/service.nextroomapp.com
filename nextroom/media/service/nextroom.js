@@ -60,8 +60,10 @@ var NR = {};
     function getModel(root) {
       return {
         get: function(uri, next) {
-          $.getJSON(uri, function(data, status) {
-            next(null, listPanel(uri, root, data));
+          request('get', uri, {
+            success: function(data) {
+              next(null, listPanel(uri, root, data));
+            }
           });
         },
 
@@ -142,8 +144,10 @@ var NR = {};
 
       return {
         get: function(uri, next) {
-          $.getJSON(uri, function(data, status) {
-            next(null, detailForm('put', area, data));
+          request('get', uri, {
+              success: function(data, status) {
+                next(null, detailForm('put', area, data));
+              }
           });
         },
 
