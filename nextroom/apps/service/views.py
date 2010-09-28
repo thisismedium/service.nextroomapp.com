@@ -35,7 +35,6 @@ def login_required(view):
         if u is not None and isinstance(u, User):
             return view(request, *args, **kwargs)
         else:
-            print "no request.user? %s" % request.user
             return login(request)
     return internal
 
@@ -301,6 +300,18 @@ def get_model(model):
     # Return model based on URL arg
     return PUBLIC.get(model)
 
+def json_response(obj):
+    return HttpResponse(json.dumps(obj), mimetype='application/json')
+
+def model_method(method):
+    # Makes a consistent interface for calling API methods
+    # Passes in the actual model to perform method() on
+    @functools.wraps(method)
+    def internal(model, *args, **kwargs):
+        return method(get_model(model), *args, **kwargs)
+    return internal
+
+@model_method
 def get_items(model, practice):
     # Return all objects for given model & practice
     try:
@@ -308,6 +319,7 @@ def get_items(model, practice):
     except AttributeError:
         return []
 
+@model_method
 def get_item(model, practice, id):
     # Return object for given model, practice, & id
     try:
@@ -315,21 +327,34 @@ def get_item(model, practice, id):
     except model.DoesNotExist:
         return None
 
+@model_method
 def post_item(model, practice, data):
     # Create a new object for given model & practice
+    # Returns new item after save, else None
     pass
 
+@model_method
 def put_items(model, practice, data):
     # Re-sort all objects for given model & practice
+    # Returns None
     pass
 
+@model_method
 def put_item(model, practice, id, data):
     # Update given object for model, practice, & id with data
+    # Returns updated object
     pass
 
+@model_method
 def delete_item(model, practice, id):
     # Delete object for model & practice
-    pass
+    # Returns True if delete() succeeds, else False
+    try:
+        model.delete(id=id, practice=practice)
+    except model.DoesNotExist:
+        return False
+    else:
+        return True
 
 #######################################
 #   NextRoom web URLs
@@ -377,6 +402,7 @@ def admin(request):
     return render_to_response('service/admin/base.html', {
         'user': user,
         'user_types': User.TYPE_CHOICES,
+        'add_types': User.ADD_CHOICES,
         'media': '%sservice/' % settings.MEDIA_URL
     })
 
@@ -386,37 +412,37 @@ def app_model(request, model):
     # POST: Create a new object for given model
     # PUT: Update sort_order for given model
 
-    # if request.META['CONTENT_TYPE'] == 'application/json':
-    #         pass
-    #     else:
-    #         response = HttpResponse()
-    #         response.status_code = 400
-    #         return response
+    if request.META['CONTENT_TYPE'] == 'application/json':
+        # Get User and Practice
+        user = request.session.get(USER_KEY, None)
+        if user is not None:
+            practice = user.practice
+        else:
+            practice = None
 
-    # Get User and Practice
-    user = request.session.get(USER_KEY, None)
-    if user is not None:
-        practice = user.practice
-    else:
-        practice = None
+        if request.method == 'GET':
+            items = get_items(model, practice)
+        elif request.method == 'POST':
+            #item = post_item(model, practice, data)
+            return json_response({ 'uri': 'app/%s/some-id' % model, 'name': Data.load(request).name }) # stub
+        elif request.method == 'PUT':
+            #item = put_items(model, practice, data)
+            return json_response({}) # stub
+        else:
+            # Bad verb. Return 400
+            response = json_response({})
+            response.status_code = 400
+            return response
 
-    if request.method == 'GET':
-        items = get_items(get_model(model), practice)
-    elif request.method == 'POST':
-        #item = post_item(get_model(model), practice, data)
-        return json_response({ 'uri': 'app/%s/some-id' % model, 'name': Data.load(request).name }) # stub
-    elif request.method == 'PUT':
-        #item = put_items(get_model(model), practice, data)
-        return json_response({}) # stub
+        return json_response([
+            dict(name='%s' % (i.name), uri='app/%s/%d' % (model, i.pk))
+            for i in items
+        ])
     else:
-        response = json_response({})
+        response = HttpResponse()
         response.status_code = 400
         return response
-
-    return json_response([
-        dict(name='%s' % (i.name), uri='app/%s/%d' % (model, i.pk))
-        for i in items
-    ])
+    
 
 @login_required
 def app_instance(request, model, id):
@@ -433,12 +459,12 @@ def app_instance(request, model, id):
 
     # Process request
     if request.method == 'GET':
-        item = get_item(get_model(model), practice, id)
+        item = get_item(model, practice, id)
     elif request.method == 'PUT':
-        #item = put_item(get_model(model), practice, id, data)
+        #item = put_item(model, practice, id, data)
         item = Data.load(request) # stub
     elif request.method == 'DELETE':
-        #item = delete_item(get_model(model), practice, id)
+        #item = delete_item(model, practice, id)
         return json_response({}) # stub
     else:
         response = json_response({})
@@ -459,9 +485,6 @@ class Data(object):
         obj = cls()
         obj.__dict__.update(json.loads(request.raw_post_data))
         return obj
-
-def json_response(obj):
-    return HttpResponse(json.dumps(obj), mimetype='application/json')
 
 @login_required
 def reset_rooms(request):
