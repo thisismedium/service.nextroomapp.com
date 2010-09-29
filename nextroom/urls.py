@@ -8,13 +8,18 @@ admin.autodiscover()
 urlpatterns = patterns('',
     (r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT, 'show_indexes': True }),
     (r'^admin/(.*)', admin.site.root),
+    
+    # svc/ URLs for iPhone app
     (r'^svc/', include('apps.service.urls')),
-    #(r'^(?P<model>)/list', 'apps.service.views.get_item_list'),
-    (r'^app/([^/]+)$', 'apps.service.views.app_model'),
-    (r'^app/([^/]+)/(\d+)$', 'apps.service.views.app_instance'),
-    (r'^login/$', 'apps.service.views.login'),
-    (r'^logout/$', 'apps.service.views.logout'),
-    (r'^$', 'apps.service.views.admin')
+    
+    # API URLs
+    (r'^app/([^/]+)$', 'apps.service.views.api.app_model'),
+    (r'^app/([^/]+)/(\d+)$', 'apps.service.views.api.app_instance'),
+    
+    # Web URLs
+    (r'^login/$', 'apps.service.views.web.login'),
+    (r'^logout/$', 'apps.service.views.web.logout'),
+    (r'^$', 'apps.service.views.web.home')
 )
 
 
