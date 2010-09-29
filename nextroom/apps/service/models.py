@@ -103,7 +103,7 @@ class Tag(models.Model):
 
     def __unicode__(self):
         return self.name
-
+    
     def save(self, force_insert=False, force_update=False):
         super(Tag, self).save(force_insert, force_update)
 
@@ -163,9 +163,9 @@ class User(models.Model):
     TYPE_CHOICES = (
         ('nurse', 'Nurse'),
         ('doctor', 'Doctor'),
-        ('allnurses', 'All Nurses'),
-        ('alldoctors', 'All Doctors'),
-        ('allusers', 'All Users'),
+        ('_nurse', 'All Nurses'),
+        ('_doctor', 'All Doctors'),
+        ('_users', 'All Users'),
         ('site', 'Site User'),
     )
     practice = models.ForeignKey(Practice, blank=False, null=False)
@@ -193,9 +193,9 @@ class User(models.Model):
     def check_password(self, raw_password):
         # Taken from Django.contrib.auth.models.User.check_password()
         return check_password(raw_password, self.password)
-
+    
     def save(self, force_insert=False, force_update=False):
-        increment_type_version('allusers')
+        increment_type_version('_users')
         try:
             version = self.version
         except Version.DoesNotExist:
@@ -256,12 +256,12 @@ class Room(models.Model):
 #########################################################
 
 def user_save_receiver(sender, **kwargs):
-    """ We'll update the allusers Version, but only if a new user has been created
+    """ We'll update the _users Version, but only if a new user has been created
 
     """
     created = kwargs['created']
     if created:
-        increment_type_version('allusers')
+        increment_type_version('_users')
 
 def room_save_receiver(sender, **kwargs):
     """ If this is a new room we need to manually update the Version for all Users.
@@ -292,7 +292,7 @@ def practice_save_receiver(sender, instance, created, **kwargs):
         # Create Any Nurse
         any_nurse = User(practice=instance,
                             name='Any Nurse',
-                            type='allnurses',
+                            type='_nurse',
                             is_site_user=False,
                             is_admin=False,
                             color="#ff99cc")
@@ -300,7 +300,7 @@ def practice_save_receiver(sender, instance, created, **kwargs):
         # Create Any Doctor
         any_doc = User(practice=instance,
                             name='Any Doctor',
-                            type='alldoctors',
+                            type='_doctor',
                             is_site_user=False,
                             is_admin=False,
                             color="#808080")
