@@ -19,3 +19,4 @@ TEMPLATE_DIRS = (
 )
 
 MEDIA_URL = '/media/'
+ADMIN_MEDIA_PREFIX = '/media/admin/'
