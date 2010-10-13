@@ -76,14 +76,54 @@ def public(cls):
 # Base & Helper Models -- private
 #########################################################
 
-class Version(models.Model):
+class ApiModel(models.Model):
+    """ Base API Model
+    Implements shared elements & interfaces required for interacting
+    with the API. If the item needs to be used by the app or admin site,
+    subclass APIModel -- Practice is the only exception
+    
     """
-        Version Data Types:
+    practice = models.ForeignKey('Practice', blank=False, null=False)
+    name = models.CharField(max_length=256)
+    sort_order = models.IntegerField(default=0, blank=True)
+    
+    class Meta:
+        abstract = True
+        ordering = ('sort_order', 'name')
+    
+    def __unicode__(self):
+        return self.name
+    
+    def small_dict(self):
+        d = {}
+        d['name'] = self.name
+        d['uri'] = self.uri
+        d['special'] = self.special
+        return d
+    
+    def big_dict(self):
+        d = {}
+        d = self.__dict__
+        d['uri'] = self.uri
+        d['special'] = self.special
+        return d
+    
+    def _is_special(self):
+        return False
+    special = property(_is_special)
+    
+    def _item_uri(self):
+        return 'app/%s/%d' % (self.__class__.__name__.lower(), self.id)
+    uri = property(_item_uri)
+
+class Version(models.Model):
+    """ Version Data Types:
             1) Version for each User
             2) Version for All Users (in case we add users)
             3) Version for Notes
             4) Version for Tasks
             5) Version for Rooms
+            
     """
     versionNumber = models.CharField(max_length=32)
     lastChange = models.DateTimeField()
@@ -93,16 +133,13 @@ class Version(models.Model):
         return self.versionNumber
 
 
-class Tag(models.Model):
+class Tag(ApiModel):
+    """ Base class for tag objects
+    
     """
-        Base class for tag objects
-    """
-    practice = models.ForeignKey('Practice', blank=False, null=False)
-    name = models.CharField(max_length=256)
-    sort_order = models.IntegerField(default=0, blank=True)
-
-    def __unicode__(self):
-        return self.name
+    
+    class Meta:
+        abstract = True
     
     def save(self, force_insert=False, force_update=False):
         super(Tag, self).save(force_insert, force_update)
@@ -116,8 +153,8 @@ class Tag(models.Model):
 #########################################################
 @public
 class Practice(models.Model):
-    """
-        Practices are the owner of NR app data
+    """ Practices are the owner of NR app data
+    
     """
     practice_name = models.CharField(max_length=255, blank=False, null=False)
     app_auth_name = models.CharField(max_length=250, blank=False, null=False, unique=True)
@@ -129,8 +166,8 @@ class Practice(models.Model):
 
 @public
 class Note(Tag):
-    """
-        Nurse-given tag for a room
+    """ Nurse-given tag for a room
+    
     """
     pass
 
@@ -140,8 +177,8 @@ class Note(Tag):
 
 @public
 class Task(Tag):
-    """
-        Doctor-given tag for a room
+    """ Doctor-given task for a room
+    
     """
     pass
 
@@ -150,9 +187,8 @@ class Task(Tag):
         increment_type_version('task')
 
 @public
-class User(models.Model):
-    """
-        Doctor or Nurse
+class User(ApiModel):
+    """ Doctor or Nurse
 
     """
     ADD_CHOICES = (
@@ -168,8 +204,7 @@ class User(models.Model):
         ('_users', 'All Users'),
         ('site', 'Site User'),
     )
-    practice = models.ForeignKey(Practice, blank=False, null=False)
-    name = models.CharField(max_length=256)
+    
     type = models.CharField(max_length=10, choices=TYPE_CHOICES)
     # Stored as hex, converted to RGB when rendered in the xml
     color = ColorField(help_text="Click to set the color", blank=True, null=True)
@@ -177,10 +212,8 @@ class User(models.Model):
     num_accepted = models.IntegerField(default=0)
     pin = models.CharField(max_length=4, default='0000')
     is_site_user = models.BooleanField(default=False,blank=True)
-    is_admin = models.BooleanField(default=False,blank=True)
     email = models.EmailField(blank=True, null=True)
     password = models.CharField(max_length=128, blank=True, null=True)
-    sort_order = models.IntegerField(default=0, blank=True)
 
     def set_password(self, raw_password):
         # Taken from Django.contrib.auth.models.User.set_password()
@@ -201,34 +234,42 @@ class User(models.Model):
         except Version.DoesNotExist:
             # Just create a dummy row, it's going to be changed
             version = create_dummy_version('user')
-
+        
         version = increment_version(version)
         self.version = version
+        
+        # Temp to prevent overwriting password
+        self.password = self.password
+        
         super(User, self).save(force_insert, force_update)
 
 
     def __unicode__(self):
         return self.name
+    
+    def _is_special(self):
+        import re
+        return True if re.match('_', self.type) else False
+    special = property(_is_special)
+
 
 @public
-class Room(models.Model):
-    """
-        Room
+class Room(ApiModel):
+    """ Room
+    
     """
     STATUS_CHOICES = (
         ('A', 'ACCEPTED'),
         ('C', 'EMPTY'),
         ('B', 'WAITING'),
     )
-    practice = models.ForeignKey(Practice, blank=False, null=False)
+    
     assignedto = models.ManyToManyField(User, null=True, blank=True, verbose_name="Assigned To")
     notes = models.ManyToManyField(Note, null=True, blank=True)
     procedures = models.ManyToManyField(Task, null=True, blank=True)
     status = models.CharField(max_length=8, choices=STATUS_CHOICES, default='C')
-    name = models.CharField(max_length=64, verbose_name="Room Number")
     timestampinqueue = models.TimeField(null=True, blank=True, verbose_name="Time Put in Queue")
     lasttimeinqueue = models.TimeField(null=True, blank=True, verbose_name="Last Time Put in Queue")
-    sort_order = models.IntegerField(default=0, blank=True)
 
     def save(self, force_insert=False, force_update=False):
         increment_type_version('room')
@@ -285,7 +326,6 @@ def practice_save_receiver(sender, instance, created, **kwargs):
                             name='%s Admin' % instance.practice_name,
                             type='site',
                             is_site_user=True,
-                            is_admin=True,
                             email=instance.email)
         site_admin.set_password(instance.app_auth_name)
         site_admin.save()
@@ -293,36 +333,28 @@ def practice_save_receiver(sender, instance, created, **kwargs):
         any_nurse = User(practice=instance,
                             name='Any Nurse',
                             type='_nurse',
-                            is_site_user=False,
-                            is_admin=False,
                             color="#ff99cc")
         any_nurse.save()
         # Create Any Doctor
         any_doc = User(practice=instance,
                             name='Any Doctor',
                             type='_doctor',
-                            is_site_user=False,
-                            is_admin=False,
                             color="#808080")
         any_doc.save()
         # Create Any Nurse
         test_nurse = User(practice=instance,
                             name='Test Nurse',
                             type='nurse',
-                            is_site_user=False,
-                            is_admin=False,
                             color="#ff00ff")
         test_nurse.save()
         # Create Any Doctor
         test_doc = User(practice=instance,
                             name='Test Doctor',
                             type='doctor',
-                            is_site_user=False,
-                            is_admin=False,
                             color="#993300")
         test_doc.save()
         for i in range(1,4):
-            room = Room(practice=instance, name='%s' % i, sort_order=i)
+            room = Room(practice=instance, name='Room %s' % i, sort_order=i)
             room.save()
         for i in range(1,4):
             note = Note(practice=instance, name='Note %s' % i, sort_order=i)

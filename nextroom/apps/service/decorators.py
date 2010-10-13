@@ -1,5 +1,7 @@
 import functools
-from nextroom.apps.service.models import PUBLIC, User
+from nextroom.apps.service.exceptions import *
+from nextroom.apps.service.models import PUBLIC, ApiModel, User
+from nextroom.apps.service.responses import *
 
 USER_KEY = 'user'
 
@@ -9,7 +11,10 @@ USER_KEY = 'user'
 
 def get_model(model):
     # Return model based on URL arg
-    return PUBLIC.get(model)
+    if isinstance(model, unicode):
+        return PUBLIC.get(model)
+    else:
+        return model
 
 ################################
 #   Decorators
@@ -35,7 +40,6 @@ def auth_decorator(is_app):
                     return throw_xml_error()
                 else:
                     return login(request)
-                otherwise(request)
         return internal
     return decorator
 
@@ -43,26 +47,29 @@ app_auth = auth_decorator(True)
 web_auth = auth_decorator(False)
 
 def model_method(method):
-    # Makes a consistent interface for calling API methods
+    # Provides a consistent interface for calling API methods
     # Passes in the actual model to perform method() on
     @functools.wraps(method)
     def internal(model, *args, **kwargs):
         return method(get_model(model), *args, **kwargs)
     return internal
 
-
-
-
-###### STUBBING OUT REQUEST DECORATOR
-
-def api_request(method, format):
-    try:
-        result = method()
-    except BadRequest:
-        return bad_response(format)
-    except NotFound, e:
-        return not_found_response(format)
-    except Invalid, e:
-        return invalid_response(format)
-    
-    return good_response(result, format)
+def api_request(method):
+    # Provides a consistent interface for handling API requests
+    # Attempts to execute the method or handle error responses
+    @functools.wraps(method)
+    def internal(request, *args, **kwargs):
+        if request.META['CONTENT_TYPE'] == 'application/json':
+            # This is good. Process request
+            try:
+                return method(request, *args, **kwargs)
+            except BadRequest:
+                return bad_response()
+            except NotFound, e:
+                return not_found_response()
+            except Invalid, e:
+                return invalid_response()
+        else:
+            raise BadRequest()
+        
+    return internal

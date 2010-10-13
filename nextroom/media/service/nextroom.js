@@ -96,7 +96,7 @@ var NR = {};
       function makeEntry(obj) {
         $('<a/>').attr('href', '#' + obj.uri)
           .text(obj.name || '')
-          .append('<input type="button" class="delete" value="x" />')
+          .append(obj.special ? '' : '<input type="button" class="delete" value="x" />')
           .wrap('<li class="entry" />')
             .parent()
             .data('nextroom', obj)
@@ -270,7 +270,11 @@ var NR = {};
 
     if (data !== undefined) {
       $.each(data, function(key, val) {
-        form.find('[name=' + key + ']:input').val(val);
+          var input = form.find('[name=' + key + ']:input');
+          if (input.is(':checkbox')) {
+            input.attr('checked', val);
+          }
+          input.val(val);
       });
       return form;
     }
