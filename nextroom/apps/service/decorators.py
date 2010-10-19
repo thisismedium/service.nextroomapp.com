@@ -1,12 +1,20 @@
+# Python imports
+try:
+    import simplejson as json
+except ImportError:
+    import json
 import functools
+
+# NextRoom imports
 from nextroom.apps.service.exceptions import *
 from nextroom.apps.service.models import PUBLIC, ApiModel, User
 from nextroom.apps.service.responses import *
 
+# Constants
 USER_KEY = 'user'
 
 ################################
-#   Helper methods
+#   Decorator helpers
 ################################
 
 def get_model(model):
@@ -15,6 +23,27 @@ def get_model(model):
         return PUBLIC.get(model)
     else:
         return model
+
+def stringify_dict_keys(dct):
+    d = {}
+    for key,val in dct.items():
+        d[str(key)] = val
+    return d
+
+def get_user(request):
+    user = request.session.get(USER_KEY, None)
+    if user is not None:
+        return user
+    else:
+        raise BadRequest("No User.")
+
+def get_request_data(request):
+    # Returns data with str keys
+    try:
+        return stringify_dict_keys(json.loads(request.raw_post_data))
+    except ValueError:
+        # No raw_post_data
+        return None
 
 ################################
 #   Decorators
@@ -63,13 +92,26 @@ def api_request(method):
             # This is good. Process request
             try:
                 return method(request, *args, **kwargs)
-            except BadRequest:
-                return bad_response()
+            except BadRequest, e:
+                return bad_response(e)
             except NotFound, e:
-                return not_found_response()
+                return not_found_response(e)
             except Invalid, e:
-                return invalid_response()
+                return invalid_response(e)
+            except:
+                import traceback
+                traceback.print_exc()
+                raise
         else:
             raise BadRequest()
         
+    return internal
+
+def pre_process(method):
+    # Provides extra context for process functions
+    @functools.wraps(method)
+    def internal(request, model, id, *args, **kwargs):
+        user = get_user(request)
+        data = get_request_data(request)
+        return method(request, model, id, user, data, *args, **kwargs)
     return internal

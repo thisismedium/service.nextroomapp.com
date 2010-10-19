@@ -10,6 +10,8 @@
       <h1>NextRoom // {{user.practice}}</h1>
       <nav id="main-nav">
 	<a href="#app">App</a>
+	<a href="#account">Account</a>
+	<a href="#help">Help</a>
 	<a href="/logout/">Logout</a>
       </nav>
     </header>
@@ -57,12 +59,14 @@
 	        <option value="{{val}}">{{key}}</option>
 	      {% endfor %}
 	    </select>
+	    {% comment %}
 	    <select name="type" id="add_types">
 	      <option value="">Choose...</option>
 	      {% for val, key in add_types %}
 	        <option value="{{val}}">{{key}}</option>
 	      {% endfor %}
 	    </select>
+	    {% endcomment %}
 	  </li>
 	  <li class="field">
 	    <label>PIN</label>

@@ -65,15 +65,19 @@ def increment_user_version(user):
     user.save()
 
     return version
-    
+
+#########################################################
+# Expose models for easy API access
+#########################################################
+
 PUBLIC = {}
 
 def public(cls):
     PUBLIC[cls.__name__.lower()] = cls
-    return cls    
+    return cls
 
 #########################################################
-# Base & Helper Models -- private
+# Private Base & Helper Models
 #########################################################
 
 class ApiModel(models.Model):
@@ -95,6 +99,7 @@ class ApiModel(models.Model):
         return self.name
     
     def small_dict(self):
+        # Returns small dict of basic item attributes
         d = {}
         d['name'] = self.name
         d['uri'] = self.uri
@@ -102,17 +107,22 @@ class ApiModel(models.Model):
         return d
     
     def big_dict(self):
+        # Return big dict of item attributes
+        # We ensure we don't return _ attributes.
         d = {}
-        d = self.__dict__
+        d.update((k,v) for (k,v) in self.__dict__.iteritems() if not k.startswith('_'))
         d['uri'] = self.uri
         d['special'] = self.special
         return d
     
     def _is_special(self):
+        # Currently only used by User model (and overridden there)
+        # This is used to currently mark items as system items that cannot be deleted
         return False
     special = property(_is_special)
     
     def _item_uri(self):
+        # Return an item URI for API access
         return 'app/%s/%d' % (self.__class__.__name__.lower(), self.id)
     uri = property(_item_uri)
 
@@ -163,6 +173,14 @@ class Practice(models.Model):
 
     def __unicode__(self):
         return u'%s' % self.practice_name
+    
+    def as_dict(self):
+        # Return big dict of item attributes
+        # We ensure we don't return _ attributes.
+        d = {}
+        d.update((k,v) for (k,v) in self.__dict__.iteritems() if not k.startswith('_'))
+        return d
+
 
 @public
 class Note(Tag):
@@ -242,14 +260,9 @@ class User(ApiModel):
         self.password = self.password
         
         super(User, self).save(force_insert, force_update)
-
-
-    def __unicode__(self):
-        return self.name
     
     def _is_special(self):
-        import re
-        return True if re.match('_', self.type) else False
+        return True if self.type.startswith('_') else False
     special = property(_is_special)
 
 

@@ -5,11 +5,10 @@ except ImportError:
     import json
 
 # Django imports
-from django.core.serializers import deserialize
-from django.http import QueryDict
+from django.core.exceptions import FieldError
 
 # NextRoom imports
-from nextroom.apps.service.decorators import model_method
+from nextroom.apps.service.decorators import model_method, pre_process
 from nextroom.apps.service.exceptions import *
 from nextroom.apps.service.models import *
 
@@ -20,99 +19,82 @@ USER_KEY = 'user'
 #   NextRoom API Methods
 #######################################
 
-def stringify_dict_keys(dct):
-    d = {}
-    for key,val in dct.items():
-        d[str(key)] = val
-    return d
+def is_account(model):
+    return model.__name__.lower() == 'practice'
 
 @model_method
-def api_get(model, practice, id=None):
-    print "*** api_get() ***"
+def api_get(model, id=None, user):
+    # GET model/instance object(s)
+    if is_account(model):
+        # This is a special case for editing a Practice
+        return user.practice
     if id is not None:
-        # Try to return given item
         try:
-            return model.objects.get(id=id, practice=practice)
+            return model.objects.get(id=id, practice=user.practice)
         except model.DoesNotExist:
             raise NotFound("Cannot find the item requested.")
     else:
-        # Try to return all items
         try:
-            return model.objects.filter(practice=practice).order_by('sort_order', 'name')
-        except AttributeError:
-            raise BadRequest("Model does not exist.")
+            return model.objects.filter(practice=user.practice).order_by('sort_order', 'name')
+        except:
+            raise BadRequest("Bad Resource.")
 
 @model_method
-def api_post(model, practice, data, id=None):
-    print "*** api_post() ***"
-    if id is not None:
-        # Cannot POST to an instance.
-        raise BadRequest("Cannot POST to an existing instance.")
-    else:
+def api_post(model, id=None, user, data=None):
+    # POST new model instance
+    if is_account(model):
+        raise BadRequest("Cannot POST an account.")
+    
+    if id is None and data is not None:
         # Create a new instance
-        item = model(**data)
+        item = model(practice=user.practice, **data)
         item.save()
         return item
+    else:    
+        # Cannot POST to an instance.
+        raise BadRequest("Cannot POST to an existing instance.")
 
 @model_method
-def api_put(model, practice, data=None, id=None):
-    print "*** api_put() ***"
+def api_put(model, id=None, user, data=None):
+    # PUTs data to model/instance:
+    #   if model: update sort order
+    #   if instance: update instance
     if data is not None:
         if id is not None:
-            # Update given item
-            item = api_get(model, practice, id)
-            item = model(id=id, practice=practice, **stringify_dict_keys(data))
+            item = api_get(model, id, user)
+            item = model(id=item.id, **data)            
             item.save()
-            print "saved!"
             return item
         else:
-            # Resort all items for given model
-            items = api_get(model, practice, id)
-            print ">> sort items"
+            items = api_get(model, id)
             return None
     else:
         raise BadRequest("No data provided for PUT.")
 
 @model_method
-def api_delete(model, practice, id, user):
-    print "*** api_delete() ***"
-    # Delete object for model & practice
-    # Returns True if delete() succeeds, else False
-    item = api_get(model, practice, id)
-    print "DELETE: %s" % item
-    if item != user:
-        item.delete()
-        return True
+def api_delete(model, id, user):
+    # DELETE object for model & practice
+    # Returns None
+    if not is_account(model):
+        item = api_get(model, id, user)
+        if item != user:
+            item.delete()
+            return None
     else:
-        return False
+        raise BadRequest()
 
-
-def process(request, model, id=None):
-    # Handles actual processing of API requests
-    # Views simply pass their args & kwargs to process()
-    
-    user = request.session.get(USER_KEY, None)
-    if user is not None:
-        practice = user.practice
-    else:
-        raise BadRequest("No User.")
-    
-    # Set data from raw_post_data because Django only has objects for GET & POST verbs
-    try:
-        data = json.loads(request.raw_post_data)
-    except ValueError:
-        data = None
-    
+@pre_process
+def process(request, model, id=None, user, data):
+    # Processes API requests for app models
     # Call methods based on HTTP verbs
     if request.method == 'GET':
-        return api_get(model, practice, id)
-    elif request.method == 'POST':
-        return api_post(model, practice, data, id)
+        return api_get(model, id, user)
+    elif request.method == 'POST' and model != 'practice':
+        return api_post(model, id, user, data)
     elif request.method == 'PUT':
-        return api_put(model, practice, data, id)
-    elif request.method == 'DELETE':
-        return api_delete(model, practice, id, user)
+        return api_put(model, id, user, data)
+    elif request.method == 'DELETE' and model != 'practice':
+        return api_delete(model, id, user)
     else:
-        # Bad verb -- shouldn't happen, but we're double-bagging it anyway.
-        raise BadRequest("Bad HTTP Verb.")
-
+        # Bad verb -- shouldn't happen for models, but we're double-bagging it anyway. ;)
+        raise BadRequest("Bad verb.")

@@ -15,6 +15,7 @@ urlpatterns = patterns('',
     # API URLs
     (r'^app/([^/]+)$', 'apps.service.views.api.app_model'),
     (r'^app/([^/]+)/(\d+)$', 'apps.service.views.api.app_instance'),
+    (r'^account/$', 'apps.service.views.api.account'),
     
     # Web URLs
     (r'^login/$', 'apps.service.views.web.login'),

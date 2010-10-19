@@ -121,11 +121,7 @@ var NR = {};
         // FIXME: using "/new" is cheating.
         // FIXME: better name
         // FIXME: hook up sortable and delete
-        var obj = makeEntry({ uri: uri, name: 'New Item' });
-        Router.window(uri);
-        detailForm('post', area, obj).load(function() {
-          console.debug('FIXME: get this on the stack.');
-        });
+        Router.window(uri + '/:new');
       });
 
       el.find('.delete').click(function(ev) {
@@ -144,11 +140,14 @@ var NR = {};
 
       return {
         get: function(uri, next) {
-          request('get', uri, {
+          if (/:new$/.test(uri))
+            next(null, detailForm('post', area, { uri: uri, name: 'New Item' }));
+          else
+            request('get', uri, {
               success: function(data, status) {
                 next(null, detailForm('put', area, data));
               }
-          });
+            });
         },
 
         load: function(next) {
@@ -164,8 +163,9 @@ var NR = {};
     }
 
     function detailForm(method, area, data) {
-      var probe = data.uri.match(/app\/([^\/]+)\/.*/),
-          kind = probe[1],
+      var probe = data.uri.match(/(app\/([^\/]+))\/.*/),
+          kind = probe[2],
+          sendTo = method == 'post' ? probe[1] : data.uri
           ctor = { 'user': user },
           form = (ctor[kind] || setup)($('#template .' + kind + '-detail').clone());
 
@@ -190,12 +190,17 @@ var NR = {};
 
       function submit(ev) {
         ev.preventDefault();
-        request(method, data.uri, {
+        request(method, sendTo, {
           data: form.formData(),
           success: function(data) {
             // FIXME: update form
             // FIXME: update list
             console.debug('Saved!', data);
+            Router.window('app', function(err) {
+              err ? NR.error(err) : Router.window(sendTo, function(err) {
+                err ? NR.error(err) : Router.window(data.uri);
+              })
+            })
           }
         });
       }
@@ -232,7 +237,7 @@ var NR = {};
     opt.data = opt.data && JSON.stringify(opt.data);
 
     opt.error = opt.error || function(xhr, status) {
-      NR.error('Failed to save', data.uri, status);
+      NR.error('Failed to save', url, status);
     };
 
     $.ajax(opt);
@@ -281,7 +286,7 @@ var NR = {};
     else {
       data = {};
       form.find('[name]:input').each(function() {
-        data[this.name] = $(this).val();
+        data[this.name] = (this.type == 'checkbox') ? this.checked : $(this).val();
       });
       return data;
     }
@@ -413,6 +418,7 @@ var NR = {};
   function Router() {
     this.routes = {};
     this.state = [];
+    this.nextChange = [];
   }
 
   Router.location = function() {
@@ -420,7 +426,7 @@ var NR = {};
     return hash && hash.replace(/^#/, '');
   };
 
-  Router.window = function(uri) {
+  Router.window = function(uri, next) {
     // Singleton for `onhashchange`.
     if (!this._window) {
       var router = this._window = new Router();
@@ -434,8 +440,11 @@ var NR = {};
       };
     }
 
-    if (uri)
+    if (uri) {
+      next && this._window.nextChange.push(next);
       $.hashchange(uri);
+    }
+      
 
     return this._window;
   };
@@ -444,7 +453,7 @@ var NR = {};
     var self = this,
         path = uri.split('/');
 
-    next = next || NR.error;
+    next = next || (this.nextChange.length > 0 && this.nextChange.shift()) || NR.error;
     this._unwind(path, function(err) {
       err ? next(err) : self._wind(path, next);
     });

@@ -9,9 +9,8 @@ from django.core.serializers import serialize
 
 # NextRoom imports
 from nextroom.apps.service.decorators import web_auth, api_request
-from nextroom.apps.service.exceptions import *
-from nextroom.apps.service.methods import *
-from nextroom.apps.service.responses import *
+from nextroom.apps.service.methods import process
+from nextroom.apps.service.responses import json_response
 
 # CONSTANTS
 USER_KEY = 'user'
@@ -22,17 +21,19 @@ USER_KEY = 'user'
 
 @web_auth
 @api_request
+def account(request):
+    # Processes & returns account-based requests
+    return json_response(process(request), 'practice')
+
+@web_auth
+@api_request
 def app_model(request, model):
-    
-    res = process(request, model)
-    return json_response([
-        i.small_dict() for i in res
-    ])
+    # Processes & returns model-based requests
+    return json_response(process(request, model))
 
 
 @web_auth
 @api_request
 def app_instance(request, model, id):
-
-    res = process(request, model, int(id))
-    return json_response(res.big_dict())
+    # Process & returns instance-based requests
+    return json_response(process(request, model, int(id)))
