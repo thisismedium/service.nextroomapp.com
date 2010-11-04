@@ -272,13 +272,10 @@ class User(ApiModel):
         return d
     
     def _is_special(self, curr_user=None):
-        if curr_user is not None and self.id == curr_user.id:
-            print "User compare: %s vs %s" % (self.id, curr_user.id)
-            return True
-        elif self.type.startswith('_'):
+        if self.type.startswith('_'):
             return True
         else:
-            return False
+            return self == curr_user
 
 
 @public
