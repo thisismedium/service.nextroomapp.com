@@ -23,7 +23,7 @@ def is_account(model):
     return model.__name__.lower() == 'practice'
 
 @model_method
-def api_get(model, id=None, user):
+def api_get(model, id=None, user=None):
     # GET model/instance object(s)
     if is_account(model):
         # This is a special case for editing a Practice
@@ -40,7 +40,7 @@ def api_get(model, id=None, user):
             raise BadRequest("Bad Resource.")
 
 @model_method
-def api_post(model, id=None, user, data=None):
+def api_post(model, id=None, user=None, data=None):
     # POST new model instance
     if is_account(model):
         raise BadRequest("Cannot POST an account.")
@@ -55,7 +55,7 @@ def api_post(model, id=None, user, data=None):
         raise BadRequest("Cannot POST to an existing instance.")
 
 @model_method
-def api_put(model, id=None, user, data=None):
+def api_put(model, id=None, user=None, data=None):
     # PUTs data to model/instance:
     #   if model: update sort order
     #   if instance: update instance
@@ -84,7 +84,7 @@ def api_delete(model, id, user):
         raise BadRequest()
 
 @pre_process
-def process(request, model, id=None, user, data):
+def process(request, model, id=None, user=None, data=None):
     # Processes API requests for app models
     # Call methods based on HTTP verbs
     if request.method == 'GET':
