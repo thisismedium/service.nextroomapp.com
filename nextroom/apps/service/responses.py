@@ -9,7 +9,7 @@ from django.db.models.query import QuerySet
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseNotFound
 
 # NextRoom imports
-from nextroom.apps.service.models import Practice
+from nextroom.apps.service.models import Practice, User
 
 # CONSTANTS
 USER_KEY = 'user'
@@ -18,13 +18,16 @@ USER_KEY = 'user'
 #   NextRoom API Responses
 #############################
 
-def json_response(obj):
+def json_response(obj, curr_user=None):
     ''' Returns serialized obj in HttpResponse
     Must package the response for serialization appropriately.
     
     '''
     if isinstance(obj, QuerySet):
-        obj = [i.small_dict() for i in obj]
+        if isinstance(obj[0], User):
+            obj = [i.small_dict(curr_user) for i in obj]
+        else:
+            obj = [i.small_dict() for i in obj]
     elif isinstance(obj, Practice):
         obj = obj.as_dict()
     elif obj is None:
