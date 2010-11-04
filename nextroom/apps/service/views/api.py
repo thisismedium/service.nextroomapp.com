@@ -8,7 +8,7 @@ except ImportError:
 from django.core.serializers import serialize
 
 # NextRoom imports
-from nextroom.apps.service.decorators import web_auth, api_request
+from nextroom.apps.service.decorators import web_auth, api_request, get_user
 from nextroom.apps.service.methods import process
 from nextroom.apps.service.responses import json_response
 
@@ -23,17 +23,17 @@ USER_KEY = 'user'
 @api_request
 def account(request):
     # Processes & returns account-based requests
-    return json_response(process(request), 'practice')
+    return json_response(process(request, 'practice'), get_user(request))
 
 @web_auth
 @api_request
 def app_model(request, model):
     # Processes & returns model-based requests
-    return json_response(process(request, model))
+    return json_response(process(request, model, id=None), get_user(request))
 
 
 @web_auth
 @api_request
 def app_instance(request, model, id):
     # Process & returns instance-based requests
-    return json_response(process(request, model, int(id)))
+    return json_response(process(request, model, int(id)), get_user(request))
