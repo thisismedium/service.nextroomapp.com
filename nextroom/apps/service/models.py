@@ -261,9 +261,24 @@ class User(ApiModel):
         
         super(User, self).save(force_insert, force_update)
     
-    def _is_special(self):
-        return True if self.type.startswith('_') else False
-    special = property(_is_special)
+    def small_dict(self, curr_user):
+        # Returns small dict of basic item attributes
+        d = {}
+        d['name'] = self.name
+        d['uri'] = self.uri
+        # We want the API to mark the requesting user as special
+        # This ensures requesting user cannot delete itself
+        d['special'] = self._is_special(curr_user)
+        return d
+    
+    def _is_special(self, curr_user=None):
+        if curr_user is not None and self.id == curr_user.id:
+            print "User compare: %s vs %s" % (self.id, curr_user.id)
+            return True
+        elif self.type.startswith('_'):
+            return True
+        else:
+            return False
 
 
 @public
