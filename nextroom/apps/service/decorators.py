@@ -24,10 +24,11 @@ def get_model(model):
     else:
         return model
 
-def stringify_dict_keys(dct):
+def stringify_dict_keys(dct, practice):
     d = {}
     for key,val in dct.items():
         d[str(key)] = val
+    d['practice'] = practice
     return d
 
 def get_user(request):
@@ -40,7 +41,7 @@ def get_user(request):
 def get_request_data(request):
     # Returns data with str keys
     try:
-        return stringify_dict_keys(json.loads(request.raw_post_data))
+        return stringify_dict_keys(json.loads(request.raw_post_data), get_user(request).practice)
     except ValueError:
         # No raw_post_data
         return None
@@ -110,7 +111,7 @@ def api_request(method):
 def pre_process(method):
     # Provides extra context for process functions
     @functools.wraps(method)
-    def internal(request, model, id, *args, **kwargs):
+    def internal(request, model, id=None, *args, **kwargs):
         user = get_user(request)
         data = get_request_data(request)
         return method(request, model, id, user, data, *args, **kwargs)

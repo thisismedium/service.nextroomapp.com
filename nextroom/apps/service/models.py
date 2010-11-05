@@ -5,6 +5,7 @@
 from django.contrib.auth.models import get_hexdigest, check_password
 from django.db import models
 from django.db.models.signals import post_save
+from django.forms.fields import email_re
 from django.utils.hashcompat import md5_constructor, sha_constructor
 
 from nextroom.apps.service.customfields import ColorField
@@ -14,7 +15,7 @@ import hashlib
 
 
 #########################################################
-# Helper methods
+# Deprecated methods
 #########################################################
 
 def create_dummy_version(type):
@@ -51,8 +52,8 @@ def increment_type_version(type):
 
 
 def increment_user_version(user):
-    """
-        Increment the version row for a user
+    """ Increment the version row for a user.
+    
     """
     try:
         version = user.version
@@ -73,6 +74,9 @@ def increment_user_version(user):
 PUBLIC = {}
 
 def public(cls):
+    """ Used by the model_method decorator to look up class name based on URL arg.
+    
+    """
     PUBLIC[cls.__name__.lower()] = cls
     return cls
 
@@ -91,6 +95,9 @@ class ApiModel(models.Model):
     name = models.CharField(max_length=256)
     sort_order = models.IntegerField(default=0, blank=True)
     
+    # Empty dict for errors -- see comments in validate() method
+    errors = {}
+    
     class Meta:
         abstract = True
         ordering = ('sort_order', 'name')
@@ -103,28 +110,81 @@ class ApiModel(models.Model):
         d = {}
         d['name'] = self.name
         d['uri'] = self.uri
-        d['special'] = self.special
-        return d
-    
-    def big_dict(self):
-        # Return big dict of item attributes
-        # We ensure we don't return _ attributes.
-        d = {}
-        d.update((k,v) for (k,v) in self.__dict__.iteritems() if not k.startswith('_'))
-        d['uri'] = self.uri
-        d['special'] = self.special
+        d['special'] = self._is_special()
         return d
     
     def _is_special(self):
         # Currently only used by User model (and overridden there)
         # This is used to currently mark items as system items that cannot be deleted
+        # If another model needs to use this, override for that class
         return False
-    special = property(_is_special)
     
     def _item_uri(self):
         # Return an item URI for API access
         return 'app/%s/%d' % (self.__class__.__name__.lower(), self.id)
     uri = property(_item_uri)
+    
+    def build_dict(self):
+        """ Accepts a model.__dict__ as orig & returns a new dict in var d for easy serialization.
+    
+        """
+        d = {}
+        d.update((k,v) for (k,v) in self.__dict__.iteritems() if not k.startswith('_'))
+        return d
+    
+    def big_dict(self):
+        # Return big dict of item attributes to represent full item
+        d = self.build_dict()
+        d['uri'] = self.uri
+        d['special'] = self._is_special()
+        return d
+    
+    
+    def build_errors(self, fields):
+        """ Builds up errors dict.
+        
+        """
+        print self.errors
+        if self.__class__.__name__.lower() == 'practice':
+            # Account editing
+            objs = self.__class__.objects.all()
+        else:
+            # Standard API model
+            objs = self.__class__.objects.all().filter(practice=self.practice)
+        
+        if self.pk:
+            objs = objs.exclude(id=self.id)
+        
+        for k in fields:
+            if self.__getattribute__(k) == "":
+                self.errors[k] = 'Empty'
+            elif self.__getattribute__(k) in [o.__getattribute__(k) for o in objs]:
+                self.errors[k] = 'Duplicate'
+    
+    def validate(self):
+        """ validate() is intended, at this point, to be usable like this via API calls:
+        
+            item = Item()
+            item.validate()
+            if item.errors:
+                # item.errors is NOT an empty {} -- handle errors as you wish
+                raise Invalid("There were errors!")
+            else:
+                item.save()
+                return item
+        
+        As you can see, it's overriden on a per-model basis.
+        
+        Basically, validate() calls build_errors() to check for Empty &/or Duplicate values.
+        Anything beyond that (like verifying emails, etc.), implement it in ModelName.validate()
+        
+        """
+        
+        # Simplest validator for all ApiModel instances
+        # Persistence issues are showing up in re-saving items
+        self.errors = {}
+        self.build_errors(['name'])
+            
 
 class Version(models.Model):
     """ Version Data Types:
@@ -158,6 +218,7 @@ class Tag(ApiModel):
             for user in room.assignedto.all():
                 increment_user_version(user)
 
+
 #########################################################
 # NextRoom App/Service Models - public
 #########################################################
@@ -170,16 +231,26 @@ class Practice(models.Model):
     app_auth_name = models.CharField(max_length=250, blank=False, null=False, unique=True)
     email = models.EmailField(blank=False, null=False)
     active = models.BooleanField(default=True, blank=True)
-
+    
+    # Empty dict for errors
+    errors = {}
+    
     def __unicode__(self):
         return u'%s' % self.practice_name
     
     def as_dict(self):
         # Return big dict of item attributes
         # We ensure we don't return _ attributes.
-        d = {}
-        d.update((k,v) for (k,v) in self.__dict__.iteritems() if not k.startswith('_'))
-        return d
+        return build_dict(self.__dict__)
+    
+    def validate(self):
+        # See explanation of validate() on ApiModel class
+        build_errors(['practice_name', 'email', 'app_auth_name'])
+        # As long as email hasn't yet come back as Empty or Duplicate, check it is a valid address now
+        if not self.errors.get('email'):
+            if not email_re.match(self.email):
+                self.errors['email'] = 'Invalid'
+        
 
 
 @public
@@ -187,8 +258,7 @@ class Note(Tag):
     """ Nurse-given tag for a room
     
     """
-    pass
-
+    
     def save(self, force_insert=False, force_update=False):
         super(Note, self).save(force_insert, force_update)
         increment_type_version('note')
@@ -198,8 +268,7 @@ class Task(Tag):
     """ Doctor-given task for a room
     
     """
-    pass
-
+    
     def save(self, force_insert=False, force_update=False):
         super(Task, self).save(force_insert, force_update)
         increment_type_version('task')
@@ -232,7 +301,7 @@ class User(ApiModel):
     is_site_user = models.BooleanField(default=False,blank=True)
     email = models.EmailField(blank=True, null=True)
     password = models.CharField(max_length=128, blank=True, null=True)
-
+    
     def set_password(self, raw_password):
         # Taken from Django.contrib.auth.models.User.set_password()
         import random
@@ -240,7 +309,7 @@ class User(ApiModel):
         salt = get_hexdigest(algo, str(random.random()), str(random.random()))[:5]
         hsh = get_hexdigest(algo, salt, raw_password)
         self.password = '%s$%s$%s' % (algo, salt, hsh)
-
+    
     def check_password(self, raw_password):
         # Taken from Django.contrib.auth.models.User.check_password()
         return check_password(raw_password, self.password)
@@ -276,6 +345,27 @@ class User(ApiModel):
             return True
         else:
             return self == curr_user
+    
+    def validate(self):
+        # See explanation of validate() on ApiModel class
+        fields = ['name', 'type', 'pin']
+        if self.is_site_user:
+            fields.append('email')
+            fields.append('password')
+        
+        if not self.type.startswith('_'):
+            # Non-system users should always have a color
+            fields.append('color')
+        
+        # Check for Empty & Duplicate values first
+        self.errors = {}
+        self.build_errors(fields)
+        
+        if self.is_site_user and not self.errors.get('email'):
+            # Validate email address via regexp
+            if not email_re.match(self.email):
+                self.errors['email'] = 'Invalid'
+        
 
 
 @public
