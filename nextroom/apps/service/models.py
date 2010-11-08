@@ -16,6 +16,7 @@ import hashlib
 
 #########################################################
 # Deprecated methods
+#   These methods will be removed for version 1.2
 #########################################################
 
 def create_dummy_version(type):
@@ -125,7 +126,8 @@ class ApiModel(models.Model):
     uri = property(_item_uri)
     
     def build_dict(self):
-        """ Accepts a model.__dict__ as orig & returns a new dict in var d for easy serialization.
+        """ Accepts a model.__dict__ as orig & returns a new dict for easy serialization.
+        Exempts keys that start with _ cos they are Django internals.
     
         """
         d = {}
@@ -141,16 +143,10 @@ class ApiModel(models.Model):
     
     
     def build_errors(self, fields):
-        """ Builds up errors dict.
+        """ Builds up errors dict. Used by all ApiModel-based classes.
         
         """
-        print self.errors
-        if self.__class__.__name__.lower() == 'practice':
-            # Account editing
-            objs = self.__class__.objects.all()
-        else:
-            # Standard API model
-            objs = self.__class__.objects.all().filter(practice=self.practice)
+        objs = self.__class__.objects.all().filter(practice=self.practice)
         
         if self.pk:
             objs = objs.exclude(id=self.id)
@@ -184,6 +180,15 @@ class ApiModel(models.Model):
         # Persistence issues are showing up in re-saving items
         self.errors = {}
         self.build_errors(['name'])
+    
+    def save(self, *args, **kwargs):
+        """ All ApiModel-based instances require a sort_order at save to 
+        ensure new item is last in the list.
+        
+        """
+        self.sort_order = self.__class__.objects.all().count()
+        super(ApiModel, self).save(*args, **kwargs)
+    
             
 
 class Version(models.Model):
@@ -211,8 +216,8 @@ class Tag(ApiModel):
     class Meta:
         abstract = True
     
-    def save(self, force_insert=False, force_update=False):
-        super(Tag, self).save(force_insert, force_update)
+    def save(self, *args, **kwargs):
+        super(Tag, self).save(*args, **kwargs)
 
         for room in self.room_set.all():
             for user in room.assignedto.all():
@@ -243,9 +248,25 @@ class Practice(models.Model):
         # We ensure we don't return _ attributes.
         return build_dict(self.__dict__)
     
+    def build_errors(self, fields):
+        """ Builds up errors dict.
+
+        """
+        objs = self.__class__.objects.all().filter(practice=self.practice)
+
+        if self.pk:
+            objs = objs.exclude(id=self.id)
+
+        for k in fields:
+            if self.__getattribute__(k) == "":
+                self.errors[k] = 'Empty'
+            elif self.__getattribute__(k) in [o.__getattribute__(k) for o in objs]:
+                self.errors[k] = 'Duplicate'
+    
     def validate(self):
         # See explanation of validate() on ApiModel class
-        build_errors(['practice_name', 'email', 'app_auth_name'])
+        self.errors = {}
+        self.build_errors(['practice_name', 'email', 'app_auth_name'])
         # As long as email hasn't yet come back as Empty or Duplicate, check it is a valid address now
         if not self.errors.get('email'):
             if not email_re.match(self.email):
@@ -259,8 +280,8 @@ class Note(Tag):
     
     """
     
-    def save(self, force_insert=False, force_update=False):
-        super(Note, self).save(force_insert, force_update)
+    def save(self, *args, **kwargs):
+        super(Note, self).save(*args, **kwargs)
         increment_type_version('note')
 
 @public
@@ -269,8 +290,8 @@ class Task(Tag):
     
     """
     
-    def save(self, force_insert=False, force_update=False):
-        super(Task, self).save(force_insert, force_update)
+    def save(self, *args, **kwargs):
+        super(Task, self).save(*args, **kwargs)
         increment_type_version('task')
 
 @public
@@ -314,7 +335,7 @@ class User(ApiModel):
         # Taken from Django.contrib.auth.models.User.check_password()
         return check_password(raw_password, self.password)
     
-    def save(self, force_insert=False, force_update=False):
+    def save(self, *args, **kwargs):
         increment_type_version('_users')
         try:
             version = self.version
@@ -324,11 +345,8 @@ class User(ApiModel):
         
         version = increment_version(version)
         self.version = version
-        
-        # Temp to prevent overwriting password
         self.password = self.password
-        
-        super(User, self).save(force_insert, force_update)
+        super(User, self).save(*args, **kwargs)
     
     def small_dict(self, curr_user):
         # Returns small dict of basic item attributes
@@ -348,16 +366,26 @@ class User(ApiModel):
     
     def validate(self):
         # See explanation of validate() on ApiModel class
-        fields = ['name', 'type', 'pin']
-        if self.is_site_user:
-            fields.append('email')
-            fields.append('password')
         
-        if not self.type.startswith('_'):
+        # Basic requirement for all users
+        fields = ['name', 'type']
+        
+        # Add in other required fields where necessary
+        # NOTE: pin is not, at this time, added because we must allow dups
+        if self.type.startswith('_'):
+            # System users can never be site users -- API enforces this
+            self.is_site_user = False
+            self.email = None
+            self.password = None
+        else:
             # Non-system users should always have a color
             fields.append('color')
+            if self.is_site_user:
+                # User is NOT system user & IS site user: email/password required
+                fields.append('email')
+                fields.append('password')
         
-        # Check for Empty & Duplicate values first
+        # Reset self.errors & check for Empty & Duplicate values first
         self.errors = {}
         self.build_errors(fields)
         
@@ -386,9 +414,9 @@ class Room(ApiModel):
     timestampinqueue = models.TimeField(null=True, blank=True, verbose_name="Time Put in Queue")
     lasttimeinqueue = models.TimeField(null=True, blank=True, verbose_name="Last Time Put in Queue")
 
-    def save(self, force_insert=False, force_update=False):
+    def save(self, *args, **kwargs):
         increment_type_version('room')
-
+        
         # Handle timestampinqueue appropriately
         import time
         if self.pk:
@@ -397,13 +425,12 @@ class Room(ApiModel):
             elif self.status == 'C' and self.timestampinqueue is not None:
                 self.lasttimeinqueue = time.strftime('%H:%M:%S')
                 self.timestampinqueue = None
-
-        super(Room, self).save(force_insert, force_update)
-
+        
         for user in self.assignedto.all():
             increment_user_version(user)
-
-
+        
+        super(Room, self).save(*args, **kwargs)
+    
     def __unicode__(self):
         return "Room %s" % self.name
 
