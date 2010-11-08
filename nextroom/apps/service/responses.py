@@ -33,16 +33,23 @@ def json_response(obj, curr_user=None):
     elif obj is None:
         obj = {}
     else:
-        print obj
         obj = obj.big_dict()
     return HttpResponse(json.dumps(obj), mimetype='application/json')
 
 def bad_response(obj):
-    return HttpResponseBadRequest(json.dumps({}), mimetype='application/json')
+    """ Response when Request made is bad, not allowed, etc.
+    
+    """
+    return HttpResponseBadRequest(json.dumps(obj.args), mimetype='application/json')
 
 def not_found_response(obj):
-    return HttpResponseNotFound(json.dumps({}), mimetype='application/json')
+    """ Response when we cannot find object(s) requested (GETs)
+    
+    """
+    return HttpResponseNotFound(json.dumps(obj.args), mimetype='application/json')
 
 def invalid_response(obj):
-    print "invalid: %s" % obj.args
+    """ Response when operations are invalid (POST/PUT errors)
+    
+    """
     return HttpResponseBadRequest(json.dumps(obj.args), mimetype='application/json')
