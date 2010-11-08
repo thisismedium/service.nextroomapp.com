@@ -26,9 +26,14 @@ def get_model(model):
 
 def stringify_dict_keys(dct, practice):
     d = {}
-    for key,val in dct.items():
-        d[str(key)] = val
-    d['practice'] = practice
+    if isinstance(dct, dict):
+        # Standard GET/POST/PUT data
+        for key,val in dct.items():
+            d[str(key)] = val
+        d['practice'] = practice
+    elif isinstance(dct, list):
+        # Special case for model PUT (reordering)
+        return dct
     return d
 
 def get_user(request):
