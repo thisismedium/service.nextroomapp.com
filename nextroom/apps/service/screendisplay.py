@@ -24,7 +24,7 @@ def get_accepted_rooms_for_user(practice, user):
 
 def get_user_room_status_dict(user):
     def only_roomnumber(roomlist):
-        return [r.roomnumber for r in roomlist]
+        return [r.name for r in roomlist]
     return { 'name' : user.name,
              'num_accepted': user.num_accepted,
              'color' : user.color,

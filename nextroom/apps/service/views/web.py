@@ -86,7 +86,7 @@ def reset_rooms(request):
     for r in Room.objects.all():
         r.assignedto.clear()
         r.notes.clear()
-        r.procedures.clear()
+        r.tasks.clear()
         r.status = "C"
         r.timestampinqueue = None
         r.lasttimeinqueue = None

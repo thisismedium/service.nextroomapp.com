@@ -186,7 +186,8 @@ class ApiModel(models.Model):
         ensure new item is last in the list.
         
         """
-        self.sort_order = self.__class__.objects.all().count()
+        if not self.pk:
+            self.sort_order = self.__class__.objects.all().count()
         super(ApiModel, self).save(*args, **kwargs)
     
             
@@ -409,7 +410,7 @@ class Room(ApiModel):
     
     assignedto = models.ManyToManyField(User, null=True, blank=True, verbose_name="Assigned To")
     notes = models.ManyToManyField(Note, null=True, blank=True)
-    procedures = models.ManyToManyField(Task, null=True, blank=True)
+    tasks = models.ManyToManyField(Task, null=True, blank=True)
     status = models.CharField(max_length=8, choices=STATUS_CHOICES, default='C')
     timestampinqueue = models.TimeField(null=True, blank=True, verbose_name="Time Put in Queue")
     lasttimeinqueue = models.TimeField(null=True, blank=True, verbose_name="Last Time Put in Queue")
@@ -425,14 +426,12 @@ class Room(ApiModel):
             elif self.status == 'C' and self.timestampinqueue is not None:
                 self.lasttimeinqueue = time.strftime('%H:%M:%S')
                 self.timestampinqueue = None
-        
+        super(Room, self).save(*args, **kwargs)
         for user in self.assignedto.all():
             increment_user_version(user)
-        
-        super(Room, self).save(*args, **kwargs)
     
     def __unicode__(self):
-        return "Room %s" % self.name
+        return "%s" % self.name
 
 #########################################################
 # Signal listeners

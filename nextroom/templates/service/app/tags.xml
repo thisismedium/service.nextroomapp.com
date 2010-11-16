@@ -1,4 +1,4 @@
-{% extends "nextroom/base.xml" %}
+{% extends "service/app/base.xml" %}
 
 {% block results %}
 {% for tag in results %}

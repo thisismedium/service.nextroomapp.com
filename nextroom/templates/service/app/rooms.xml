@@ -1,7 +1,7 @@
-{% extends "nextroom/base.xml" %}
+{% extends "service/app/base.xml" %}
 
 {% block results %}
 {% for room in results %}
-    {% include "nextroom/room.xml" %}
+    {% include "service/app/room.xml" %}
 {% endfor %}
 {% endblock %}
