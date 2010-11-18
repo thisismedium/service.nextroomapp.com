@@ -71,7 +71,7 @@ def api_put(model, id=None, user=None, data=None):
         if id is not None:
             # Update item data
             item = api_get(model, id, user)
-            item = model(id=item.id, **data)
+            item.update(data)
             item.validate()
             if item.errors:
                 raise Invalid(item.errors)

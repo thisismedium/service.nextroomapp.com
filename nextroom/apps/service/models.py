@@ -69,8 +69,18 @@ def increment_user_version(user):
     return version
 
 #########################################################
-# Expose models for easy API access
+# API Model Helpers
 #########################################################
+
+def build_dict(model_dict, fields):
+    """ Returns a new dict for easy serialization.
+    Accepts model instance's __dict__ & fields list to determine output
+    Additional overrides are found in model.big_dict() method
+
+    """
+    d = {}
+    d.update((k,v) for (k,v) in model_dict.iteritems() if k in fields)
+    return d
 
 PUBLIC = {}
 
@@ -125,18 +135,10 @@ class ApiModel(models.Model):
         return 'app/%s/%d' % (self.__class__.__name__.lower(), self.id)
     uri = property(_item_uri)
     
-    def build_dict(self):
-        """ Accepts a model.__dict__ as orig & returns a new dict for easy serialization.
-        Exempts keys that start with _ cos they are Django internals.
-    
-        """
-        d = {}
-        d.update((k,v) for (k,v) in self.__dict__.iteritems() if not k.startswith('_'))
-        return d
-    
     def big_dict(self):
         # Return big dict of item attributes to represent full item
-        d = self.build_dict()
+        fields = ['name']
+        d = build_dict(self.__dict__, fields)
         d['uri'] = self.uri
         d['special'] = self._is_special()
         return d
@@ -180,6 +182,10 @@ class ApiModel(models.Model):
         # Persistence issues are showing up in re-saving items
         self.errors = {}
         self.build_errors(['name'])
+    
+    def update(self, data):
+        for (k,v) in data.iteritems():
+            self.__getattribute__(k) = v
     
     def save(self, *args, **kwargs):
         """ All ApiModel-based instances require a sort_order at save to 
@@ -272,7 +278,10 @@ class Practice(models.Model):
         if not self.errors.get('email'):
             if not email_re.match(self.email):
                 self.errors['email'] = 'Invalid'
-        
+    
+    def update(self, data):
+        for (k,v) in data.iteritems():
+            self.__getattribute__(k) = v
 
 
 @public
@@ -365,6 +374,13 @@ class User(ApiModel):
         else:
             return self == curr_user
     
+    def big_dict(self):
+        fields = ['name', 'type', 'color', 'pin', 'is_site_user', 'email']
+        d = build_dict(self.__dict__, fields)
+        d['password'] = '*****' if self.password else ''
+        d['uri'] = self.uri
+        return d
+    
     def validate(self):
         # See explanation of validate() on ApiModel class
         
@@ -394,7 +410,16 @@ class User(ApiModel):
             # Validate email address via regexp
             if not email_re.match(self.email):
                 self.errors['email'] = 'Invalid'
-        
+    
+    def update(self, data):
+        for (k,v) in data.iteritems():
+            if k == 'password':
+                if v is not '' and v != '*****':
+                    # Password is neither empty nor masked, so we set it
+                    self.set_password(v)
+            else:
+                # Set value
+                self.__getattribute__(k) = v
 
 
 @public
@@ -414,7 +439,7 @@ class Room(ApiModel):
     status = models.CharField(max_length=8, choices=STATUS_CHOICES, default='C')
     timestampinqueue = models.TimeField(null=True, blank=True, verbose_name="Time Put in Queue")
     lasttimeinqueue = models.TimeField(null=True, blank=True, verbose_name="Last Time Put in Queue")
-
+    
     def save(self, *args, **kwargs):
         increment_type_version('room')
         
