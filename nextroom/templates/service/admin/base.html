@@ -5,129 +5,143 @@
     <link rel="stylesheet" type="text/css" href="{{media}}css/nextroom.css" />
   </head>
   <body>
-
-    <header>
-      <h1>NextRoom // {{user.practice}}</h1>
-      <nav id="main-nav">
-	<a href="#!app">App</a>
-	<a href="#!account">Account</a>
-	<a href="#!help">Help</a>
-	<a href="/logout/">Logout</a>
-      </nav>
-    </header>
-
-    <div role="main">
-      <section id="app">
-
-	<div id="app-menu" class="panel static">
-	  <ul class="content">
-	    <li class="entry"><a href="#!app/user">Users</a></li>
-	    <li class="entry"><a href="#!app/room">Rooms</a></li>
-	    <li class="entry"><a href="#!app/note">Notes</a></li>
-	    <li class="entry"><a href="#!app/task">Tasks</a></li>
-	  </ul>
-	</div>
-
-	<div id="app-kind" class="panel"><div class="content stub"></div></div>
-	<div id="app-editor" class="panel"><div class="content stub"></div></div>
-	<div id="app-tips" class="panel"><div class="content stub"></div></div>
-
-      </section>
+    
+    <div id="header_background" class="shadow">
+        <div class="wrapper">
+            <a href="/">NextRoom</a>
+        </div>
     </div>
 
-    <div id="help"></div>
+    {% block body_content %}
+    <div class="wrapper">
+        <header>
+          <h1>NextRoom // {{user.practice}}</h1>
+          <nav id="main-nav">
+            <a href="#!app">App</a>
+            <a href="#!account">Account</a>
+            <a href="#!help">Help</a>
+            <a href="/logout/">Logout</a>
+          </nav>
+        </header>
 
-    <footer></footer>
+        <div id="content">
+            <div role="main">
+              <section id="app">
 
-    <div id="template">
-      <!-- This form is used for Room, Note, and Task details. -->
-      <form class="panel room-detail note-detail task-detail" role="form">
-	<ul class="fields">
-	  <li class="field">
-	    <label>Name</label>
-	    <input type="text" name="name" />
-	  </li>
-	</ul>
-	<div class="buttons">
-	  <input type="submit" value="Save" class="submit button" />
-	  <input type="button" value="Cancel" class="cancel button" />
-	</div>
-      </form>
+            <div id="app-menu" class="panel static">
+              <ul class="content">
+                <li class="entry"><a href="#!app/user">Users</a></li>
+                <li class="entry"><a href="#!app/room">Rooms</a></li>
+                <li class="entry"><a href="#!app/note">Notes</a></li>
+                <li class="entry"><a href="#!app/task">Tasks</a></li>
+              </ul>
+            </div>
 
-      <!-- This form is used for User details. -->
-      <form class="panel user-detail" role="user-form form">
-	<ul class="fields">
-	  <li class="field">
-	    <label>Name</label>
-	    <input type="text" name="name" />
-	  </li>
-	  <li class="field">
-	    <label>Role</label>
-	    <select name="type">
-	      <option value="">Choose...</option>
-	      {% for val, key in add_types %}
-	        <option value="{{val}}">{{key}}</option>
-	      {% endfor %}
-	    </select>
-	  </li>
-	  <li class="field">
-	    <label>PIN</label>
-	    <input type="text" name="pin" />
-	  </li>
-	  <li class="field">
-	    <a>Choose Color</a>
-	    <input type="text" name="color" />
-	  </li>
-	  <li class="field checkbox-field">
-	    <label for="is-site-user">Site User</label>
-	    <input type="checkbox" id="is-site-user" name="is_site_user" />
-	  </li>
-	</ul>
-	<ul class="fields website-fields">
-	  <li class="field">
-	    <label>Email</label>
-	    <input type="text" name="email" />
-	  </li>
-	  <li class="field">
-	    <label>Password</label>
-	    <input type="password" name="password" />
-	  </li>
-	</ul>
-	<div class="buttons">
-	  <input type="submit" value="Save" class="submit button" />
-	  <input type="button" value="Cancel" class="cancel button" />
-	</div>
-      </form>
+            <div id="app-kind" class="panel"><div class="content stub"></div></div>
+            <div id="app-editor" class="panel"><div class="content stub"></div></div>
+            <div id="app-tips" class="panel"><div class="content stub"></div></div>
 
-      <!-- This form is used for "special" users -->
-      <form class="panel special-user-detail" role="form">
-	<ul class="fields">
-	  <li class="field">
-	    <label>Name</label>
-	    <input type="text" name="name" disabled="disabled" />
-	  </li>
-	  <li class="field">
-	    <label>Role</label>
-	    <select name="type" disabled="disabled">
-	      <option value="">Choose...</option>
-	      {% for val, key in user_types %}
-	        <option value="{{val}}">{{key}}</option>
-	      {% endfor %}
-	    </select>
-	  </li>
-	  <li class="field">
-	    <a>Choose Color</a>
-	    <input type="text" name="color" />
-	  </li>
-	</ul>
-	<div class="buttons">
-	  <input type="submit" value="Save" class="submit button" />
-	  <input type="button" value="Cancel" class="cancel button" />
-	</div>
-      </form>
+              </section>
+            </div>
 
-    </div>
+            <div id="help"></div>
 
-    <script type="text/javascript" data-main="main" src="{{media}}require-jquery-1.4.3.js"></script>
+            <footer></footer>
+
+            <div id="template">
+              <!-- This form is used for Room, Note, and Task details. -->
+              <form class="panel room-detail note-detail task-detail" role="form">
+            <ul class="fields">
+              <li class="field">
+                <label>Name</label>
+                <input type="text" name="name" />
+              </li>
+            </ul>
+            <div class="buttons">
+              <input type="submit" value="Save" class="submit button" />
+              <input type="button" value="Cancel" class="cancel button" />
+            </div>
+              </form>
+
+              <!-- This form is used for User details. -->
+              <form class="panel user-detail" role="user-form form">
+            <ul class="fields">
+              <li class="field">
+                <label>Name</label>
+                <input type="text" name="name" />
+              </li>
+              <li class="field">
+                <label>Role</label>
+                <select name="type">
+                  <option value="">Choose...</option>
+                  {% for val, key in add_types %}
+                    <option value="{{val}}">{{key}}</option>
+                  {% endfor %}
+                </select>
+              </li>
+              <li class="field">
+                <label>PIN</label>
+                <input type="text" name="pin" />
+              </li>
+              <li class="field">
+                <a>Choose Color</a>
+                <input type="text" name="color" />
+              </li>
+              <li class="field checkbox-field">
+                <label for="is-site-user">Site User</label>
+                <input type="checkbox" id="is-site-user" name="is_site_user" />
+              </li>
+            </ul>
+            <ul class="fields website-fields">
+              <li class="field">
+                <label>Email</label>
+                <input type="text" name="email" />
+              </li>
+              <li class="field">
+                <label>Password</label>
+                <input type="password" name="password" />
+              </li>
+            </ul>
+            <div class="buttons">
+              <input type="submit" value="Save" class="submit button" />
+              <input type="button" value="Cancel" class="cancel button" />
+            </div>
+              </form>
+
+              <!-- This form is used for "special" users -->
+              <form class="panel special-user-detail" role="form">
+            <ul class="fields">
+              <li class="field">
+                <label>Name</label>
+                <input type="text" name="name" disabled="disabled" />
+              </li>
+              <li class="field">
+                <label>Role</label>
+                <select name="type" disabled="disabled">
+                  <option value="">Choose...</option>
+                  {% for val, key in user_types %}
+                    <option value="{{val}}">{{key}}</option>
+                  {% endfor %}
+                </select>
+              </li>
+              <li class="field">
+                <a>Choose Color</a>
+                <input type="text" name="color" />
+              </li>
+            </ul>
+            <div class="buttons">
+              <input type="submit" value="Save" class="submit button" />
+              <input type="button" value="Cancel" class="cancel button" />
+            </div>
+              </form>
+
+            </div><!-- END TEMPLATE ID -->
+        </div><!-- END CONTENT ID -->
+
+
+        
+    </div><!-- END WRAPPER CLASS -->
+        <script type="text/javascript" data-main="main" src="{{media}}require-jquery-1.4.3.js"></script>
+    {% endblock %}
   </body>
 </html>

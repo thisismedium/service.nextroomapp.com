@@ -58,7 +58,10 @@ def login(request):
             request.session[USER_KEY] = None
             valid = False
     
-    return render_to_response('service/admin/login.html', {'valid':valid} )
+    return render_to_response('service/admin/login.html', {
+        'valid':valid,
+        'media': '%sservice/' % settings.MEDIA_URL
+    })
 
 def logout(request):
     # Clears the user from the session

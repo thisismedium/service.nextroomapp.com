@@ -5,33 +5,84 @@
 html {
     font-size: 12pt;
     height: 100%;
+    background: #d2d2d2;
 }
 
 body {
-    position: relative;
-    width: 960px;
     height: 100%;
-    margin: 2em auto;
 }
 
 [unselectable=on] { -moz-user-select: none; -khtml-user-select: none; user-select: none; }
+
+/* ## ID's ## */
+#header_background {
+    height: 40px;
+    width: 100%;
+    min-width: 960px;
+    background: #ececec;
+    border-bottom: 1px solid #fff;
+}
+
+#header_background a {
+    display: block;
+    width: 92px;
+    height: 95px;
+    position: absolute;
+    top: -3px;
+    left: 0px;
+    text-indent: -9999px;
+    background: url(images/nextroom-logo.png) 0 0 no-repeat;
+}
+
+#login_box {
+    width: 440px;
+    margin: 100px auto 0;
+    position: relative;
+}
+
+#content {
+    position: relative;
+    padding: 100px 0 0;
+}
+
+
+/* ## class's ## */
+.wrapper {
+    width: 960px;
+    margin: 0 auto;
+    position: relative;
+}
+
+.shadow {
+    -moz-box-shadow: 0px 3px 5px #aaa;
+    -webkit-box-shadow: 0px 3px 5px #aaa;
+    box-shadow: 0px 3px 5px #aaa;
+}
+
 
 
 /* ## Header ## */
 
 header {
-    position: relative;
+    position: absolute;
+    width: 860px;
+    top: -30px;
+    right: 0;
     margin-bottom: 2em;
 }
 
 header h1 {
     font-size: 1.4em;
+    position: absolute;
+    top: 40px;
+    left: 0;
+    color: #838384;
 }
 
 header nav {
     position: absolute;
     line-height: 1.4em;
-    bottom: 0;
+    top: 0;
     right: 0;
 }
 
@@ -119,13 +170,16 @@ footer {
     list-style-type: none;
     border-radius: 3px;
     margin: 0 0 5px 0;
-    background-color: #eee;
-    color: blue;
+    background-color: #ededec;
+    color: #6c6c6c;
+    border: 1px solid #fff;
+    font-size: 16px;
+    line-height: 30px;
+    font-weight: bold;
 }
 
 #app .entry:hover {
-    background-color: blue;
-    color: white;
+    color: #0cac98;
 }
 
 #app .header span,
