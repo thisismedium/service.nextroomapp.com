@@ -5,6 +5,7 @@
 from django.contrib.auth.models import get_hexdigest, check_password
 from django.db import models
 from django.db.models.signals import post_save
+from django.forms.fields import email_re
 from django.utils.hashcompat import md5_constructor, sha_constructor
 
 from nextroom.apps.service.customfields import ColorField
@@ -14,7 +15,8 @@ import hashlib
 
 
 #########################################################
-# Helper methods
+# Deprecated methods
+#   These methods will be removed for version 1.2
 #########################################################
 
 def create_dummy_version(type):
@@ -51,8 +53,8 @@ def increment_type_version(type):
 
 
 def increment_user_version(user):
-    """
-        Increment the version row for a user
+    """ Increment the version row for a user.
+    
     """
     try:
         version = user.version
@@ -67,12 +69,25 @@ def increment_user_version(user):
     return version
 
 #########################################################
-# Expose models for easy API access
+# API Model Helpers
 #########################################################
+
+def build_dict(model_dict, fields):
+    """ Returns a new dict for easy serialization.
+    Accepts model instance's __dict__ & fields list to determine output
+    Additional overrides are found in model.big_dict() method
+
+    """
+    d = {}
+    d.update((k,v) for (k,v) in model_dict.iteritems() if k in fields)
+    return d
 
 PUBLIC = {}
 
 def public(cls):
+    """ Used by the model_method decorator to look up class name based on URL arg.
+    
+    """
     PUBLIC[cls.__name__.lower()] = cls
     return cls
 
@@ -91,6 +106,9 @@ class ApiModel(models.Model):
     name = models.CharField(max_length=256)
     sort_order = models.IntegerField(default=0, blank=True)
     
+    # Empty dict for errors -- see comments in validate() method
+    errors = {}
+    
     class Meta:
         abstract = True
         ordering = ('sort_order', 'name')
@@ -103,28 +121,82 @@ class ApiModel(models.Model):
         d = {}
         d['name'] = self.name
         d['uri'] = self.uri
-        d['special'] = self.special
-        return d
-    
-    def big_dict(self):
-        # Return big dict of item attributes
-        # We ensure we don't return _ attributes.
-        d = {}
-        d.update((k,v) for (k,v) in self.__dict__.iteritems() if not k.startswith('_'))
-        d['uri'] = self.uri
-        d['special'] = self.special
+        d['special'] = self._is_special()
         return d
     
     def _is_special(self):
         # Currently only used by User model (and overridden there)
         # This is used to currently mark items as system items that cannot be deleted
+        # If another model needs to use this, override for that class
         return False
-    special = property(_is_special)
     
     def _item_uri(self):
         # Return an item URI for API access
         return 'app/%s/%d' % (self.__class__.__name__.lower(), self.id)
     uri = property(_item_uri)
+    
+    def big_dict(self):
+        # Return big dict of item attributes to represent full item
+        fields = ['name']
+        d = build_dict(self.__dict__, fields)
+        d['uri'] = self.uri
+        d['special'] = self._is_special()
+        return d
+    
+    
+    def build_errors(self, fields):
+        """ Builds up errors dict. Used by all ApiModel-based classes.
+        
+        """
+        objs = self.__class__.objects.all().filter(practice=self.practice)
+        
+        if self.pk:
+            objs = objs.exclude(id=self.id)
+        
+        for k in fields:
+            if self.__getattribute__(k) == "":
+                self.errors[k] = 'Empty'
+            elif self.__getattribute__(k) in [o.__getattribute__(k) for o in objs]:
+                self.errors[k] = 'Duplicate'
+    
+    def validate(self):
+        """ validate() is intended, at this point, to be usable like this via API calls:
+        
+            item = Item()
+            item.validate()
+            if item.errors:
+                # item.errors is NOT an empty {} -- handle errors as you wish
+                raise Invalid("There were errors!")
+            else:
+                item.save()
+                return item
+        
+        As you can see, it's overriden on a per-model basis.
+        
+        Basically, validate() calls build_errors() to check for Empty &/or Duplicate values.
+        Anything beyond that (like verifying emails, etc.), implement it in ModelName.validate()
+        
+        """
+        
+        # Simplest validator for all ApiModel instances
+        # Persistence issues are showing up in re-saving items
+        self.errors = {}
+        self.build_errors(['name'])
+    
+    def update(self, data):
+        for (k,v) in data.iteritems():
+            self.__getattribute__(k) = v
+    
+    def save(self, *args, **kwargs):
+        """ All ApiModel-based instances require a sort_order at save to 
+        ensure new item is last in the list.
+        
+        """
+        if not self.pk:
+            self.sort_order = self.__class__.objects.all().count()
+        super(ApiModel, self).save(*args, **kwargs)
+    
+            
 
 class Version(models.Model):
     """ Version Data Types:
@@ -151,12 +223,13 @@ class Tag(ApiModel):
     class Meta:
         abstract = True
     
-    def save(self, force_insert=False, force_update=False):
-        super(Tag, self).save(force_insert, force_update)
+    def save(self, *args, **kwargs):
+        super(Tag, self).save(*args, **kwargs)
 
         for room in self.room_set.all():
             for user in room.assignedto.all():
                 increment_user_version(user)
+
 
 #########################################################
 # NextRoom App/Service Models - public
@@ -170,16 +243,45 @@ class Practice(models.Model):
     app_auth_name = models.CharField(max_length=250, blank=False, null=False, unique=True)
     email = models.EmailField(blank=False, null=False)
     active = models.BooleanField(default=True, blank=True)
-
+    
+    # Empty dict for errors
+    errors = {}
+    
     def __unicode__(self):
         return u'%s' % self.practice_name
     
     def as_dict(self):
         # Return big dict of item attributes
         # We ensure we don't return _ attributes.
-        d = {}
-        d.update((k,v) for (k,v) in self.__dict__.iteritems() if not k.startswith('_'))
-        return d
+        return build_dict(self.__dict__)
+    
+    def build_errors(self, fields):
+        """ Builds up errors dict.
+
+        """
+        objs = self.__class__.objects.all().filter(practice=self.practice)
+
+        if self.pk:
+            objs = objs.exclude(id=self.id)
+
+        for k in fields:
+            if self.__getattribute__(k) == "":
+                self.errors[k] = 'Empty'
+            elif self.__getattribute__(k) in [o.__getattribute__(k) for o in objs]:
+                self.errors[k] = 'Duplicate'
+    
+    def validate(self):
+        # See explanation of validate() on ApiModel class
+        self.errors = {}
+        self.build_errors(['practice_name', 'email', 'app_auth_name'])
+        # As long as email hasn't yet come back as Empty or Duplicate, check it is a valid address now
+        if not self.errors.get('email'):
+            if not email_re.match(self.email):
+                self.errors['email'] = 'Invalid'
+    
+    def update(self, data):
+        for (k,v) in data.iteritems():
+            self.__getattribute__(k) = v
 
 
 @public
@@ -187,10 +289,9 @@ class Note(Tag):
     """ Nurse-given tag for a room
     
     """
-    pass
-
-    def save(self, force_insert=False, force_update=False):
-        super(Note, self).save(force_insert, force_update)
+    
+    def save(self, *args, **kwargs):
+        super(Note, self).save(*args, **kwargs)
         increment_type_version('note')
 
 @public
@@ -198,10 +299,9 @@ class Task(Tag):
     """ Doctor-given task for a room
     
     """
-    pass
-
-    def save(self, force_insert=False, force_update=False):
-        super(Task, self).save(force_insert, force_update)
+    
+    def save(self, *args, **kwargs):
+        super(Task, self).save(*args, **kwargs)
         increment_type_version('task')
 
 @public
@@ -232,7 +332,7 @@ class User(ApiModel):
     is_site_user = models.BooleanField(default=False,blank=True)
     email = models.EmailField(blank=True, null=True)
     password = models.CharField(max_length=128, blank=True, null=True)
-
+    
     def set_password(self, raw_password):
         # Taken from Django.contrib.auth.models.User.set_password()
         import random
@@ -240,12 +340,12 @@ class User(ApiModel):
         salt = get_hexdigest(algo, str(random.random()), str(random.random()))[:5]
         hsh = get_hexdigest(algo, salt, raw_password)
         self.password = '%s$%s$%s' % (algo, salt, hsh)
-
+    
     def check_password(self, raw_password):
         # Taken from Django.contrib.auth.models.User.check_password()
         return check_password(raw_password, self.password)
     
-    def save(self, force_insert=False, force_update=False):
+    def save(self, *args, **kwargs):
         increment_type_version('_users')
         try:
             version = self.version
@@ -255,15 +355,71 @@ class User(ApiModel):
         
         version = increment_version(version)
         self.version = version
-        
-        # Temp to prevent overwriting password
         self.password = self.password
-        
-        super(User, self).save(force_insert, force_update)
+        super(User, self).save(*args, **kwargs)
     
-    def _is_special(self):
-        return True if self.type.startswith('_') else False
-    special = property(_is_special)
+    def small_dict(self, curr_user):
+        # Returns small dict of basic item attributes
+        d = {}
+        d['name'] = self.name
+        d['uri'] = self.uri
+        # We want the API to mark the requesting user as special
+        # This ensures requesting user cannot delete itself
+        d['special'] = self._is_special(curr_user)
+        return d
+    
+    def _is_special(self, curr_user=None):
+        if self.type.startswith('_'):
+            return True
+        else:
+            return self == curr_user
+    
+    def big_dict(self):
+        fields = ['name', 'type', 'color', 'pin', 'is_site_user', 'email']
+        d = build_dict(self.__dict__, fields)
+        d['password'] = '*****' if self.password else ''
+        d['uri'] = self.uri
+        return d
+    
+    def validate(self):
+        # See explanation of validate() on ApiModel class
+        
+        # Basic requirement for all users
+        fields = ['name', 'type']
+        
+        # Add in other required fields where necessary
+        # NOTE: pin is not, at this time, added because we must allow dups
+        if self.type.startswith('_'):
+            # System users can never be site users -- API enforces this
+            self.is_site_user = False
+            self.email = None
+            self.password = None
+        else:
+            # Non-system users should always have a color
+            fields.append('color')
+            if self.is_site_user:
+                # User is NOT system user & IS site user: email/password required
+                fields.append('email')
+                fields.append('password')
+        
+        # Reset self.errors & check for Empty & Duplicate values first
+        self.errors = {}
+        self.build_errors(fields)
+        
+        if self.is_site_user and not self.errors.get('email'):
+            # Validate email address via regexp
+            if not email_re.match(self.email):
+                self.errors['email'] = 'Invalid'
+    
+    def update(self, data):
+        for (k,v) in data.iteritems():
+            if k == 'password':
+                if v is not '' and v != '*****':
+                    # Password is neither empty nor masked, so we set it
+                    self.set_password(v)
+            else:
+                # Set value
+                self.__getattribute__(k) = v
 
 
 @public
@@ -279,14 +435,14 @@ class Room(ApiModel):
     
     assignedto = models.ManyToManyField(User, null=True, blank=True, verbose_name="Assigned To")
     notes = models.ManyToManyField(Note, null=True, blank=True)
-    procedures = models.ManyToManyField(Task, null=True, blank=True)
+    tasks = models.ManyToManyField(Task, null=True, blank=True)
     status = models.CharField(max_length=8, choices=STATUS_CHOICES, default='C')
     timestampinqueue = models.TimeField(null=True, blank=True, verbose_name="Time Put in Queue")
     lasttimeinqueue = models.TimeField(null=True, blank=True, verbose_name="Last Time Put in Queue")
-
-    def save(self, force_insert=False, force_update=False):
+    
+    def save(self, *args, **kwargs):
         increment_type_version('room')
-
+        
         # Handle timestampinqueue appropriately
         import time
         if self.pk:
@@ -295,15 +451,12 @@ class Room(ApiModel):
             elif self.status == 'C' and self.timestampinqueue is not None:
                 self.lasttimeinqueue = time.strftime('%H:%M:%S')
                 self.timestampinqueue = None
-
-        super(Room, self).save(force_insert, force_update)
-
+        super(Room, self).save(*args, **kwargs)
         for user in self.assignedto.all():
             increment_user_version(user)
-
-
+    
     def __unicode__(self):
-        return "Room %s" % self.name
+        return "%s" % self.name
 
 #########################################################
 # Signal listeners

@@ -1,8 +1,8 @@
 <room assignedto='{% for user in room.assignedto.all %}{{ user.name }}{% if not forloop.last %},{% endif %}{% endfor %}'
     notes='{% for note in room.notes.all %}{{ note.name }}{% if not forloop.last %},{% endif %}{% endfor %}'
-    procedures='{% for procedure in room.procedures.all %}{{ procedure.name }}{% if not forloop.last %},{% endif %}{% endfor %}'
+    tasks='{% for task in room.tasks.all %}{{ task.name }}{% if not forloop.last %},{% endif %}{% endfor %}'
     status='{{ room.status }}'
-    roomnumber='{{ room.roomnumber }}'
+    roomnumber='{{ room.name }}'
     roomUID='{{ room.id }}'
     timestampinqueue='{{ room.timestampinqueue }}'
     />

@@ -24,10 +24,16 @@ def get_model(model):
     else:
         return model
 
-def stringify_dict_keys(dct):
+def stringify_dict_keys(dct, practice):
     d = {}
-    for key,val in dct.items():
-        d[str(key)] = val
+    if isinstance(dct, dict):
+        # Standard GET/POST/PUT data
+        for key,val in dct.items():
+            d[str(key)] = val
+        d['practice'] = practice
+    elif isinstance(dct, list):
+        # Special case for model PUT (reordering)
+        return dct
     return d
 
 def get_user(request):
@@ -40,7 +46,7 @@ def get_user(request):
 def get_request_data(request):
     # Returns data with str keys
     try:
-        return stringify_dict_keys(json.loads(request.raw_post_data))
+        return stringify_dict_keys(json.loads(request.raw_post_data), get_user(request).practice)
     except ValueError:
         # No raw_post_data
         return None

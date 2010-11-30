@@ -37,7 +37,7 @@ def api_get(model, id=None, user=None):
         try:
             return model.objects.filter(practice=user.practice).order_by('sort_order', 'name')
         except:
-            raise BadRequest("Bad Resource.")
+            raise BadRequest("Cannot find the items requested.")
 
 @model_method
 def api_post(model, id=None, user=None, data=None):
@@ -47,12 +47,20 @@ def api_post(model, id=None, user=None, data=None):
 
     if id is None and data is not None:
         # Create a new instance
-        item = model(practice=user.practice, **data)
-        item.save()
-        return item
+        item = model(**data)
+
+        # Validate or die
+        item.validate()
+        if item.errors:
+            # Die
+            raise Invalid(item.errors)
+        else:
+            # Save
+            item.save()
+            return item
     else:
         # Cannot POST to an instance.
-        raise BadRequest("Cannot POST to an existing instance.")
+        raise BadRequest("Cannot POST to an existing instance. Use PUT instead.")
 
 @model_method
 def api_put(model, id=None, user=None, data=None):
@@ -61,12 +69,22 @@ def api_put(model, id=None, user=None, data=None):
     #   if instance: update instance
     if data is not None:
         if id is not None:
+            # Update item data
             item = api_get(model, id, user)
-            item = model(id=item.id, **data)
-            item.save()
-            return item
+            item.update(data)
+            item.validate()
+            if item.errors:
+                raise Invalid(item.errors)
+            else:
+                item.save()
+                return item
         else:
-            items = api_get(model, id)
+            # Re-sort model's items
+            for index, obj in enumerate(data):
+                mod,key = obj['uri'].split('/')[1], int(obj['uri'].split('/')[2])
+                item = api_get(mod, key, user)
+                item.sort_order = index
+                item.save()
             return None
     else:
         raise BadRequest("No data provided for PUT.")
@@ -80,8 +98,10 @@ def api_delete(model, id, user):
         if item != user:
             item.delete()
             return None
+        else:
+            raise BadRequest("Cannot delete oneself.")
     else:
-        raise BadRequest()
+        raise BadRequest("Cannot delete an account.")
 
 @pre_process
 def process(request, model, id=None, user=None, data=None):
