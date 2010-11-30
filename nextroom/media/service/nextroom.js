@@ -60,10 +60,8 @@ var NR = {};
     function getModel(root) {
       return {
         get: function(uri, next) {
-          request('get', uri, {
-            success: function(data) {
-              next(null, listPanel(uri, root, data));
-            }
+          $.getJSON(uri, function(data, status) {
+            next(null, listPanel(uri, root, data));
           });
         },
 
@@ -96,7 +94,7 @@ var NR = {};
       function makeEntry(obj) {
         $('<a/>').attr('href', '#' + obj.uri)
           .text(obj.name || '')
-          .append(obj.special ? '' : '<input type="button" class="delete" value="x" />')
+          .append('<input type="button" class="delete" value="x" />')
           .wrap('<li class="entry" />')
             .parent()
             .data('nextroom', obj)
@@ -121,7 +119,11 @@ var NR = {};
         // FIXME: using "/new" is cheating.
         // FIXME: better name
         // FIXME: hook up sortable and delete
-        Router.window(uri + '/:new');
+        var obj = makeEntry({ uri: uri, name: 'New Item' });
+        Router.window(uri);
+        detailForm('post', area, obj).load(function() {
+          console.debug('FIXME: get this on the stack.');
+        });
       });
 
       el.find('.delete').click(function(ev) {
@@ -140,14 +142,9 @@ var NR = {};
 
       return {
         get: function(uri, next) {
-          if (/:new$/.test(uri))
-            next(null, detailForm('post', area, { uri: uri, name: 'New Item' }));
-          else
-            request('get', uri, {
-              success: function(data, status) {
-                next(null, detailForm('put', area, data));
-              }
-            });
+          $.getJSON(uri, function(data, status) {
+            next(null, detailForm('put', area, data));
+          });
         },
 
         load: function(next) {
@@ -163,9 +160,8 @@ var NR = {};
     }
 
     function detailForm(method, area, data) {
-      var probe = data.uri.match(/(app\/([^\/]+))\/.*/),
-          kind = probe[2],
-          sendTo = method == 'post' ? probe[1] : data.uri
+      var probe = data.uri.match(/app\/([^\/]+)\/.*/),
+          kind = probe[1],
           ctor = { 'user': user },
           form = (ctor[kind] || setup)($('#template .' + kind + '-detail').clone());
 
@@ -190,17 +186,12 @@ var NR = {};
 
       function submit(ev) {
         ev.preventDefault();
-        request(method, sendTo, {
+        request(method, data.uri, {
           data: form.formData(),
           success: function(data) {
             // FIXME: update form
             // FIXME: update list
             console.debug('Saved!', data);
-            Router.window('app', function(err) {
-              err ? NR.error(err) : Router.window(sendTo, function(err) {
-                err ? NR.error(err) : Router.window(data.uri);
-              })
-            })
           }
         });
       }
@@ -237,180 +228,11 @@ var NR = {};
     opt.data = opt.data && JSON.stringify(opt.data);
 
     opt.error = opt.error || function(xhr, status) {
-      NR.error('Failed to save', url, status);
+      NR.error('Failed to save', data.uri, status);
     };
 
     $.ajax(opt);
   }
-
-  // Add `id` and `for` attribute to input/label pairs that don't
-  // already have them.
-  //
-  // + selector - identify input/label groups (default: '.field')
-  //
-  // Returns original jQuery
-  $.fn.labelFields = function labelFields(selector) {
-    return this
-      .find(selector || '.field').each(function() {
-        var input = $(':input', this),
-            label = $('label', this),
-            id = input.attr('id');
-
-        if (!id) {
-          id = label.text() + (new Date()).getTime();
-          input.attr('id', id);
-          label.attr('for', id);
-        }
-      })
-      .end();
-  };
-
-  // Serialize a form or update its inputs values if `data` is given.
-  //
-  // + data - Object update the form with these values (optional).
-  //
-  // Returns original jQuery or data object.
-  $.fn.formData = function formData(data) {
-    var form = this;
-
-    if (data !== undefined) {
-      $.each(data, function(key, val) {
-          var input = form.find('[name=' + key + ']:input');
-          if (input.is(':checkbox')) {
-            input.attr('checked', val);
-          }
-          input.val(val);
-      });
-      return form;
-    }
-    else {
-      data = {};
-      form.find('[name]:input').each(function() {
-        data[this.name] = (this.type == 'checkbox') ? this.checked : $(this).val();
-      });
-      return data;
-    }
-
-  };
-
-  // Use HTML5 drag/drop events to make a list sortable.
-  //
-  // + selector - String identifies draggable elements.
-  // + onDrop   - Function called when sort order has changed.
-  //
-  // Returns original jQuery.
-  $.fn.sortable = function sortable(selector, onSort) {
-    var list = this,
-        dragItem,
-        nested;
-
-    items()
-      .attr('draggable', 'true')
-      .bind('dragstart', dragStart)
-      .bind('dragend', dragEnd)
-      .bind('dragenter', dragEnter)
-      .bind('dragleave', dragLeave)
-      .bind('dragover', dragOver)
-      .bind('drop', drop);
-
-    function item(obj) {
-      return $(obj).up(selector);
-    }
-
-    function items() {
-      return list.children(selector);
-    }
-
-    function dragStart(ev) {
-      var dt = ev.originalEvent.dataTransfer;
-      dragItem = item(ev.target).addClass('drag');
-      dt.setData('FireFox', 'requires this');
-      dt.effectAllowed = 'move';
-      return true;
-    }
-
-    function isDrop(elem) {
-      return (
-        (elem != dragItem[0])
-          && elem.draggable
-          && (elem.parentNode == dragItem[0].parentNode)
-      );
-    }
-
-    function dragOver(ev) {
-      // Default behavior is not to allow dropping.  Return `false` to
-      // override this.
-      return !isDrop(item(ev.target).get(0));
-    }
-
-    function dragEnter(ev) {
-      var target = item(ev.target);
-      if (target.is('.over'))
-        // A `dragenter` event has been fired on a nested element of
-        // the current drop target.  Inform `dragLeave` that this
-        // happened by setting `nested`.
-        nested = target;
-      else if (isDrop(target.get(0))) {
-        // Default behavior is not to allow dropping.  Return `false`
-        // to override this.
-        target.addClass('over');
-        return false;
-      }
-    }
-
-    function dragLeave(ev) {
-      var target = item(ev.target);
-      if (!nested || nested.get(0) != target.get(0))
-        target.removeClass('over');
-      nested = undefined;
-    }
-
-    function dragEnd(ev) {
-      items().removeClass('drag over');
-    }
-
-    function drop(ev) {
-      // Place the dragged node on the "other side" of the drop
-      // target depending on their relative position.
-      var drop = item(ev.target);
-      drop[(drop.index() > dragItem.index()) ? 'after' : 'before'](dragItem);
-      dragItem = undefined;
-      onSort(items());
-      return false;
-    }
-
-    return list;
-  }
-
-   // Starting with the current query, try to match the selector
-   // otherwise try parent().
-   $.fn.up = function(sel) {
-     var item = this;
-     while (item && !item.is(sel)) {
-       item = item.parent();
-     }
-     return item;
-   };
-
-   // down() -- a shallow find/each
-   //
-   // Walk downward, until the selector is matched.  Call fn() on
-   // matched each matched item.  Don't traverse into matched item.
-   $.fn.down = function(sel, fn) {
-     var queue = this.get(),
-         elem, item, idx, lim;
-
-     while (queue.length > 0) {
-       elem = queue.shift();
-       item = $(elem);
-       if (!item.is(sel))
-         $.merge(queue, item.children());
-       else if (false === fn.call(queue[idx], item))
-       break;
-     }
-
-     return this;
-   };
 
   
   // ## Router ##
@@ -418,7 +240,6 @@ var NR = {};
   function Router() {
     this.routes = {};
     this.state = [];
-    this.nextChange = [];
   }
 
   Router.location = function() {
@@ -426,7 +247,7 @@ var NR = {};
     return hash && hash.replace(/^#/, '');
   };
 
-  Router.window = function(uri, next) {
+  Router.window = function(uri) {
     // Singleton for `onhashchange`.
     if (!this._window) {
       var router = this._window = new Router();
@@ -440,11 +261,8 @@ var NR = {};
       };
     }
 
-    if (uri) {
-      next && this._window.nextChange.push(next);
+    if (uri)
       $.hashchange(uri);
-    }
-      
 
     return this._window;
   };
@@ -453,7 +271,7 @@ var NR = {};
     var self = this,
         path = uri.split('/');
 
-    next = next || (this.nextChange.length > 0 && this.nextChange.shift()) || NR.error;
+    next = next || NR.error;
     this._unwind(path, function(err) {
       err ? next(err) : self._wind(path, next);
     });

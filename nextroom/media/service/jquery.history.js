@@ -7,7 +7,7 @@
 //   + Safari <= 2.0 could be supported with a history.length hack
 //   + IE < 8 could be supported by using an iFrame.
 
-(function($) {
+define(function() {
 
   // ## jQuery ##
 
@@ -33,7 +33,7 @@
 
   function location() {
     var hash = window.location.hash;
-    return hash && hash.replace(/^#/, '');
+    return hash && hash.replace(/^#!/, '');
   }
 
   function notify() {
@@ -88,4 +88,4 @@
     };
   }
 
-})(jQuery);
+});

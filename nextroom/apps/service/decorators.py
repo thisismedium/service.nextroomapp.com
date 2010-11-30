@@ -53,7 +53,7 @@ def auth_decorator(is_app):
     ''' Verifies request is from an authenticated user
      is_app flag returns a special response for iPhone app
      This will likely go away when app uses new API
-    
+
     '''
     def decorator(view):
         # Verify app user is authenticated & valid
@@ -104,13 +104,13 @@ def api_request(method):
                 raise
         else:
             raise BadRequest()
-        
+
     return internal
 
 def pre_process(method):
     # Provides extra context for process functions
     @functools.wraps(method)
-    def internal(request, model, id, *args, **kwargs):
+    def internal(request, model, id=None, *args, **kwargs):
         user = get_user(request)
         data = get_request_data(request)
         return method(request, model, id, user, data, *args, **kwargs)

@@ -25,3 +25,4 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'nextroom.apps.service',
 )
+
