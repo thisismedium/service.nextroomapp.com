@@ -81,8 +81,8 @@ def api_put(model, id=None, user=None, data=None):
         else:
             # Re-sort model's items
             for index, obj in enumerate(data):
-                mod,key = obj['uri'].split('/')[1], int(obj['uri'].split('/')[2])
-                item = api_get(mod, key, user)
+                key = int(obj['uri'].split('/')[2])
+                item = api_get(model, key, user)
                 item.sort_order = index
                 item.save()
             return None

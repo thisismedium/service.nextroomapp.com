@@ -13,6 +13,11 @@ define(['exports', 'util'], function(exports, U) {
     return this;
   };
 
+  Client.prototype.put = function(uri, data, next) {
+    request('put', uri, { success: next, data: data });
+    return this;
+  };
+
   function request(type, uri, opt) {
     console.debug('request', type, uri, opt);
     ($.type(uri) == 'array' ? requestAll : requestOne)(type, uri, opt);

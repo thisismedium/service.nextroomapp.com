@@ -33,8 +33,10 @@ define(['exports'], function(exports) {
       ev.preventDefault();
       pos = item.offset();
       var bPos = body.offset();
-      pos.offsetX = ev.pageX - pos.left + bPos.left;
-      pos.offsetY = ev.pageY - pos.top + bPos.top;
+      pos.left -= bPos.left;
+      pos.top -= bPos.top;
+      pos.offsetX = ev.pageX - pos.left;
+      pos.offsetY = ev.pageY - pos.top;
       $(window).mousemove(move).mouseup(up);
     }
 

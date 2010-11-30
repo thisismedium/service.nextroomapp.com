@@ -27,13 +27,7 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
     this.elem = $(selector);
     this.panels = this.elem.children('.panel');
 
-    this.elem
-      .bind('sorted', function(ev) {
-        ev.changed.addClass('saving');
-        setTimeout(function() {
-          ev.changed.removeClass('saving');
-        }, 150);
-      });
+    this.elem;
   }
 
   App.prototype.show = function(fn) {
@@ -98,11 +92,31 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
   // ### App Views ###
 
   $.view('#app-kind', function(data) {
-    return makeList(data)
-      .addClass('content')
-      .appendTo(this.empty())
-      .sortable('> .entry')
-      .end();
+    var self = this,
+        uri = this.data('uri'),
+        list = makeList(data)
+          .addClass('content')
+          .appendTo(this.empty())
+          .sortable('> .entry').end()
+          .bind('sorted', sorted);
+
+    function sorted(ev) {
+      ev.changed.addClass('saving');
+      api.put(uri, value(), function(result) {
+        ev.changed.removeClass('saving');
+      });
+    }
+
+    function value() {
+      var data = [];
+      list.children('.entry')
+        .each(function(_, el) {
+          data.push($.data(el, 'value'));
+        });
+      return data;
+    }
+
+    return list;
   });
 
   $.view('#app-editor', function(data) {
@@ -141,6 +155,7 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
         .html(item.name)
         .wrap('<li class="entry" />')
         .parent()
+          .data('value', item)
           .addClass(item.special ? 'special' : '')
           .append('<button class="delete">x</button>')
           .appendTo(el);
