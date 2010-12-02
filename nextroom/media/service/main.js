@@ -109,21 +109,22 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
 
     if (!this.items.hasLoaded(kind))
       need[0] = kind;
+
     if (edit && !this.editor.hasLoaded(edit)) {
-      if (/\/new$/.test(edit))
+      if (U.basename(edit) == 'new')
         newItem = true;
       else
         need[1] = edit;
     }
 
-
     this.api.get(need, function(err, data) {
       if (err)
         fail(err);
       else {
-        self.menu.select(kind);
+        self.select(kind);
         if (data[kind])
           self.items.load(kind, data[kind]).show();
+
         self.items.select(edit);
         if (newItem)
           self.editor.newItem(edit).show();
@@ -139,8 +140,24 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
     console.log('unload app?', edit, this.editor.uri(), this.editor.hasLoaded(edit), kind, this.items.hasLoaded(kind));
     if (!this.editor.hasLoaded(edit))
       this.editor.unload().hide();
-    if (!this.items.hasLoaded(kind))
+    if (!this.items.hasLoaded(kind)) {
+      this.deselect();
       this.items.unload().hide();
+    }
+    return this;
+  };
+
+  App.prototype.select = function(uri) {
+    if (!uri)
+      return this.deselect();
+    this.el.addClass(U.basename(uri) + '-selected');
+    this.menu.select(uri);
+    this.tips.show();
+    return this;
+  };
+
+  App.prototype.deselect = function() {
+    this.el.attr('className', this.el.attr('className').replace(/\w+-selected/g, ''));
     return this;
   };
 
@@ -201,7 +218,7 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
 
   InstanceList.prototype.unload = function() {
     this.list = null;
-    this.el.empty().data('uri', null);
+    this.el.html('<div class="content stub" />').data('uri', null);
     return this;
   };
 
@@ -253,7 +270,7 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
     if (!this.list) {
       var list = $('<ul class="sortable" />'),
           add = $('<button class="add" value="add">+</button>'),
-          up = $('<a class="up" href="#">Back to Top</a>');
+          up = $('<a class="up" href="#">Back to top</a>');
 
       add.click(function(ev) {
         return self._add(ev);
@@ -379,7 +396,7 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
   };
 
   Editor.prototype.unload = function() {
-    this.el.empty().data('uri', null);
+    this.el.html('<div class="content stub"/>').data('uri', null);
     return this;
   };
 
@@ -412,7 +429,43 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
 
   function Tips(selector) {
     this.el = $(selector);
+
+    var self = this;
+    this.el.find('.tips').each(function() {
+      self._build(this);
+    });
   }
+
+  Tips.prototype.show = function() {
+    this.el.addClass('active');
+    return this;
+  };
+
+  Tips.prototype.hide = function() {
+    this.el.removeClass('active');
+    return this;
+  };
+
+  Tips.prototype._build = function(el) {
+    var self = this,
+        expandable = $('.unit:has(> .figure)', el);
+
+      expandable
+        .each(function(idx) {
+          $('.figure', this).append('<a class="expand" href="#">+</a>');
+          $('.teaser', this).after('<a class="expand" href="#">Expand &raquo;</a>');
+        })
+        .find('.expand').click(function(ev) {
+          ev.preventDefault();
+          self._expand($(this).up('.unit'), expandable);
+        });
+  };
+
+  Tips.prototype._expand = function(unit, related) {
+    var index = related.index(unit),
+        last = related.length - 1;
+    console.log('expand', index, size);
+  };
 
   
   // ### Helper Methods ###

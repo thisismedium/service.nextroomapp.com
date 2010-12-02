@@ -83,7 +83,7 @@ define(['exports'], function(exports) {
     return true;
   }
 
-  exports.uniqueId = (function() {
+  var uniqueId = exports.uniqueId = (function() {
     var index = 0;
     return function uniqueId(prefix) {
       index = (index + 1) % 100;

@@ -1,4 +1,5 @@
 @import url(reset.css);
+@import url(ui.css);
 
 /* ## Base ## */
 
@@ -242,7 +243,7 @@ footer img {
 
 /* ## Main ## */
 
-[role="main"] section {
+[role="main"] > section {
     display: none;
 }
 

@@ -1,0 +1,75 @@
+.header .title {
+    text-align: right;
+    padding-right: 40px;
+    line-height: 42px;
+    font-weight: normal;
+    font-style: italic;
+}
+
+.up {
+    display: block;
+    margin-top: 1em;
+    text-align: right;
+    font-family: helvetica;
+    font-size: 12px;
+    font-weight: bold;
+    color: #6c6c6c;
+    text-decoration: none;
+}
+
+#app-tips h3 {
+    font-size: 1.4em;
+    font-weight: bold;
+    margin-bottom: 1em;
+}
+
+.tips {
+    display: none;
+}
+
+.user-selected .user-tips,
+.room-selected .room-tips,
+.task-selected .task-tips,
+.note-selected .note-tips {
+    display: block;
+}
+
+.unit {
+    margin-bottom: 1em;
+}
+
+.unit h4 {
+    font-size: 1.1em;
+    margin-bottom: 0.5em;
+}
+
+.unit p {
+    margin-bottom: 0.5em;
+}
+
+.unit .figure {
+    position: relative;
+}
+
+.unit .small {
+    display: block;
+    width: 100%;
+    height: 100px;
+}
+
+.unit .large {
+    display: none;
+}
+
+.unit .figure .expand {
+    display: block;
+    position: absolute;
+    top: 40px;
+    right: 0;
+    height: 20px;
+    width: 20px;
+}
+
+.unit > .expand {
+    display: block;
+}
