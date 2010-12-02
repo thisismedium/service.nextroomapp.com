@@ -19,6 +19,7 @@ define(['exports'], function(exports) {
     opt.context = this;
 
     return this.find(selector)
+      .filter(':not([draggable])')
       .each(function() {
         draggable.call(this, opt);
       });
@@ -27,7 +28,7 @@ define(['exports'], function(exports) {
   function draggable(opt) {
     var item = $(this), body = $('body'), ghost, drops, over, pos;
 
-    item.attr('unselectable', 'on').mousedown(down);
+    item.attr({ unselectable: 'on', draggable: 'on' }).mousedown(down);
 
     function down(ev) {
       ev.preventDefault();
@@ -168,8 +169,6 @@ define(['exports'], function(exports) {
     function trigger(item, name, data) {
       return item.trigger(data ? $.extend($.Event(name), data) : name);
     }
-
-    return items;
   };
 
   $.fn.highlight = function(className) {

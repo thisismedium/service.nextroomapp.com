@@ -5,6 +5,10 @@ define(['exports'], function(exports) {
   exports.toArray = toArray;
   exports.words = words;
   exports.strip = strip;
+  exports.join = join;
+  exports.dirname = dirname;
+  exports.aEach = aEach;
+  exports.isEmpty = isEmpty;
 
   
   // ### Error ###
@@ -40,6 +44,45 @@ define(['exports'], function(exports) {
   function strip(s) {
     return (s || '').replace(/^\s*|\s*$/, '');
   }
+
+  function join() {
+    var result = arguments[0];
+    for (var i = 1, l = arguments.length; i < l; i++)
+      result = result.replace(/\/*$/, '') + '/' + arguments[i].replace(/^\/*/, '');
+    return result || '';
+  }
+
+  function dirname(p) {
+    return p.replace(/\/[^\/]+\/*$/, '');
+  }
+
+  function aEach(seq, next, fn) {
+    var index = 0,
+        limit = seq.length;
+
+    each();
+
+    function each(err) {
+      if (err || (index >= limit))
+        next(err);
+      else
+        fn(index, seq[index++], each);
+    }
+  }
+
+  function isEmpty(obj) {
+    for (var _ in obj)
+      return false;
+    return true;
+  }
+
+  exports.uniqueId = (function() {
+    var index = 0;
+    return function uniqueId() {
+      index = (index + 1) % 100;
+      return 'nr-' + Date.now() + '-' + index;
+    };
+  })();
 
   
   // ### jQuery Methods ###
@@ -87,7 +130,13 @@ define(['exports'], function(exports) {
     else {
       data = {};
       form.find('[name]:input').each(function() {
-        data[this.name] = $(this).val();
+        var input = $(this);
+        if (input.is(':checkbox')) {
+          if (input.attr('checked'))
+            data[this.name] = input.val();
+        }
+        else
+          data[this.name] = input.val();
       });
       return data;
     }

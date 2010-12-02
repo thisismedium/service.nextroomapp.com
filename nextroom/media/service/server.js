@@ -5,89 +5,140 @@ define(['exports', 'util'], function(exports, U) {
   };
 
   function Client() {
-    this.data = {};
+    this.waiting = {};
+    this.aborting = null;
   }
 
   Client.prototype.get = function(uri, next) {
-    request('get', uri, { success: next });
-    return this;
+    if ($.type(uri) == 'array') {
+      uri = $.map(uri, function(u) { return { type: 'get', uri: u }; });
+      return this._sendAll(uri, next);
+    }
+    return this._send({ type: 'get', uri: uri }, next);
+  };
+
+  Client.prototype.post = function(uri, data, next) {
+    return this._send({ type: 'post', uri: uri, data: data }, next);
   };
 
   Client.prototype.put = function(uri, data, next) {
-    request('put', uri, { success: next, data: data });
+    return this._send({ type: 'put', uri: uri, data: data }, next);
+  };
+
+  Client.prototype.del = function(uri, next) {
+    return this._send({ type: 'delete', uri: uri }, next);
+  };
+
+  Client.prototype.stop = function(next) {
+    var opt;
+
+    if (U.isEmpty(this.waiting))
+      next();
+    else {
+      this.aborting = next;
+      for (var id in this.waiting) {
+        if ((opt = this.waiting[id]).type == 'get')
+          this._end(opt);
+      }
+    }
     return this;
   };
 
-  function request(type, uri, opt) {
-    console.debug('request', type, uri, opt);
-    ($.type(uri) == 'array' ? requestAll : requestOne)(type, uri, opt);
-  }
+  Client.prototype._start = function(opt) {
+    if (this.aborting)
+      return false;
+    this.waiting[opt.id = U.uniqueId()] = opt;
+    $.ajax(opt);
+    return true;
+  };
 
-  // Make a JSON AJAX request.
-  //
-  // + type - String HTTP method.
-  // + url  - String resource identifier.
-  // + opt  - Object additional options (see $.ajax())
-  //
-  // Returns nothing.
-  function requestOne(type, url, opt) {
-    opt.type = type;
-    opt.url = url;
+  Client.prototype._end = function(opt) {
+    if (opt.id in this.waiting) {
+      delete this.waiting[opt.id];
+      this._abort();
+      return true;
+    }
+    return false;
+  };
+
+  Client.prototype._abort = function() {
+    if (this.aborting && U.isEmpty(this.waiting)) {
+      var fn = this.aborting;
+      this.aborting = null;
+      setTimeout(fn, 0);
+    }
+  };
+
+  Client.prototype._send = function(opt, next) {
+    var self = this;
+
+    if (!opt.uri) {
+      next();
+      return this;
+    }
+
+    opt.url = opt.uri;
     opt.contentType = 'application/json';
     opt.data = opt.data && JSON.stringify(opt.data);
 
-    opt.error = opt.error || function(xhr, status) {
-      U.error('Request failed:', url, status);
+    opt.beforeSend = function(xhr) {
+      opt.xhr = xhr;
     };
 
-    $.ajax(opt);
-  }
+    opt.success = function(data) {
+      if (self._end(opt))
+        next(null, data);
+    };
 
-  // Make several AJAX requests, but wait until they've all completed
-  // to call back.
-  //
-  // + type - String HTTP method
-  // + uris - Array of uris
-  // + opt  - Object additional options (see $.ajax())
-  //
-  // Returns nothing.
-  function requestAll(type, uris, opt) {
-    var result = new Array(uris.length),
-        waiting = result.length,
+    opt.error = function(xhr, status) {
+      if (self._end(opt)) {
+        var type = xhr.getResponseHeader('Content-Type'),
+            data = (type == 'application/json') ? JSON.parse(xhr.responseText) : undefined;
+        next(XhrFailed(opt.uri, xhr), data);
+      }
+    };
+
+    if (!this._start(opt))
+      next(new U.Error('Cannot start a request during an abort.'));
+    return this;
+  };
+
+  Client.prototype._sendAll = function(opts, next) {
+    var self = this,
+        result = {},
+        waiting = opts.length,
         error = null;
 
-    if (waiting.length == 0)
+    if (waiting == 0)
       done();
     else {
-      for (var i = 0, l = uris.length; i < l; i++)
+      for (var i = 0, l = opts.length; i < l; i++)
         send(i);
     }
 
     function send(index) {
-      var params = $.extend({}, opt);
-
-      params.success = function(value) {
-        result[index] = value;
-        if (--waiting == 0)
-          done();
-      };
-
-      params.error = function(xhr, status) {
-        if (error === null) {
-          error = new U.Error('requestAll failed:', uris[index], status);
-          done();
-        }
-      };
-
-      requestOne(type, uris[index], params);
+      var opt = opts[index];
+      self._send(opt, function(err, data) {
+        result[opt.uri] = data;
+        if (err || --waiting == 0)
+          done(err);
+      });
     }
 
-    function done() {
-      if (error)
-        (opt.error || U.error)(error);
-      else
-        opt.success(result);
+    function done(err) {
+      if (!err && !error)
+        next(null, result);
+      else if (!error)
+        next(error = err);
+      // else: there's already been an error, ignore this
     }
+  };
+
+  function XhrFailed(uri, xhr) {
+    var err = new U.Error('Request failed: ' + xhr.status);
+    err.uri = uri;
+    err.status = xhr.status;
+    return err;
   }
 
 });

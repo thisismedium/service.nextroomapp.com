@@ -392,6 +392,7 @@ footer img {
     font-size: 12px;
     font-family: helvetica;
 }
+
 #app .sortable .entry:last-child {
     border-bottom: 1px solid #fff;
     -webkit-border-bottom-left-radius: 5px;
@@ -400,7 +401,6 @@ footer img {
     -moz-border-radius-bottomright: 5px;
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
-
 }
 
 .header span,

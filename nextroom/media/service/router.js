@@ -1,30 +1,30 @@
 define(['exports', 'util', 'jquery.history'], function(exports, U) {
 
   exports.createRouter = function() {
-    return new Router(U.toArray(arguments));
+    return new Router();
   };
 
   
   // ## Router ##
 
-  function Router(routes) {
-    this.routes = routes || [];
+  function Router() {
+    this.routes = {};
     this.state = [];
   }
 
   Router.prototype.load = function(route, view) {
-    return this._view('load', route, view);
+    return this._defRoute('load', route, view);
   };
 
   Router.prototype.unload = function(route, view) {
-    return this._view('unload', route, view);
+    return this._defRoute('unload', route, view);
   };
 
   Router.prototype.listen = function() {
     var self = this;
 
     $.hashchange(function() {
-      self._resolve.apply(self, self.active());
+      self._resolve(self.active());
     }).hashchange();
 
     return self;
@@ -50,8 +50,9 @@ define(['exports', 'util', 'jquery.history'], function(exports, U) {
     return this.location().split(/;+/);
   };
 
-  Router.prototype.isActive = function(uri) {
-    return ($.inArray(uri, this.active()) !== -1);
+  Router.prototype.isActive = function(req) {
+    var active = (typeof req == 'string') ? this.active() : this.state;
+    return ($.inArray(req, active) !== -1);
   };
 
   Router.prototype.push = function(uri) {
@@ -73,82 +74,96 @@ define(['exports', 'util', 'jquery.history'], function(exports, U) {
     return this.isActive(uri) ? this.pop(uri) : this.push(uri);
   };
 
-  Router.prototype._view = function(name, pattern, view) {
-    var route;
+  Router.prototype._defRoute = function(name, pattern, view) {
+    var routes = this.routes[name], route;
 
-    for (var i = 0, l = this.routes.length; i < l; i++) {
-      if (pattern.source == this.routes[i].pattern.source) {
-        route = this.routes[i];
+    if (!routes)
+      routes = this.routes[name] = [];
+
+    for (var i = 0, l = routes.length; i < l; i++) {
+      if (pattern.source == routes[i].pattern.source) {
+        route = routes[i];
         break;
       }
     }
 
     if (!route) {
       route = new Route(pattern);
-      this.routes.push(route);
+      routes.push(route);
     }
+    route.setView(view);
 
-    route.on(name, view);
     return this;
   };
 
-  Router.prototype._resolve = function() {
-    var state = this.state, i, l, uri, prev, next;
+  Router.prototype._findRoute = function(name, uri) {
+    var routes = this.routes[name], route, probe;
 
-    for (i = 0, l = arguments.length; i < l; i++) {
-      uri = arguments[i];
-      prev = state[i];
-      if (prev && prev.uri == uri) continue;
-
-      next = this._request(uri);
-      if (!next) {
-        U.error('Cannot resolve "' + uri + '".');
-        continue;
+    if (routes)
+      for (var i = 0, l = routes.length; i < l; i++) {
+        route = routes[i];
+        if ((probe = route.match(uri)))
+          return new Request(this, route, probe);
       }
-
-      console.debug('unload:', prev && prev.uri, 'load:', next.uri);
-      prev && this.emit('unload', prev, next);
-      state[i] = next;
-      this.emit('load', next, prev);
-    }
-
-    while (state.length > l)
-      this.emit('unload', state.pop());
-  };
-
-  Router.prototype._request = function(uri) {
-    var routes = this.routes, route, probe;
-
-    for (var i = 0, l = routes.length; i < l; i++) {
-      route = this.routes[i];
-      if ((probe = route.match(uri)))
-        return new Request(this, route, probe);
-    }
 
     return undefined;
   };
 
-  Router.prototype.emit = function(name, req, related) {
-    var fn = req.route.listeners[name];
-    if (fn)
-      fn.call(this, req, related);
-    return this;
+  Router.prototype._resolve = function(active) {
+    var self = this, state = this.state, load, unload;
+
+    // Do this in callback-style so each view has a chance to "block".
+    U.aEach(active, clear, dispatch);
+
+    // Load each active URI. If something is already loaded in its
+    // slot, unload it first.
+    function dispatch(index, uri, next) {
+      var last = state[index];
+
+      if (last && last.uri == uri)
+        next();
+      else if (!(load = self._findRoute('load', uri)))
+        next(new U.Error('Cannot resolve "' + uri + '".'));
+      else if (last && (unload = self._findRoute('unload', last.uri)))
+        self._view(unload, load, function(err) {
+          err ? next(err) : self._view((state[index] = load), next);
+        });
+      else
+        self._view((state[index] = load), next);
+    }
+
+    // Unload any extra slots.
+    function clear(err) {
+      if (err)
+        U.error(err);
+      else if (state.length > active.length) {
+        if ((unload = self._findRoute('unload', state.pop().uri)))
+          self._view(unload, null, clear);
+        else
+          clear();
+      }
+      // else: all done
+    }
+
+  };
+
+  Router.prototype._view = function(req) {
+    return req._route.view.apply(null, arguments);
   };
 
   
   // ## Route ##
 
-  function Route(pattern, view) {
+  function Route(pattern) {
     this.pattern = pattern;
-    this.listeners = {}; // FIXME: make some sort of Event Emitter
   }
 
   Route.prototype.match = function(uri) {
     return uri.match(this.pattern);
   };
 
-  Route.prototype.on = function(name, fn) {
-    this.listeners[name] = fn;
+  Route.prototype.setView = function(view) {
+    this.view = view;
     return this;
   };
 
@@ -156,8 +171,8 @@ define(['exports', 'util', 'jquery.history'], function(exports, U) {
   // ## Request ##
 
   function Request(app, route, match) {
-    this.app = app;
-    this.route = route;
+    this._app = app;
+    this._route = route;
     this.uri = match[0];
     for (var i = 0, l = match.length; i < l; i++)
       this[i] = match[i];

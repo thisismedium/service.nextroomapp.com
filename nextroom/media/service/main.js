@@ -1,129 +1,364 @@
 define(['./util', './router', './server', './mouse'], function(U, Router, Server) {
 
-  var app = Router.createRouter(),
-      api = Server.createClient(),
-      main;
-
   function Main(selector) {
-    this.elem = $(selector);
+    this.el = $(selector);
+    this.app = new App('#app');
+    this.help = new Help('#help');
     this.view = null;
   }
 
-  
-  // ## Roles ##
-
-  
-  // ## Dashboard ##
-
-  // There's no dashboard yet, so just redirect to App.
-  app.load(/^$/, function(req) {
-    app.location('app');
-  });
+  function fail(err) {
+    U.error(err);
+  }
 
   
   // ## App ##
 
   function App(selector) {
-    this.elem = $(selector);
-    this.panels = this.elem.children('.panel');
+    this.el = $(selector);
+    this.api = new Server.createClient();
 
-    this.elem;
+    this.menu = new AppMenu('#app-menu');
+    this.items = new InstanceList('#app-kind');
+    this.editor = new Editor('#app-editor');
+    this.tips = new Tips('#app-tips');
+
+    var self = this;
+
+    this.el.bind('sorted', function(ev) {
+      ev.changed.addClass('saving');
+      self.api.put(self.items.uri(), self.items.value(), function(err) {
+        err ? fail(err) : ev.changed.removeClass('saving');
+      });
+    });
+
+    this.el.bind('add', function(ev) {
+      ui.location(U.join(self.items.uri(), 'new'));
+    });
+
+    this.el.bind('del', function(ev, data) {
+      var item = self.items.find(data.uri).addClass('saving');
+      self.api.del(data.uri, function(err) {
+        if (err)
+          fail(err);
+        else {
+          item.removeClass('saving');
+          self.items.remove(data.uri);
+        }
+      });
+    });
+
+    this.el.bind('cancel', function(ev, uri) {
+      ui.location(U.dirname(uri));
+    });
+
+    this.el.bind('submit', function(ev) {
+      ev.preventDefault();
+      var form = ev.target,
+          uri = form.action,
+          method = form.method,
+          value = $(form).formData();
+
+      self.api[method](uri, value, function(err, data) {
+        console.log('oops!', err);
+        if (err.status == 400)
+          self.editor.showErrors(data);
+        else if (err)
+          fail(err);
+        else if (method == 'post') {
+          self.items.push(data);
+          ui.location(data.uri);
+        }
+        else {
+          self.items.update(uri, value);
+        }
+      });
+    });
   }
 
   App.prototype.show = function(fn) {
-    this.elem.fadeIn('fast', fn);
+    if (!this.el.is(':visible'))
+      this.el.fadeIn('fast', fn);
     return this;
   };
 
   App.prototype.hide = function(fn) {
-    this.elem.fadeOut('fast', fn);
+    if (this.el.is(':visible'))
+      this.el.fadeOut('fast', fn);
     return this;
   };
 
-  // ### App Controllers ###
+  App.prototype.wait = function(next) {
+    this.api.stop(next);
+    return this;
+  };
 
-  app.load(/^app(.*)/, function(req) {
-    var panels = main.app.panels;
-
-    // Register this request.
-    if (main.view !== main.app)
-      main.view = main.app.show();
-    main.active = req;
-
-    // Iterate over successive partial uris, matching each with a
-    // panel. If the panel is inactive, add it to the wait set.
-    var wait = reduceSegments(req.uri, $(), function(index, uri, wait) {
-      var panel = panels.eq(index);
-      if (!panel.is('.active, .static'))
-        return wait.add(panel.data('uri', uri));
-    });
-
-    // Request data in the wait set and initialize each panel. After
-    // waiting, only show the panels if the main view hasn't changed
-    // to handle another request in the mean time.
-    api.get(uris(wait), function(data) {
-      if (main.active === req)
-        showPanels(wait.each(function(index, el) {
-          $(el).view(data[index]);
-        }));
-    });
-  });
-
-  app.unload(/^app(.*)/, function(req, next, ok) {
-    var panels = main.app.panels,
-        future = next ? listSegments(next.uri) : [];
-
-    // The `future` list holds the panel uris that are about to be
-    // loaded after this unload event is handled. Destroy any panels
-    // that aren't in the list.
-    hidePanels(panels.filter(function(index) {
-      var panel = $(this);
-      return panel.is('.active') && panel.data('uri') != future[index];
-    })).data('uri', null);
-
-    // Unregister this request.
-    main.active = null;
-    if (future[0] != 'app') {
-      main.app.hide();
-      main.view = null;
-    }
-  });
-
-  // ### App Views ###
-
-  $.view('#app-kind', function(data) {
+  App.prototype.load = function(kind, edit) {
     var self = this,
-        uri = this.data('uri'),
-        list = makeList(data)
-          .addClass('content')
-          .appendTo(this.empty())
-          .sortable('> .entry').end()
-          .bind('sorted', sorted);
+        need = [null, null],
+        newItem = false;
 
-    function sorted(ev) {
-      ev.changed.addClass('saving');
-      api.put(uri, value(), function(result) {
-        ev.changed.removeClass('saving');
+    if (!this.items.hasLoaded(kind))
+      need[0] = kind;
+    if (edit && !this.editor.hasLoaded(edit)) {
+      if (/\/new$/.test(edit))
+        newItem = true;
+      else
+        need[1] = edit;
+    }
+
+
+    this.api.get(need, function(err, data) {
+      console.log('got', need, err, data);
+      if (err)
+        fail(err);
+      else {
+        self.menu.select(kind);
+        if (data[kind])
+          self.items.load(kind, data[kind]).show();
+        self.items.select(edit);
+        if (newItem)
+          self.editor.newItem(edit).show();
+        else if (data[edit])
+          self.editor.load(edit, data[edit]).show();
+      }
+    });
+
+    return this;
+  };
+
+  App.prototype.unload = function(kind, edit) {
+    console.log('unload app?', edit, this.editor.uri(), this.editor.hasLoaded(edit), kind, this.items.hasLoaded(kind));
+    if (!this.editor.hasLoaded(edit))
+      this.editor.unload().hide();
+    if (!this.items.hasLoaded(kind))
+      this.items.unload().hide();
+    return this;
+  };
+
+  
+  // ### AppMenu ###
+
+  function AppMenu(selector) {
+    this.el = $(selector);
+    this.list = null;
+  }
+
+  AppMenu.prototype.select = function(uri) {
+    selectEntry(this.el, uri);
+    return this;
+  };
+
+  AppMenu.prototype.find = function(uri) {
+    return findEntry(this.el, uri);
+  };
+
+  
+  // ### InstanceList ###
+
+  function InstanceList(selector) {
+    this.el = $(selector);
+  }
+
+  InstanceList.prototype.uri = function() {
+    return this.el.data('uri');
+  };
+
+  InstanceList.prototype.hasLoaded = function(uri) {
+    return this.uri() == uri;
+  };
+
+  InstanceList.prototype.show = function() {
+    this.el.addClass('active');
+    return this;
+  };
+
+  InstanceList.prototype.hide = function() {
+    this.el.removeClass('active');
+    return this;
+  };
+
+  InstanceList.prototype.load = function(uri, data) {
+    if (!this.hasLoaded(uri)) {
+      var self = this;
+      this._build('loading', function(list) {
+        for (var i = 0, l = data.length; i < l; i++)
+          self._push(list, data[i]);
       });
+      this.el.data('uri', uri);
     }
+    return this;
+  };
 
-    function value() {
-      var data = [];
-      list.children('.entry')
+  InstanceList.prototype.unload = function() {
+    this.list = null;
+    this.el.empty().data('uri', null);
+    return this;
+  };
+
+  InstanceList.prototype.push = function(item) {
+    var self = this;
+    this._build(null, function(list) {
+      self._push(list, item);
+    });
+    return this;
+  };
+
+  InstanceList.prototype.update = function(uri, data) {
+    this._bind(this.find(uri), data);
+    return this;
+  };
+
+  InstanceList.prototype.remove = function(uri) {
+    this.find(uri).remove();
+    return this;
+  };
+
+  InstanceList.prototype.find = function(uri) {
+    return findEntry(this.el, uri);
+  };
+
+  InstanceList.prototype.select = function(uri) {
+    console.log('select', uri);
+    selectEntry(this.el, uri);
+    return this;
+  };
+
+  InstanceList.prototype.value = function() {
+    var data = [];
+    if (this.list)
+      this.list.children('.entry')
         .each(function(_, el) {
-          data.push($.data(el, 'value'));
+          console.log('found value', el, $.data(el, 'value'));
+          data.push({ uri: $.data(el, 'value').uri });
         });
-      return data;
+    return data;
+  };
+
+  InstanceList.prototype._build = function(state, body) {
+    var self = this;
+
+    if (state)
+      this.el.addClass(state);
+
+    if (!this.list) {
+      var list = $('<ul class="sortable content" />');
+
+      $('<li class="header"/>')
+        .append('<span>&nbsp;</span>')
+        .append('<button class="add" value="add">+</button>')
+        .appendTo(list);
+
+      this.list = list
+        .appendTo(this.el.empty())
+        .find('.add').click(function(ev) { self._add(ev); }).end();
     }
 
-    return list;
-  });
+    body(this.list);
+    this.list.sortable('> .entry');
 
-  $.view('#app-editor', function(data) {
-    return makeEditor(this.data('uri'), data)
-      .addClass('content')
-      .appendTo(this.empty());
-  });
+    if (state)
+      this.el.removeClass(state);
+  };
+
+  InstanceList.prototype._push = function(list, item) {
+    var self = this;
+
+    var del = $('<button class="delete">x</button>')
+      .click(function(ev) {
+        self._del(ev, item);
+      });
+
+    var elem = $('<a/>')
+      .attr({ href: ui.href(item.uri) })
+      .wrap('<li class="entry" />')
+      .parent()
+        .addClass(item.special ? 'special' : '')
+        .append(del);
+
+    this._bind(elem, item).appendTo(list);
+  };
+
+  InstanceList.prototype._bind = function(item, data) {
+    return item && item
+      .data('value', data)
+      .find('a')
+        .html(data.name)
+      .end();
+  };
+
+  InstanceList.prototype._add = function() {
+    this.el.trigger('add', [this.uri()]);
+  };
+
+  InstanceList.prototype._del = function(ev, item) {
+    this.el.trigger('del', [item]);
+  };
+
+  
+  // ### Editor ###
+
+  function Editor(selector) {
+    this.el = $(selector);
+  }
+
+  Editor.prototype.uri = function() {
+    return this.el.data('uri');
+  };
+
+  Editor.prototype.hasLoaded = function(uri) {
+    return this.uri() == uri;
+  };
+
+  Editor.prototype.show = function() {
+    this.el.addClass('active');
+    return this;
+  };
+
+  Editor.prototype.hide = function() {
+    this.el.removeClass('active');
+    return this;
+  };
+
+  Editor.prototype.load = function(uri, data, method, action) {
+    if (!this.hasLoaded(uri)) {
+      var self = this,
+          probe = uri.match(/([^/]+)\/[^\/]+$/),
+          special = data.type && data.type.charAt(0) == '_',
+          kind = '.' + (special ? 'special-' : '') + probe[1] + '-detail';
+
+      $('#template')
+        .children(kind)
+        .cloneTemplate()
+        .addClass('content')
+        .attr({ action: (action || uri), method: (method || 'put') })
+        .view(data)
+        .find('.cancel')
+          .click(function(ev) { self._cancel(ev); })
+          .end()
+        .appendTo(this.el.empty());
+
+      this.el.data('uri', uri);
+    }
+    return this;
+  };
+
+  Editor.prototype.newItem = function(uri) {
+    return this.load(uri, {}, 'post', U.dirname(uri));
+  };
+
+  Editor.prototype.unload = function() {
+    this.el.empty().data('uri', null);
+    return this;
+  };
+
+  Editor.prototype.showErrors = function(errors) {
+    console.log('errors', errors);
+  };
+
+  Editor.prototype._cancel = function(ev) {
+    this.el.trigger('cancel', [this.uri()]);
+  };
 
   $.view('form', function(data) {
     return this.formData(data);
@@ -141,48 +376,32 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
         .end();
   });
 
-  function makeList(list) {
-    var el = $('<ul class="sortable content" />');
+  
+  // ### Tips ###
 
-    $('<li class="header"/>')
-      .append('<span>&nbsp;</span>')
-      .append('<button class="add" value="add">+</button>')
-      .appendTo(el);
-
-    $.each(list, function(_, item) {
-      $('<a/>')
-        .attr({ href: app.href(item.uri) })
-        .html(item.name)
-        .wrap('<li class="entry" />')
-        .parent()
-          .data('value', item)
-          .addClass(item.special ? 'special' : '')
-          .append('<button class="delete">x</button>')
-          .appendTo(el);
-    });
-
-    return el;
+  function Tips(selector) {
+    this.el = $(selector);
   }
 
-  function makeEditor(uri, data) {
-    var probe = uri.match(/^app\/([^/]+)\/(.*)$/),
-        kind = '.' + (data.special ? 'special-' : '') + probe[1] + '-detail';
+  // ### Helper Methods ###
 
-    return $('#template')
-      .children(kind)
-      .cloneTemplate()
-      .attr({ method: uri })
-      .view(data);
+  function selectEntry(panel, uri) {
+    return panel.find('.entry')
+      .removeClass('selected')
+      .filter('.entry:has(a[href=#!' + uri + '])')
+      .addClass('selected');
   }
 
-  // ### App Helper Methods ###
+  function findEntry(panel, uri) {
+    return panel.find('.entry:has(a[href=#!' + uri + '])');
+  };
 
   function splitUri(uri) {
     uri = uri.replace(/^[\s\/]+|[\s\/]+$/, '');
     return uri ? uri.split(/\/+/) : [];
   }
 
-  function listSegments(uri) {
+  function listUriSegments(uri) {
     return reduceSegments(uri, [], function(_, seg, list) {
       list.push(seg);
     });
@@ -211,35 +430,27 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
 
   // FIXME: convert show/hide panels to CSS3 transitions.
 
-  function showPanels(panels) {
-    return panels.each(function() {
-      var content = $('> .content', this);
-      content
-        .stop(true, true)
-        .data('shutter.left', content.offset().left)
-        .animate({ opacity: 1, left: 0 }, 'fast', 'swing');
-    }).addClass('active');
-  }
+  // function showPanels(panels) {
+  //   return panels.each(function() {
+  //     var content = $('> .content', this);
+  //     content
+  //       .stop(true, true)
+  //       .data('shutter.left', content.offset().left)
+  //       .animate({ opacity: 1, left: 0 }, 'fast', 'swing');
+  //   }).addClass('active');
+  // }
 
-  function hidePanels(panels) {
-    return panels.each(function() {
-      var content = $('> .content', this);
-      content
-        .stop(true, true)
-        .animate({ opacity: 0, left: -1 * content.data('shutter.left') }, 'fast', 'swing');
-    }).removeClass('active');
-  }
+  // function hidePanels(panels) {
+  //   return panels.each(function() {
+  //     var content = $('> .content', this);
+  //     content
+  //       .stop(true, true)
+  //       .animate({ opacity: 0, left: -1 * content.data('shutter.left') }, 'fast', 'swing');
+  //   }).removeClass('active');
+  // }
 
   
   // ### Account ###
-
-  app.load(/^account/, function(req) {
-    console.debug('load account');
-  });
-
-  app.unload(/^account/, function(req) {
-    console.debug('unload account');
-  });
 
   function MainAccount(selector) {
   }
@@ -247,20 +458,12 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
   
   // ## Help ##
 
-  app.load(/^help/, function(req) {
-    main.help.show();
-  });
-
-  app.unload(/^help/, function(req) {
-    main.help.hide();
-  });
-
   function Help(selector) {
     this.elem = $(selector);
 
     $('a[href=#!help]').click(function(ev) {
       ev.preventDefault();
-      app.toggle('help');
+      ui.toggle('help');
     });
   }
 
@@ -277,11 +480,60 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
   
   // ## Start ##
 
+  var ui = Router.createRouter(),
+      api = Server.createClient(),
+      main;
+
+  ui.load(/^$/, function(req, next) {
+    ui.location('app');
+    next();
+  });
+
+  ui.load(/^app.*/, function(req, next) {
+    var uris = listUriSegments(req.uri),
+        app = main.app;
+
+    app.show().load(uris[1], uris[2]);
+    next();
+  });
+
+  ui.unload(/^app.*/, function(req, loading, next) {
+    var future = loading ? listUriSegments(loading.uri) : [],
+        app = main.app;
+
+    console.log('unload!', future);
+
+    app.wait(function() {
+      app.unload(future[1], future[2]);
+      ('app' != future[0]) && app.hide();
+      next();
+    });
+  });
+
+  ui.load(/^account/, function(req, next) {
+    console.debug('load account');
+    next();
+  });
+
+  ui.unload(/^account/, function(req, _, next) {
+    console.debug('unload account');
+    next();
+  });
+
+  ui.load(/^help/, function(req, next) {
+    console.log('show help');
+    main.help.show();
+    next();
+  });
+
+  ui.unload(/^help/, function(req, _, next) {
+    main.help.hide();
+    next();
+  });
+
   $(function() {
     main = new Main('[role=main]');
-    main.app = new App('#app');
-    main.help = new Help('#help');
-    app.listen();
+    ui.listen();
   });
 
 });
