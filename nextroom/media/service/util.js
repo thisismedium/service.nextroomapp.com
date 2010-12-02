@@ -85,9 +85,9 @@ define(['exports'], function(exports) {
 
   exports.uniqueId = (function() {
     var index = 0;
-    return function uniqueId() {
+    return function uniqueId(prefix) {
       index = (index + 1) % 100;
-      return 'nr-' + Date.now() + '-' + index;
+      return (prefix || 'nr') + '-' + Date.now() + '-' + index;
     };
   })();
 
@@ -192,7 +192,7 @@ define(['exports'], function(exports) {
     var changed = {};
     return this
       .find('[id]').each(function(_, el) {
-        changed[this.id] = el.id = el.id + '-' + Date.now();
+        changed[this.id] = el.id = uniqueId(el.id);
       })
       .end()
       .find('[for]').each(function(_, el) {
@@ -201,6 +201,11 @@ define(['exports'], function(exports) {
           el.setAttribute('for', changed[id]);
       })
       .end();
+  };
+
+  $.fn.scrollTo = function(elem, speed) {
+    var top = (typeof elem == 'number' ? elem : elem.offset().top) + 1;
+    return this.animate({ scrollTop: top }, speed || 'fast');
   };
 
   $.view = function defView(name, ctor) {

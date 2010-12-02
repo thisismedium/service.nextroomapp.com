@@ -11,6 +11,10 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
     U.error(err);
   }
 
+  function mainView() {
+    return ($.browser.webkit) ? $('body') : $('html');
+  }
+
   
   // ## App ##
 
@@ -46,6 +50,10 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
           self.items.remove(data.uri);
         }
       });
+    });
+
+    this.el.bind('up', function(ev) {
+      mainView().scrollTo(self.items.el);
     });
 
     this.el.bind('cancel', function(ev, uri) {
@@ -110,7 +118,6 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
 
 
     this.api.get(need, function(err, data) {
-      console.log('got', need, err, data);
       if (err)
         fail(err);
       else {
@@ -244,16 +251,29 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
       this.el.addClass(state);
 
     if (!this.list) {
-      var list = $('<ul class="sortable content" />');
+      var list = $('<ul class="sortable" />'),
+          add = $('<button class="add" value="add">+</button>'),
+          up = $('<a class="up" href="#">Back to Top</a>');
+
+      add.click(function(ev) {
+        return self._add(ev);
+      });
+
+      up.click(function(ev) {
+        return self._up(ev);
+      });
 
       $('<li class="header"/>')
         .append('<span class="title">&nbsp;</span>')
-        .append('<button class="add" value="add">+</button>')
+        .append(add)
         .appendTo(list);
 
       this.list = list
-        .appendTo(this.el.empty())
-        .find('.add').click(function(ev) { self._add(ev); }).end();
+        .wrap('<div class="content"/>')
+        .parent()
+          .append(up)
+          .appendTo(this.el.empty())
+        .end();
     }
 
     body(this.list);
@@ -299,6 +319,11 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
 
   InstanceList.prototype._del = function(ev, item) {
     this.el.trigger('del', [item]);
+  };
+
+  InstanceList.prototype._up = function(ev) {
+    ev.preventDefault();
+    this.el.trigger('up');
   };
 
   
