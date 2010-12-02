@@ -60,11 +60,12 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
           value = $(form).formData();
 
       self.api[method](uri, value, function(err, data) {
-        console.log('oops!', err);
-        if (err.status == 400)
-          self.editor.showErrors(data);
-        else if (err)
-          fail(err);
+        if (err) {
+          if (err.status == 400)
+            self.editor.showErrors(data);
+          else
+            fail(err);
+        }
         else if (method == 'post') {
           self.items.push(data);
           ui.location(data.uri);
@@ -383,6 +384,7 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
     this.el = $(selector);
   }
 
+  
   // ### Helper Methods ###
 
   function selectEntry(panel, uri) {
@@ -481,7 +483,6 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
   // ## Start ##
 
   var ui = Router.createRouter(),
-      api = Server.createClient(),
       main;
 
   ui.load(/^$/, function(req, next) {
