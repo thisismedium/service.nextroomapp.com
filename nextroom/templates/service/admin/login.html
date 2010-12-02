@@ -1,8 +1,8 @@
 {% extends "service/admin/base.html" %}
-
+{% block html_class %}login{% endblock %}
 {% block body_content %}
     <div id="login_box">
-        <h1>Welcome to NextRoom</h1>
+        <h1 class="welcome_to_nextroom">Welcome to NextRoom</h1>
         <h3>Enter the information associated with your account.</h3>
         {% comment %}
         {% if not valid %}
@@ -10,8 +10,8 @@
         {% endif %}
         {% endcomment %}
         <form action="" method="post">
-            <input type="text" name="email" />
-            <input type="password" name="password" />
+            <span class="input"><input type="text" name="email" placeholder="email address" /></span>
+            <span class="input"><input type="password" name="password" placeholder="password" /></span>
             <input type="submit" value="Sign In" />
         </form>
     </div>

@@ -1,13 +1,14 @@
 <!DOCTYPE html>
-<html>
+<html class="{% block html_class %}{% endblock %}">
   <head>
     <title>{{user.practice}} // NextRoom</title>
     <link rel="stylesheet" type="text/css" href="{{media}}css/nextroom.css" />
+    <link rel="shortcut icon" href=/media/images/favicon.ico>
   </head>
   <body>
     
     <div id="header_background" class="shadow">
-        <div class="wrapper">
+        <div id="top" class="wrapper">
             <a href="/">NextRoom</a>
         </div>
     </div>
@@ -15,12 +16,22 @@
     {% block body_content %}
     <div class="wrapper">
         <header>
-          <h1>NextRoom // {{user.practice}}</h1>
+          <h1>{{user.practice}}</h1>
           <nav id="main-nav">
-            <a href="#!app">App</a>
-            <a href="#!account">Account</a>
-            <a href="#!help">Help</a>
-            <a href="/logout/">Logout</a>
+            <ul>
+            	<li class="nav_application selected">
+                    <a href="#!app">Application</a>
+            	</li>
+            	<li class="nav_account">
+                    <a href="#!account">Account</a>
+            	</li>
+            	<li class="nav_help">
+                    <a href="#!help">Help</a>
+            	</li>
+            	<li class="nav_logout">
+                    <a href="/logout/">Logout</a>
+            	</li>
+            </ul>
           </nav>
         </header>
 
@@ -30,10 +41,10 @@
 
             <div id="app-menu" class="panel static">
               <ul class="content">
-                <li class="entry"><a href="#!app/user">Users</a></li>
-                <li class="entry"><a href="#!app/room">Rooms</a></li>
-                <li class="entry"><a href="#!app/note">Notes</a></li>
-                <li class="entry"><a href="#!app/task">Tasks</a></li>
+                <li class="entry menu_users"><a href="#!app/user">Users</a></li>
+                <li class="entry menu_rooms"><a href="#!app/room">Rooms</a></li>
+                <li class="entry menu_notes"><a href="#!app/note">Notes</a></li>
+                <li class="entry menu_tasks"><a href="#!app/task">Tasks</a></li>
               </ul>
             </div>
 
@@ -46,7 +57,6 @@
 
             <div id="help"></div>
 
-            <footer></footer>
 
             <div id="template">
               <!-- This form is used for Room, Note, and Task details. -->
@@ -54,12 +64,12 @@
             <ul class="fields">
               <li class="field">
                 <label>Name</label>
-                <input type="text" name="name" />
+                <span class="input"><input type="text" name="name" placeholder="Name" /></span>
               </li>
             </ul>
             <div class="buttons">
-              <input type="submit" value="Save" class="submit button" />
               <input type="button" value="Cancel" class="cancel button" />
+              <input type="submit" value="Save" class="submit button" />
             </div>
               </form>
 
@@ -68,7 +78,7 @@
             <ul class="fields">
               <li class="field">
                 <label>Name</label>
-                <input type="text" name="name" />
+                <span class="input"><input type="text" name="name" placeholder="Name" /></span>
               </li>
               <li class="field">
                 <label>Role</label>
@@ -81,10 +91,10 @@
               </li>
               <li class="field">
                 <label>PIN</label>
-                <input type="text" name="pin" />
+                <span class="input"><input type="text" name="pin" placeholder="PIN # (4-digit)" /></span>
               </li>
               <li class="field">
-                <a>Choose Color</a>
+                <label>Choose Color</label>
                 <input type="text" name="color" />
               </li>
               <li class="field checkbox-field">
@@ -95,16 +105,16 @@
             <ul class="fields website-fields">
               <li class="field">
                 <label>Email</label>
-                <input type="text" name="email" />
+                <span class="input"><input type="text" name="email" placeholder="Email" /></span>
               </li>
               <li class="field">
                 <label>Password</label>
-                <input type="password" name="password" />
+                <span class="input"><input type="password" name="password" placeholder="Password" /></span>
               </li>
             </ul>
             <div class="buttons">
-              <input type="submit" value="Save" class="submit button" />
               <input type="button" value="Cancel" class="cancel button" />
+              <input type="submit" value="Save" class="submit button" />
             </div>
               </form>
 
@@ -141,6 +151,12 @@
 
         
     </div><!-- END WRAPPER CLASS -->
+    <footer>
+        <div class="wrapper">
+            <img src="{{ media }}css/images/footer_icon.png" alt="NextRoom Icon" />
+        </div>
+    
+    </footer>
         <script type="text/javascript" data-main="main" src="{{media}}require-jquery-1.4.3.js"></script>
     {% endblock %}
   </body>
