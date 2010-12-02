@@ -183,6 +183,7 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
     if (!this.hasLoaded(uri)) {
       var self = this;
       this._build('loading', function(list) {
+        self._title(list, uri);
         for (var i = 0, l = data.length; i < l; i++)
           self._push(list, data[i]);
       });
@@ -246,7 +247,7 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
       var list = $('<ul class="sortable content" />');
 
       $('<li class="header"/>')
-        .append('<span>&nbsp;</span>')
+        .append('<span class="title">&nbsp;</span>')
         .append('<button class="add" value="add">+</button>')
         .appendTo(list);
 
@@ -260,6 +261,10 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
 
     if (state)
       this.el.removeClass(state);
+  };
+
+  InstanceList.prototype._title = function(list, uri) {
+    list.find('.header .title').text('Add ' + U.titleCase(U.basename(uri)));
   };
 
   InstanceList.prototype._push = function(list, item) {

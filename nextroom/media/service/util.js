@@ -7,8 +7,10 @@ define(['exports'], function(exports) {
   exports.strip = strip;
   exports.join = join;
   exports.dirname = dirname;
+  exports.basename = basename;
   exports.aEach = aEach;
   exports.isEmpty = isEmpty;
+  exports.titleCase = titleCase;
 
   
   // ### Error ###
@@ -56,6 +58,11 @@ define(['exports'], function(exports) {
     return p.replace(/\/[^\/]+\/*$/, '');
   }
 
+  function basename(p) {
+    var probe = p && p.match(/\/([^\/]+)\/*$/);
+    return probe ? probe[1] : p;
+  }
+
   function aEach(seq, next, fn) {
     var index = 0,
         limit = seq.length;
@@ -83,6 +90,12 @@ define(['exports'], function(exports) {
       return 'nr-' + Date.now() + '-' + index;
     };
   })();
+
+  function titleCase(s) {
+    return s.replace(/(\w)(\S*)/g, function(_, a, b) {
+      return a.toUpperCase() + b;
+    });
+  }
 
   
   // ### jQuery Methods ###
