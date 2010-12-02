@@ -2,6 +2,7 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
 
   function Main(selector) {
     this.el = $(selector);
+    this.nav = new Nav('#main-nav');
     this.app = new App('#app');
     this.help = new Help('#help');
     this.view = null;
@@ -14,6 +15,27 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
   function mainView() {
     return ($.browser.webkit) ? $('body') : $('html');
   }
+
+  
+  // ## Nav ##
+
+  function Nav(selector) {
+    this.el = $(selector);
+  }
+
+  Nav.prototype.select = function(name) {
+    this.find(name).addClass('selected');
+    return this;
+  };
+
+  Nav.prototype.deselect = function(name) {
+    this.find(name).removeClass('selected');
+    return this;
+  };
+
+  Nav.prototype.find = function(name) {
+    return this.el.find('li:has([href="#!' + name + '"])');
+  };
 
   
   // ## App ##
@@ -158,6 +180,7 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
 
   App.prototype.deselect = function() {
     this.el.attr('className', this.el.attr('className').replace(/\w+-selected/g, ''));
+    this.tips.hide();
     return this;
   };
 
@@ -577,6 +600,7 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
     var uris = listUriSegments(req.uri),
         app = main.app;
 
+    main.nav.select('app');
     app.show().load(uris[1], uris[2]);
     next();
   });
@@ -589,29 +613,36 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
 
     app.wait(function() {
       app.unload(future[1], future[2]);
-      ('app' != future[0]) && app.hide();
+      if ('app' != future[0]) {
+        main.nav.deselect('app');
+        app.hide();
+      }
       next();
     });
   });
 
   ui.load(/^account/, function(req, next) {
     console.debug('load account');
+    main.nav.select('account');
     next();
   });
 
   ui.unload(/^account/, function(req, _, next) {
     console.debug('unload account');
+    main.nav.deselect('account');
     next();
   });
 
   ui.load(/^help/, function(req, next) {
     console.log('show help');
     main.help.show();
+    main.nav.select('help');
     next();
   });
 
   ui.unload(/^help/, function(req, _, next) {
     main.help.hide();
+    main.nav.deselect('help');
     next();
   });
 
