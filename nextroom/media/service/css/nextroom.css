@@ -5,7 +5,6 @@
 
 html {
     font-size: 12px;
-    height: 100%;
     background: #d2d2d2 url(images/main_bg.jpg) 50% 0 repeat-x;
     min-width: 960px;
     border-left: 1px solid #fff;
@@ -16,8 +15,8 @@ html.login {
 }
 
 body {
-    height: 100%;
     font-family: verdana, sans-serif;
+    padding-bottom: 60px;
 }
 
 select, input, textarea {
@@ -41,6 +40,7 @@ input[type=submit] {
     border-radius: 5px;
     color: #fff;
     padding: 5px 10px;
+    margin: 0;
     text-shadow: 1px 1px 1px #717171;
     -moz-box-shadow: 0px 1px 3px #888;
     -webkit-box-shadow: 0px 1px 3px #888;
@@ -94,9 +94,10 @@ form span.input input {
 }
 .panel form span.input input {
     width: 181px;
+    background: #f7f7f7;
 }
 
-/* ## ID's ## */
+/* ## IDs ## */
 #header_background {
     height: 45px;
     width: 100%;
@@ -140,7 +141,7 @@ form span.input input {
 }
 
 
-/* ## class's ## */
+/* ## classes ## */
 .wrapper {
     width: 960px;
     margin: 0 auto;
@@ -153,8 +154,16 @@ form span.input input {
     box-shadow: 0px 3px 3px #bbb;
 }
 
+.clear {
+    clear: both;
+}
 
-
+a.up {
+    padding-right: 10px;
+    background: url(images/back_to_top.png) 100% 2px no-repeat;
+    font-size: 11px;
+}
+
 /* ## Header ## */
 
 header {
@@ -166,7 +175,7 @@ header {
 }
 
 header h1 {
-    font-family: helvetica;
+    font-family: arial;
     font-weight: bold;
     font-size: 19px;
     position: absolute;
@@ -236,6 +245,9 @@ footer {
     bottom: 0;
     background: #ececec url(images/footer_bg.png) 0 0 repeat-x;
 }
+footer .wrapper {
+    width: 100%;
+}
 footer img {
     margin: 10px 0 0 10px;
 }
@@ -296,13 +308,31 @@ footer img {
     margin-right: 0;
 }
 
-#app-editor form.panel {
+#app-editor form.panel, 
+#app-tips div.content {
     background: #f3f3f3 url(images/panel_bg.png) 0 0 repeat-x;
     padding: 10px;
     border: 1px solid #fff;
     border-radius: 5px;
     width: 198px;
 }
+#app-tips h3.tips_and_tools {
+    text-indent: -9999px;
+    width: 195px;
+    height: 38px;
+    background: url(images/h3_tips_and_tools.png) 0 0 no-repeat;
+    margin: 0 0 10px;
+}
+
+#app-tips section {
+    padding-top: 10px;
+    background: url(images/tips_and_tools_section_hr.png) 0 0 no-repeat;
+}
+#app-tips section:first-child {
+    background: none;
+    padding-top: 0;
+}
+
 
 #app .panel input[type=submit] {
     padding: 3px 5px;
@@ -354,6 +384,15 @@ footer img {
     border-top-right-radius: 5px;
 }
 
+.header .title {
+    text-align: right;
+    padding-right: 40px;
+    font-size: 11px;
+    line-height: 42px;
+    font-weight: normal;
+    font-style: italic;
+}
+
 #app .entry:hover {
     color: #0cac98;
 }
@@ -376,6 +415,7 @@ footer img {
 #app #app-menu li.menu_notes a { background-position: 0 -102px; }
 #app #app-menu li.menu_tasks a { background-position: 0 -154px; }
 
+#app #app-menu li.selected a,
 #app #app-menu li a:hover {
     margin-left: -220px;
 }
@@ -504,4 +544,86 @@ footer img {
     height: 200px;
     background-color: #eee;
     display: none;
+}
+
+
+
+
+.up {
+    display: block;
+    margin-top: 1em;
+    text-align: right;
+    font-family: helvetica;
+    font-size: 12px;
+    font-weight: bold;
+    color: #6c6c6c;
+    text-decoration: none;
+}
+
+#app-tips h3 {
+    font-size: 1.4em;
+    font-weight: bold;
+    margin-bottom: 1em;
+}
+
+.tips {
+    display: none;
+}
+
+.user-selected .user-tips,
+.room-selected .room-tips,
+.task-selected .task-tips,
+.note-selected .note-tips {
+    display: block;
+}
+
+.unit {
+    margin-bottom: 24px;
+}
+
+.unit h4 {
+    font-size: 12px;
+    color: #595959;
+    font-family: helvetica, arial;
+    font-weight:bold;
+    margin: 14px 0 6px;
+}
+
+.unit p {
+    margin-bottom: 0.5em;
+    font-size: 10px;
+    color: #666;
+    line-height: 1.4;
+}
+
+.unit .figure {
+    position: relative;
+}
+
+.unit .small {
+    display: block;
+    width: 100%;
+    height: 100px;
+}
+
+.unit .large {
+    display: none;
+}
+
+.unit .figure .expand {
+    display: block;
+    position: absolute;
+    top: 40px;
+    right: 0;
+    height: 20px;
+    width: 20px;
+}
+
+.unit > .expand {
+    display: block;
+    color: #17baab;
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: bold;
+    font-family: helvetica, arial, sans-serif;
 }
