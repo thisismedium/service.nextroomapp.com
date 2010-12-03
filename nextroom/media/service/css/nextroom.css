@@ -60,6 +60,12 @@ input[type=submit]:active {
     top: -1px;
 }
 
+input[disabled=disabled] {
+    border: 0px;
+    background: none;
+    
+}
+
 input.cancel {
     background: none;
     border: 0;
@@ -312,9 +318,12 @@ footer img {
 #app-editor form.panel, 
 #app-tips div.content {
     background: #f3f3f3 url(images/panel_bg.png) 0 0 repeat-x;
-    padding: 10px;
     border: 1px solid #fff;
     border-radius: 5px;
+    width: 218px;
+}
+#app-editor form.panel {
+    padding: 10px;
     width: 198px;
 }
 #app-tips h3.tips_and_tools {
@@ -322,11 +331,12 @@ footer img {
     width: 195px;
     height: 38px;
     background: url(images/h3_tips_and_tools.png) 0 0 no-repeat;
-    margin: 0 0 10px;
+    margin: 10px 11px 10px;
+
 }
 
 #app-tips section {
-    padding-top: 10px;
+    padding: 10px 11px;
     background: url(images/tips_and_tools_section_hr.png) 0 0 no-repeat;
 }
 #app-tips section:first-child {
@@ -604,8 +614,6 @@ footer img {
 
 .unit .small {
     display: block;
-    width: 195px;
-    height: 63px;
     position: absolute;
     top: 0;
     left: 0;
