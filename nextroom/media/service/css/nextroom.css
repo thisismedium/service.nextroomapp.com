@@ -252,9 +252,6 @@ footer {
     bottom: 0;
     background: #ececec url(images/footer_bg.png) 0 0 repeat-x;
 }
-footer .wrapper {
-    width: 100%;
-}
 footer img {
     margin: 10px 0 0 10px;
 }
@@ -280,12 +277,17 @@ footer img {
     margin-bottom: 0.6em;
 }
 
+form h3, 
 .field label {
+    font-size: 12px;
     display: block;
     font-weight: bold;
     color: #666;
-    font-family: helvetica;
+    font-family: helvetica, arial, sans-serif;
     text-transform: uppercase;
+}
+form h3 {
+    margin: 0 0 10px;
 }
 
 .checkbox-field label {
@@ -308,8 +310,13 @@ footer img {
     display: block;
     float: left;
     overflow: hidden;
+    padding-bottom: 1px;
     margin-right: 20px;
     width: 220px;
+}
+#app #app-editor {
+    width: 221px;
+    background: url(images/watermark_users.png) 50% 0 no-repeat;
 }
 #app .panel:last-child {
     margin-right: 0;
@@ -321,10 +328,13 @@ footer img {
     border: 1px solid #fff;
     border-radius: 5px;
     width: 218px;
+    -moz-box-shadow: 0px 1px 1px #888;
+    -webkit-box-shadow: 0px 1px 1px #888;
+    box-shadow: 0px 1px 1px #888;
 }
 #app-editor form.panel {
     padding: 10px;
-    width: 198px;
+    width: 199px;
 }
 #app-tips h3.tips_and_tools {
     text-indent: -9999px;
@@ -346,7 +356,7 @@ footer img {
 
 
 #app .panel input[type=submit] {
-    padding: 3px 5px;
+    padding: 4px 6px;
     font-size: 11px;
 }
 
@@ -441,7 +451,7 @@ footer img {
     line-height: 32px;
     font-weight: bold;
     font-size: 12px;
-    font-family: helvetica;
+    font-family: helvetica, arial, sans-serif;
 }
 
 #app .sortable .entry:last-child {
@@ -452,6 +462,9 @@ footer img {
     -moz-border-radius-bottomright: 5px;
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
+    -moz-box-shadow: 0px 1px 1px #888;
+    -webkit-box-shadow: 0px 1px 1px #888;
+    box-shadow: 0px 1px 1px #888;
 }
 
 .header span,
@@ -543,17 +556,21 @@ footer img {
     display: block;
 }
 
-
 /* ## Help ## */
 
 #help {
     position: absolute;
-    top: 40px;
+    top: 20px;
     right: 30px;
     width: 300px;
     height: 200px;
     background-color: #eee;
     display: none;
+    border: 1px solid #c7c7c7;
+    border-radius: 5px;
+    -moz-box-shadow: 0px 10px 5px rgba(0, 0, 0, 0.5);
+    -webkit-box-shadow: 0px 10px 5px rgba(0, 0, 0, 0.5);
+    box-shadow: 0px 10px 5px rgba(0, 0, 0, 0.5);
 }
 
 
@@ -563,7 +580,7 @@ footer img {
     display: block;
     margin-top: 1em;
     text-align: right;
-    font-family: helvetica;
+    font-family: helvetica, arial, sans-serif;
     font-size: 12px;
     font-weight: bold;
     color: #6c6c6c;
@@ -594,7 +611,7 @@ footer img {
 .unit h4 {
     font-size: 12px;
     color: #595959;
-    font-family: helvetica, arial;
+    font-family: helvetica, arial, sans-serif;
     font-weight:bold;
     margin: 14px 0 6px;
 }
@@ -610,6 +627,7 @@ footer img {
     position: relative;
     width: 195px;
     height: 63px;
+    overflow: hidden;
 }
 
 .unit .small {
@@ -632,7 +650,6 @@ footer img {
     height: 63px;
     background: url(images/sidebar_lightbox_mag_wrap.png) 0 0 no-repeat;
     text-indent: -9999px;
-    overflow: hidden;
 }
 
 .unit > .expand {
