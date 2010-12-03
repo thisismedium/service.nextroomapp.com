@@ -8,6 +8,7 @@ html {
     background: #d2d2d2 url(images/main_bg.jpg) 50% 0 repeat-x;
     min-width: 960px;
     border-left: 1px solid #fff;
+    overflow-y:scroll;    
 }
 html.login {
     background: #d0d0d0 url(images/main_bg-login.jpg) 50% 0 repeat-x;
@@ -344,7 +345,6 @@ footer img {
     top: 0;
     left: 0;
     display: block;
-
     opacity: 0;
     left: -100%;
 }
@@ -412,8 +412,8 @@ footer img {
     text-indent: -9999px;
 }
 #app #app-menu li.menu_rooms a { background-position: 0 -51px; }
-#app #app-menu li.menu_notes a { background-position: 0 -102px; }
-#app #app-menu li.menu_tasks a { background-position: 0 -154px; }
+#app #app-menu li.menu_tasks a { background-position: 0 -102px; }
+#app #app-menu li.menu_notes a { background-position: 0 -154px; }
 
 #app #app-menu li.selected a,
 #app #app-menu li a:hover {
@@ -598,12 +598,17 @@ footer img {
 
 .unit .figure {
     position: relative;
+    width: 195px;
+    height: 63px;
 }
 
 .unit .small {
     display: block;
-    width: 100%;
-    height: 100px;
+    width: 195px;
+    height: 63px;
+    position: absolute;
+    top: 0;
+    left: 0;
 }
 
 .unit .large {
@@ -613,10 +618,13 @@ footer img {
 .unit .figure .expand {
     display: block;
     position: absolute;
-    top: 40px;
-    right: 0;
-    height: 20px;
-    width: 20px;
+    top: 0px;
+    left: 0;
+    width: 195px;
+    height: 63px;
+    background: url(images/sidebar_lightbox_mag_wrap.png) 0 0 no-repeat;
+    text-indent: -9999px;
+    overflow: hidden;
 }
 
 .unit > .expand {
