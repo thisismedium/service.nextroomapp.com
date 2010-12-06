@@ -4,15 +4,19 @@
     <div id="login_box">
         <h1 class="welcome_to_nextroom">Welcome to NextRoom</h1>
         <h3>Enter the information associated with your account.</h3>
-        {% comment %}
-        {% if not valid %}
-        <h3>Login error</h3>
-        {% endif %}
-        {% endcomment %}
         <form action="" method="post">
             <span class="input"><input type="text" name="email" placeholder="email address" /></span>
             <span class="input"><input type="password" name="password" placeholder="password" /></span>
             <input type="submit" value="Sign In" />
         </form>
+        <div id="forgot_password">
+        	<h4><a href="#">Forgot Password?</a></h4>
+        </div>
+        {% if not valid %}
+        <div id="login_error">
+            <h3>That email/password combination was not recognized.<br />
+            Click <a href="#">Here</a> to reset.</h3>
+        </div>
+        {% endif %}
     </div>
 {% endblock %}
