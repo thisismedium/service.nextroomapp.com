@@ -316,7 +316,18 @@ form h3 {
 }
 #app #app-editor {
     width: 221px;
+}
+#app.user-selected #app-editor {
     background: url(images/watermark_users.png) 50% 0 no-repeat;
+}
+#app.room-selected #app-editor {
+    background: url(images/watermark_rooms.png) 50% 0 no-repeat;
+}
+#app.task-selected #app-editor {
+    background: url(images/watermark_tasks.png) 50% 0 no-repeat;
+}
+#app.note-selected #app-editor {
+    background: url(images/watermark_notes.png) 50% 0 no-repeat;
 }
 #app .panel:last-child {
     margin-right: 0;
