@@ -20,7 +20,11 @@ urlpatterns = patterns('',
     # Web URLs
     (r'^login/$', 'apps.service.views.web.login'),
     (r'^logout/$', 'apps.service.views.web.logout'),
-    (r'^$', 'apps.service.views.web.home')
+    (r'^$', 'apps.service.views.web.home'),
+
+    # Extra for testing
+    (r'^change-password/$', 'django.views.generic.simple.direct_to_template', {'template': 'service/admin/change_password.html', 'extra_context': {'media': '%sservice/' % settings.MEDIA_URL}}),
+        
 )
 
 
