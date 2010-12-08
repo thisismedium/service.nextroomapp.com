@@ -4,8 +4,8 @@
 Forms are structured as field lists. Each `li.field` has a `.input`
 child element.
 
-When a field is in an error state, the `li` gets an "error" class and
-a .message element is appended to it.
+When a field is in an error state, the `li` gets an "error" class. All
+errors go into a ".error" element that's appended to the form.
 
 */
 
