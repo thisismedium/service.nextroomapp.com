@@ -9,11 +9,33 @@ a .message element is appended to it.
 
 */
 
-form .error input {
+form {
+    position: relative;
 }
 
-form .message {
+form .error input {
+    border: 1px solid red; /* pink stroke */
+}
+
+form .errors {
     display: block;
-    color: red;
+    color: red; /* pink */
+}
+
+form .errors > * {
+    display: none;
+}
+
+form .errors > .active {
+    display: block;
+}
+
+#app-editor form.panel .errors {
+    position: absolute;
+    bottom: 5px;
+    left: 0;
+    padding: 10px;
+    font-size: 10px;
+    line-height: 11px;
 }
 

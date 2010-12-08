@@ -452,12 +452,12 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
   };
 
   Editor.prototype.removeErrors = function() {
-    this.el.removeErrors();
+    this.el.find('form').removeErrors();
     return this;
   };
 
   Editor.prototype.showErrors = function(errors) {
-    this.el.showErrors(errors);
+    this.el.find('form').showErrors('Fix the errors.', errors);
     return this;
   };
 

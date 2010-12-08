@@ -163,26 +163,58 @@ define(['exports'], function(exports) {
 
   };
 
-  $.fn.showErrors = function(errors) {
-    var form = this, field;
+  $.fn.showErrors = function(message, errors) {
+    var form = this,
+        list = $('<ul class="errors">'),
+        title = $('<li class="active title" />')
+          .html(message),
+        timeout;
 
-    for (var name in errors) {
-      field = form.find('.field:has([name=' + name + '])');
-      $('<span class="message"/>')
-        .html(errors[name])
-        .appendTo(field);
-      field.addClass('error');
+    form.removeErrors();
+
+    title.appendTo(list);
+
+    $.each(errors, function(key, val) {
+      var entry, input = form.find('[name=' + key + ']');
+      if (input.length > 0) {
+        entry = $('<li />')
+          .addClass(key)
+          .html(val)
+          .appendTo(list);
+        input
+          .bind('focus.errors', function(ev) { focus(entry); })
+          .bind('blur.errors', function(ev) { blur(entry); })
+          .parents('.field')
+            .addClass('error');
+      }
+    });
+
+    function focus(entry) {
+      if (timeout) {
+        clearTimeout(timeout);
+        timeout = null;
+      }
+      list.find('.active').removeClass('active');
+      entry.addClass('active');
     }
 
-    return this;
+    function blur(entry) {
+      entry.removeClass('active');
+      timeout = setTimeout(noFocus, 10);
+    }
+
+    function noFocus() {
+      focus(title);
+    }
+
+    return this.append(list);
   };
 
   $.fn.removeErrors = function() {
-    this.find('.message')
-      .parents('.field')
-        .removeClass('.error')
-      .end()
-      .remove();
+    this.find('.error')
+      .removeClass('error')
+      .find('[name]').unbind('.errors');
+    this.find('.errors').remove();
     return this;
   };
 
