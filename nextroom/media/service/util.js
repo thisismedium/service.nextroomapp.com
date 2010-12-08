@@ -163,6 +163,29 @@ define(['exports'], function(exports) {
 
   };
 
+  $.fn.showErrors = function(errors) {
+    var form = this, field;
+
+    for (var name in errors) {
+      field = form.find('.field:has([name=' + name + '])');
+      $('<span class="message"/>')
+        .html(errors[name])
+        .appendTo(field);
+      field.addClass('error');
+    }
+
+    return this;
+  };
+
+  $.fn.removeErrors = function() {
+    this.find('.message')
+      .parents('.field')
+        .removeClass('.error')
+      .end()
+      .remove();
+    return this;
+  };
+
   // Starting with the current query, try to match the selector
   // otherwise try parent().
   $.fn.up = function(sel) {

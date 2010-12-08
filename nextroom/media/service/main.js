@@ -423,8 +423,14 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
     return this;
   };
 
+  Editor.prototype.removeErrors = function() {
+    this.el.removeErrors();
+    return this;
+  };
+
   Editor.prototype.showErrors = function(errors) {
-    console.log('errors', errors);
+    this.el.showErrors(errors);
+    return this;
   };
 
   Editor.prototype._cancel = function(ev) {
