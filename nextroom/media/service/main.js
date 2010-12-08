@@ -63,16 +63,38 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
     });
 
     this.el.bind('del', function(ev, data) {
-      var item = self.items.find(data.uri).addClass('saving');
-      self.api.del(data.uri, function(err) {
+      var item = self.items.find(data.uri).addClass('saving'),
+          title = 'Delete ' + self.items.kind() + ' ' + data.title + '?';
+
+      confirmDelete(title, function(confirmed) {
+        if (confirmed)
+          deleteItem(data.uri, item);
+        else
+          item.removeClass('saving');
+      });
+    });
+
+    function confirmDelete(message, next) {
+      return confirmModal({
+          message: message,
+          confirm: 'Yes, Delete',
+          next: next,
+          className: 'confirm-delete'
+      });
+    }
+
+    function deleteItem(uri, item) {
+      self.api.del(uri, function(err) {
         if (err)
           fail(err);
         else {
           item.removeClass('saving');
-          self.items.remove(data.uri);
+          self.items.remove(uri);
+          if (ui.isActive(uri))
+            ui.location(U.dirname(uri));
         }
       });
-    });
+    }
 
     this.el.bind('up', function(ev) {
       mainView().scrollTo(self.items.el);
@@ -158,7 +180,7 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
     return this;
   };
 
-  App.prototype.unload = function(kind, edit) {
+  App.prototype.unload = function(kind, edit, next) {
     console.log('unload app?', edit, this.editor.uri(), this.editor.hasLoaded(edit), kind, this.items.hasLoaded(kind));
     if (!this.editor.hasLoaded(edit))
       this.editor.unload().hide();
@@ -166,6 +188,7 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
       this.deselect();
       this.items.unload().hide();
     }
+    next();
     return this;
   };
 
@@ -214,6 +237,10 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
 
   InstanceList.prototype.hasLoaded = function(uri) {
     return this.uri() == uri;
+  };
+
+  InstanceList.prototype.kind = function() {
+    return this._kind;
   };
 
   InstanceList.prototype.show = function() {
@@ -324,7 +351,8 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
   };
 
   InstanceList.prototype._title = function(list, uri) {
-    list.find('.header .title').text('Add ' + U.titleCase(U.basename(uri)));
+    this._kind = U.titleCase(U.basename(uri));
+    list.find('.header .title').text('Add ' + this._kind);
   };
 
   InstanceList.prototype._push = function(list, item) {
@@ -525,6 +553,37 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
         slider.move(+1);
     }
 
+  };
+
+  function confirmModal(opt) {
+    var modal = (new Modal()).addClass('confirm'),
+        message = $('<p class="message"/>').html(opt.message),
+        cancel = $('<input type="button" class="cancel modal-close" />')
+          .attr('value', opt.cancel || 'Cancel'),
+        confirm = $('<input type="button" class="confirm" />')
+          .attr('value', opt.confirm || 'OK'),
+        buttons = $('<div class="buttons" />')
+          .append(cancel)
+          .append(confirm),
+        confirmed = false;
+
+    confirm.click(function() {
+      confirmed = true;
+      modal.close();
+    });
+
+    modal.on('close', function() {
+      modal.destroy();
+      opt.next(confirmed);
+    });
+
+    opt.className && modal.addClass(opt.className);
+
+    return modal
+      .append(message)
+      .append(buttons)
+      .appendTo('body')
+      .open();
   };
 
   function Modal(opt) {
@@ -830,12 +889,13 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
     console.log('unload!', future);
 
     app.wait(function() {
-      app.unload(future[1], future[2]);
-      if ('app' != future[0]) {
-        main.nav.deselect('app');
-        app.hide();
-      }
-      next();
+      app.unload(future[1], future[2], function() {
+        if ('app' != future[0]) {
+          main.nav.deselect('app');
+          app.hide();
+        }
+        next();
+      });
     });
   });
 
