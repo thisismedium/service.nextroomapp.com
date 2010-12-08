@@ -21,7 +21,7 @@ USER_KEY = 'user'
 def json_response(obj, curr_user=None):
     ''' Returns serialized obj in HttpResponse
     Must package the response for serialization appropriately.
-    
+
     '''
     if isinstance(obj, QuerySet):
         if isinstance(obj[0], User):
@@ -38,18 +38,18 @@ def json_response(obj, curr_user=None):
 
 def bad_response(obj):
     """ Response when Request made is bad, not allowed, etc.
-    
+
     """
     return HttpResponseBadRequest(json.dumps(obj.args), mimetype='application/json')
 
 def not_found_response(obj):
     """ Response when we cannot find object(s) requested (GETs)
-    
+
     """
     return HttpResponseNotFound(json.dumps(obj.args), mimetype='application/json')
 
 def invalid_response(obj):
     """ Response when operations are invalid (POST/PUT errors)
-    
+
     """
-    return HttpResponseBadRequest(json.dumps(obj.args), mimetype='application/json')
+    return HttpResponseBadRequest(json.dumps(obj.args[0]), mimetype='application/json')

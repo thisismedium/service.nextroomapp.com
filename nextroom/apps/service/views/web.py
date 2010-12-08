@@ -44,8 +44,8 @@ def login(request):
     # Authenticate admin user
     valid, user = True, request.session.get(USER_KEY)
     if isinstance(user, User):
-        return HttpResponseRedirect('/#app')
-    
+        return HttpResponseRedirect('/#!app')
+
     if request.method == 'POST':
         # Process form
         email = request.POST.get('email', None)
@@ -53,11 +53,11 @@ def login(request):
         user = authenticate(email,password)
         if user is not None and isinstance(user, User):
             request.session[USER_KEY] = user
-            return HttpResponseRedirect('/#app')
+            return HttpResponseRedirect('/#!app')
         else:
             request.session[USER_KEY] = None
             valid = False
-    
+
     return render_to_response('service/admin/login.html', {
         'valid':valid,
         'media': '%sservice/' % settings.MEDIA_URL
