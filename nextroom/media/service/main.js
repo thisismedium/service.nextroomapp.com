@@ -612,7 +612,7 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
         slider = $('<div class="slideshow" />'),
         prev = $('<a href="#" class="prev nav">&laquo;</a>'),
         next = $('<a href="#" class="next nav">&raquo;</a>'),
-        viewport = $('<div class="viewport"><div class="slides"/></div>');
+        viewport = $('<div class="viewport"><div class="slides"/><div class="glare"/></div>');
 
     this.el = slider;
     this._index = 0;
