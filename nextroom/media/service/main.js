@@ -475,19 +475,231 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
 
       expandable
         .each(function(idx) {
-          $('.figure', this).append('<a class="expand" href="#">+</a>');
-          $('.teaser', this).after('<a class="expand" href="#">Expand &raquo;</a>');
+          $('.figure', this)
+            .append('<a class="expand" href="#">+</a>');
+          $('.teaser', this)
+            .after('<a class="expand" href="#"><span class="action">Expand</span> &raquo;</a>');
         })
-        .find('.expand').click(function(ev) {
-          ev.preventDefault();
+        .find('.figure, .expand').click(function(ev) {
+          U.stop(ev);
           self._expand($(this).up('.unit'), expandable);
         });
   };
 
   Tips.prototype._expand = function(unit, related) {
-    var index = related.index(unit),
-        last = related.length - 1;
-    console.log('expand', index, size);
+    var $win = $(window),
+        modal = new Modal()
+          .addClass('expanded-tips')
+          .appendTo('body'),
+        slider = new Slider()
+          .appendTo(modal)
+          .append(related.clone())
+          .each(function(_, el) {
+            $('.action', el).text('Collapse').click(collapse);
+          })
+          .show(related.index(unit));
+
+    $win.bind('keyup', keyup);
+    modal.on('close', close).open();
+
+    function collapse() {
+      modal.close();
+      return false;
+    }
+
+    function close() {
+      modal.destroy();
+      $win.unbind('keyup', keyup);
+    }
+
+    function keyup(ev) {
+      if (ev.keyCode == 37)      // Left
+        slider.move(-1);
+      else if (ev.keyCode == 39) // Right
+        slider.move(+1);
+    }
+
+  };
+
+  function Modal(opt) {
+    var self = this,
+        el = $('<div class="modal"><div class="modal-overlay" /></div>'),
+        body = $('<div class="modal-body"/>'),
+        close = $('<a href="#" class="modal-close">X</a>'),
+        content = $('<div class="modal-content"/>');
+
+    self.el = el;
+    self.opt = opt || {};
+
+    self._body = body;
+    self._content = content;
+    self.__keyup = function(e) { return self._keyup(e); };
+
+    close.appendTo(body);
+
+    content
+      .html(this)
+      .appendTo(body);
+
+    el.append(body);
+  }
+
+  Modal.prototype.get = function() {
+    return this.el.get();
+  };
+
+  Modal.prototype.on = function(name, fn) {
+    this.opt[name] = fn;
+    return this;
+  };
+
+  Modal.prototype.open = function() {
+    var self = this,
+        $win = $(window),
+        mh = this._body.outerHeight(),
+        wh = $win.height();
+
+    $win.bind('keyup', this.__keyup);
+
+    if (wh > mh)
+      this._body.css('top', (wh - mh) / 2);
+
+    this.el
+      .addClass('active')
+      .find('.modal-close').click(function() {
+        self.close();
+        return false;
+      });
+
+    return this;
+  };
+
+  Modal.prototype.close = function() {
+    this.el.removeClass('active');
+    $(window).unbind('keyup', this.__keyup);
+    this.opt.close && this.opt.close(this);
+    return this;
+  };
+
+  Modal.prototype.destroy = function() {
+    this.el.remove();
+    return this;
+  };
+
+  Modal.prototype.addClass = function(name) {
+    this.el.addClass(name);
+    return this;
+  };
+
+  Modal.prototype.appendTo = function(obj) {
+    (obj.append ? obj : $(obj)).append(this.get());
+    return this;
+  };
+
+  Modal.prototype.append = function(content) {
+    this._content.append(content.get ? content.get() : content);
+    return this;
+  };
+
+  Modal.prototype._keyup = function(ev) {
+    if (ev.keyCode == 27) // Escape
+      this.close();
+    return this;
+  };
+
+  function Slider(opt) {
+    var self = this,
+        slider = $('<div class="slideshow" />'),
+        prev = $('<a href="#" class="prev nav">&laquo;</a>'),
+        next = $('<a href="#" class="next nav">&raquo;</a>'),
+        viewport = $('<div class="viewport"><div class="slides"/></div>');
+
+    this.el = slider;
+    this._index = 0;
+    this._end = 0;
+    this._wrap = viewport.children('.slides');
+    this._prev = prev;
+    this._next = next;
+    this._slides = $();
+
+    prev.click(function(ev) {
+      self.move(-1);
+      return false;
+    });
+
+    next.click(function(ev) {
+      self.move(+1);
+      return false;
+    });
+
+    slider
+      .append(prev)
+      .append(viewport)
+      .append(next);
+  }
+
+  Slider.prototype.destroy = function() {
+    this.el.remove();
+    return this;
+  };
+
+  Slider.prototype.get = function() {
+    return this.el.get();
+  };
+
+  Slider.prototype.show = function(index) {
+    this.el.addClass('active');
+    return this.moveTo(index);
+  };
+
+  Slider.prototype.append = function(content) {
+    var wrap = this._wrap,
+        slides = wrap
+          .append(content.get ? content.get() : content)
+          .children();
+
+    this._slides = slides;
+    this._end = slides.length - 1;
+    wrap.width(this._width(slides.length));
+
+    return this;
+  };
+
+  Slider.prototype.appendTo = function(obj) {
+    (obj.append ? obj : $(obj)).append(this.get());
+    return this;
+  };
+
+  Slider.prototype.each = function(fn) {
+    this._slides.each(fn);
+    return this;
+  };
+
+  Slider.prototype.move = function(offset) {
+    return this.moveTo(this._index + offset);
+  };
+
+  Slider.prototype.moveTo = function(dest) {
+    var end = this._end;
+
+    if (dest < 0 || dest > end)
+      return this;
+
+    this._prev[(dest == 0) ? 'addClass' : 'removeClass']('disabled');
+    this._next[(dest == end) ? 'addClass' : 'removeClass']('disabled');
+
+    this._index = dest;
+    this._wrap.animate({ marginLeft: -1 * this._width(dest) }, 'fast');
+
+    return this;
+  };
+
+  Slider.prototype._width = function(end) {
+    var total = 0;
+    this._slides.slice(0, end).each(function() {
+      total += $(this).outerWidth();
+    });
+    return total;
   };
 
   

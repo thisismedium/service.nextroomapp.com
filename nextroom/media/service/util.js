@@ -11,6 +11,7 @@ define(['exports'], function(exports) {
   exports.aEach = aEach;
   exports.isEmpty = isEmpty;
   exports.titleCase = titleCase;
+  exports.stop = stop;
 
   
   // ### Error ###
@@ -96,6 +97,12 @@ define(['exports'], function(exports) {
       return a.toUpperCase() + b;
     });
   }
+
+  function stop(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    return event;
+  };
 
   
   // ### jQuery Methods ###
