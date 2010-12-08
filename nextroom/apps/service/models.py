@@ -12,6 +12,7 @@ from nextroom.apps.service.customfields import ColorField
 
 import datetime
 import hashlib
+import itertools as it
 
 
 #########################################################
@@ -144,7 +145,7 @@ class ApiModel(models.Model):
         return d
 
 
-    def build_errors(self, fields):
+    def build_errors(self, unique, required=()):
         """ Builds up errors dict. Used by all ApiModel-based classes.
 
         """
@@ -153,10 +154,14 @@ class ApiModel(models.Model):
         if self.pk:
             objs = objs.exclude(id=self.id)
 
-        for k in fields:
+        for k in it.chain(unique, required):
             if getattr(self, k) == '':
                 self.errors[k] = 'Empty'
-            elif getattr(self, k) in [getattr(o, k) for o in objs]:
+
+        for k in unique:
+            if k in self.errors:
+                continue
+            elif getattr(self, k) in set(getattr(o, k) for o in objs):
                 self.errors[k] = 'Duplicate'
 
     def validate(self):
@@ -385,7 +390,8 @@ class User(ApiModel):
         # See explanation of validate() on ApiModel class
 
         # Basic requirement for all users
-        fields = ['name', 'type']
+        unique = ['name']
+        required = ['type']
 
         # Add in other required fields where necessary
         # NOTE: pin is not, at this time, added because we must allow dups
@@ -396,15 +402,15 @@ class User(ApiModel):
             self.password = None
         else:
             # Non-system users should always have a color
-            fields.append('color')
+            required.append('color')
             if self.is_site_user:
                 # User is NOT system user & IS site user: email/password required
-                fields.append('email')
-                fields.append('password')
+                unique.append('email')
+                required.append('password')
 
         # Reset self.errors & check for Empty & Duplicate values first
         self.errors = {}
-        self.build_errors(fields)
+        self.build_errors(unique, required)
 
         if self.is_site_user and not self.errors.get('email'):
             # Validate email address via regexp
