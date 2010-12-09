@@ -8,7 +8,7 @@ html {
     background: #d2d2d2 url(images/main_bg.jpg) 50% 0 repeat-x;
     min-width: 960px;
     border-left: 1px solid #fff;
-    overflow-y:scroll;    
+    overflow-y:scroll;
 }
 html.login {
     background: #d0d0d0 url(images/main_bg-login.jpg) 50% 0 repeat-x;
@@ -64,7 +64,7 @@ input[type=submit]:active {
 input[disabled=disabled] {
     border: 0px;
     background: none;
-    
+
 }
 
 input.cancel {
@@ -92,14 +92,14 @@ form span.input {
 #password_reset form span.input input {
     width: 298px;
 }
-#password_reset form span.input, 
+#password_reset form span.input,
 #login_box form span.input {
     position: relative;
     float: left;
     margin-right: 10px;
 }
-#password_reset #reset_instructions, 
-#login_box #forgot_password, 
+#password_reset #reset_instructions,
+#login_box #forgot_password,
 #login_box #login_error {
     clear: both;
     margin: 10px 0;
@@ -127,7 +127,7 @@ form span.input {
     -moz-box-shadow: 0px 1px 1px #888;
     -webkit-box-shadow: 0px 1px 1px #888;
     box-shadow: 0px 1px 1px #888;
-} 
+}
 #login_box #login_error h3 {
     margin:0;
     padding:0;
@@ -173,7 +173,7 @@ form span.input input {
     background: url(images/nextroom-logo.png) 0 0 no-repeat;
 }
 
-#password_reset, 
+#password_reset,
 #login_box {
     width: 440px;
     margin: 100px auto 0;
@@ -195,7 +195,7 @@ form span.input input {
     margin: 0 0 10px;
 }
 
-#password_reset h3, 
+#password_reset h3,
 #login_box h3 {
     margin-bottom: 20px;
 }
@@ -335,7 +335,7 @@ footer img {
     margin-bottom: 0.6em;
 }
 
-form h3, 
+form h3,
 .field label {
     font-size: 12px;
     display: block;
@@ -391,7 +391,7 @@ form h3 {
     margin-right: 0;
 }
 
-#app-editor form.panel, 
+#app-editor form.panel,
 #app-tips div.content {
     background: #f3f3f3 url(images/panel_bg.png) 0 0 repeat-x;
     border: 1px solid #fff;
@@ -625,7 +625,7 @@ form h3 {
     display: block;
 }
 
-/* 
+/*
 ## Account Section ##
 
 The account section is a bunch of large blocks with messages or single
@@ -708,13 +708,13 @@ the shield slides back into a button shape.
     background-position: 0 -21px;
 }
 
-#account .cancel {
+#account .cancel.action {
     height: 14px;
     overflow: hidden;
     background: url(images/cancel.png) 100% 0 no-repeat;
     text-indent: 9999px;
 }
-#account .cancel:hover {
+#account .cancel.action:hover {
     background-position: 100% -14px;
 }
 
@@ -813,7 +813,7 @@ the shield slides back into a button shape.
 #help #help_box p {
     font-size: 11px;
     color: #828282;
-    margin: 10px 24px 0;; 
+    margin: 10px 24px 0;;
 }
 #help #help_box .buttons {
     background: url(images/help_close_bg.png) 0 0 repeat-x;
