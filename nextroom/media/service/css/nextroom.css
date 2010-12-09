@@ -35,7 +35,8 @@ h3 { font-size: 12px; }
 
 [unselectable=on] { -moz-user-select: none; -khtml-user-select: none; user-select: none; }
 
-input[type=submit] {
+input[type=submit],
+input[type=button] {
     background: #a9a9a9 url(images/submit_button_bg.png) 0 0 repeat-x;
     border: 1px solid #848484;
     border-radius: 5px;
@@ -72,6 +73,11 @@ input.cancel {
     color: #595959;
     text-decoration: underline;
     font-size: 11px;
+    text-shadow: 0px 0px 0px #717171;
+    -moz-box-shadow: 0px 0px 0px #888;
+    -webkit-box-shadow: 0px 0px 0px #888;
+    box-shadow: 0px 0px 0px #888;
+    border-radius: 0;
 }
 
 form span.input {
@@ -623,19 +629,65 @@ form h3 {
 
 #help {
     position: absolute;
-    top: 20px;
-    right: 30px;
-    width: 300px;
-    height: 200px;
-    background-color: #eee;
+    top:0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255,255,255,0);
     display: none;
+}
+#help #help_box {
+    position: absolute;
+    top: 10px;
+    right: 116px;
+    width: 318px;
+    height: 210px;
+    background: #dfdfdf url(images/help_bg.png) repeat-x 0 0;
     border: 1px solid #c7c7c7;
     border-radius: 5px;
-    -moz-box-shadow: 0px 10px 5px rgba(0, 0, 0, 0.5);
-    -webkit-box-shadow: 0px 10px 5px rgba(0, 0, 0, 0.5);
-    box-shadow: 0px 10px 5px rgba(0, 0, 0, 0.5);
 }
 
+#help #help_box h2 {
+    text-indent: -9999px;
+    background: url(images/h2_NextRoom_help.png) 0 0 no-repeat;
+    width: 100%;
+    height: 39px;
+    margin: 24px 0 0 24px
+}
+#help #help_box p {
+    font-size: 11px;
+    color: #828282;
+    margin: 10px 24px 0;; 
+}
+#help #help_box .buttons {
+    background: url(images/help_close_bg.png) 0 0 repeat-x;
+    width: 100%;
+    height: 44px;
+    border: 1px solid #049b85;
+    border-top: 0;
+    position: absolute;
+    left: -1px;
+    bottom: -1px;
+    -webkit-border-bottom-right-radius: 5px;
+    -webkit-border-bottom-left-radius: 5px;
+    -moz-border-radius-bottomright: 5px;
+    -moz-border-radius-bottomleft: 5px;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
+#help #help_box .buttons input {
+    font-size: 11px;
+    position: absolute;
+    right: 15px;
+    bottom: 10px;
+    -moz-box-shadow: 0px 1px 3px #119d92;
+    -webkit-box-shadow: 0px 1px 3px #119d92;
+    box-shadow: 0px 1px 3px #119d92;
+}
+
+body.help div[role='main'] {
+    opacity: 0.3;
+}
 
 
 
