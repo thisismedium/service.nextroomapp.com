@@ -530,7 +530,9 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
           .appendTo(modal)
           .append(related.clone())
           .each(function(_, el) {
-            $('.action', el).text('Collapse').click(collapse);
+            $('.figure', el).prependTo(el);
+            $('.action', el).text('Collapse')
+              .parent().click(collapse);
           })
           .show(related.index(unit));
 
