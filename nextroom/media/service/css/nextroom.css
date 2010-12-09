@@ -625,6 +625,162 @@ form h3 {
     display: block;
 }
 
+/* 
+## Account Section ##
+
+The account section is a bunch of large blocks with messages or single
+inputs inside.
+
+The inputs have a "shields up" effect while saving. The Save button
+expands left to cover the input. When the save-request has finished,
+the shield slides back into a button shape.
+*/
+
+#account {
+    width:619px;
+    margin: 0 auto;
+}
+
+#account h2.account {
+    text-indent: -9999px;
+    width: 619px;
+    height: 47px;
+    background: url(images/h2_account.png) 0 0 no-repeat;
+}
+
+#account .block {
+    background: #f3f3f3 url(images/panel_bg.png) 0 0 repeat-x;
+    border: 1px solid #fff;
+    -moz-box-shadow: 0px 1px 1px #888;
+    -webkit-box-shadow: 0px 1px 1px #888;
+    box-shadow: 0px 1px 1px #888;
+    padding: 10px;
+    margin-bottom: 6px;
+}
+#account #cancel-account {
+    -webkit-border-bottom-right-radius: 8px;
+    -webkit-border-bottom-left-radius: 8px;
+    -moz-border-radius-bottomright: 8px;
+    -moz-border-radius-bottomleft: 8px;
+    border-bottom-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+}
+#account-editor > h3 {
+
+}
+
+#account .block-title {
+    position: relative;
+}
+
+#account .block-title h3 {
+    display: inline-block;
+    width: 40%;
+    margin: 0;
+    color: #666;
+    font-family: helvetica, arial, sans-serif;
+    font-size: 13px;
+    font-weight: bold;
+    text-transform: none;
+    border-right: 1px dashed #666;
+}
+#account #cancel-account .block-title h3 {
+    border-right:0;
+}
+
+#account .show-help {
+    height: 25px;
+    overflow:hidden;
+    background: url(images/show_help.png) 0 0 no-repeat;
+    text-indent: -9999px;
+}
+#account .show-help:hover {
+    background-position: 0 -25px;
+}
+
+#account .edit {
+    height: 21px;
+    overflow: hidden;
+    background: url(images/edit.png) 0 0 no-repeat;
+    text-indent: -9999px;
+}
+#account .edit:hover {
+    background-position: 0 -21px;
+}
+
+#account .cancel {
+    height: 14px;
+    overflow: hidden;
+    background: url(images/cancel.png) 100% 0 no-repeat;
+    text-indent: 9999px;
+}
+#account .cancel:hover {
+    background-position: 100% -14px;
+}
+
+#account .block-title .action {
+    display: inline-block;
+    width: 57%;
+    padding-left: 10px;
+}
+
+#account .block-content {
+    margin-top: 10px;
+}
+
+#account div.input {
+    position: relative;
+    width: 296px;
+    height: 30px;
+}
+#account div.input span.input {
+    width:296px;
+    background: #fff;
+}
+#account div.input input[type="text"] {
+    width: 238px;
+    border-right: 0;
+}
+#account div.input input[type="submit"] {
+    position: absolute;
+    top:1px;
+    right:-1px;
+    font-size: 12px;
+    -moz-box-shadow: 0px 0px 0px #888;
+    -webkit-box-shadow: 0px 0px 0px #888;
+    box-shadow: 0px 0px 0px #888;
+}
+
+#cancel-account .block-content {
+    display: none;
+}
+
+#cancel-account.active .block-content {
+    display: block;
+}
+
+#cancel-account .block-title .action {
+    text-align: right;
+}
+
+#cancel-account .proceed {
+    margin: 10px 0;
+}
+
+#cancel-account .proceed label {
+    display: inline-block;
+    width: 50%;
+}
+
+#cancel-account .buttons {
+    display: inline-block;
+    width: 49%;
+}
+
+#account-tips {
+    display: none;
+}
+
 /* ## Help ## */
 
 #help {
