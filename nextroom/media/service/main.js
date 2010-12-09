@@ -5,6 +5,7 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
     this.nav = new Nav('#main-nav');
     this.app = new App('#app');
     this.help = new Help('#help');
+    this.account = new Account('#account');
     this.view = null;
   }
 
@@ -837,8 +838,62 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
   
   // ### Account ###
 
-  function MainAccount(selector) {
+  function Account(selector) {
+    this.el = $(selector);
+    this.cancel = new CancelAccount('#cancel-account');
+
+    var self = this;
+
+    $('a[href=#!account/cancel]').click(function(ev) {
+      ev.preventDefault();
+      self.toggleCancel();
+    });
   }
+
+  Account.prototype.show = function() {
+    if (!this.el.is(':visible'))
+      this.el.fadeIn('fast');
+    return this;
+  };
+
+  Account.prototype.hide = function() {
+    if (this.el.is(':visible'))
+      this.el.fadeOut('fast');
+    return this;
+  };
+
+  Account.prototype.load = function(uri) {
+    if (uri == 'account/cancel')
+      this.cancel.show();
+  };
+
+  Account.prototype.unload = function() {
+    this.cancel.hide();
+  };
+
+  Account.prototype.toggleCancel = function() {
+    if (ui.isActive('account/cancel'))
+      ui.location('account');
+    else
+      ui.location('account/cancel');
+  };
+
+  function CancelAccount(selector) {
+    this.el = $(selector);
+    this.content = this.el.children('.content');
+  }
+
+  CancelAccount.prototype.show = function() {
+    if (!this.el.is('.active'))
+      this.el.addClass('active');
+    return this;
+  };
+
+  CancelAccount.prototype.hide = function() {
+    if (this.el.is('.active'))
+      this.el.removeClass('active');
+    return this;
+  };
 
   
   // ## Help ##
@@ -890,8 +945,6 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
     var future = loading ? listUriSegments(loading.uri) : [],
         app = main.app;
 
-    console.log('unload!', future);
-
     app.wait(function() {
       app.unload(future[1], future[2], function() {
         if ('app' != future[0]) {
@@ -903,20 +956,24 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
     });
   });
 
-  ui.load(/^account/, function(req, next) {
-    console.debug('load account');
+  ui.load(/^account.*/, function(req, next) {
     main.nav.select('account');
+    main.account.show().load(req.uri);
     next();
   });
 
-  ui.unload(/^account/, function(req, _, next) {
-    console.debug('unload account');
-    main.nav.deselect('account');
+  ui.unload(/^account.*/, function(req, loading, next) {
+    var future = loading ? listUriSegments(loading.uri) : [];
+
+    main.account.unload(loading && loading.uri);
+    if ('account' != future[0]) {
+      main.nav.deselect('account');
+      main.account.hide();
+    }
     next();
   });
 
   ui.load(/^help/, function(req, next) {
-    console.log('show help');
     main.help.show();
     main.nav.select('help');
     next();

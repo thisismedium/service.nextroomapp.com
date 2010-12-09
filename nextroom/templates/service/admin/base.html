@@ -117,9 +117,94 @@
 		  </div>
 		</div>
 
-              </section>
+              </section> <!-- #app -->
+
+	      <section id="account">
+		<div id="account-editor" class="panel">
+		  <h2>Account</h2>
+
+		  <div id="account-name" class="block">
+		    <div class="block-title">
+		      <h3>NextRoom App Account Name</h3>
+		      <a href="#" class="show-help action">?</a>
+		    </div>
+		    <div class="block-content">
+		      <div class="text">{{user.practice.app_auth_name}}</div>
+		    </div>
+		  </div>
+
+		  <form id="practice-email" class="block">
+		    <div class="block-title">
+		      <h3>Practice Contact Email</h3>
+		      <a href="#" class="edit action">Edit</a>
+		    </div>
+		    <div class="block-content">
+		      <div class="input">
+			<input type="text" name="email" value="" />
+			<input type="submit" value="Save" class="save" />
+		      </div>
+		    </div>
+		  </form>
+
+		  <form id="practice-name" class="block">
+		    <div class="block-title">
+		      <h3>Practice Name</h3>
+		      <a href="#" class="edit action">Edit</a>
+		    </div>
+		    <div class="block-content">
+		      <div class="shield input">
+			<input type="text" name="name" value="" />
+			<input type="submit" value="Save" class="save" />
+		      </div>
+		    </div>
+		  </form>
+
+		  <form id="cancel-account" class="block">
+		    <div class="block-title">
+		      <h3>Cancel this Account</h3>
+		      <a href="#!account/cancel" class="cancel action">Cancel</a>
+		    </div>
+		    <div class="block-content">
+		      <p>Duis et nisl sapien, sed tincidunt magna. Donec
+			tempor, quam quis imperdiet dignissim, lectus eros
+			adipiscing mauris.</p>
+
+		      <div class="proceed">
+			<label>Do you want to cancel this account?</label>
+			<span class="buttons">
+			  <input type="button" value="No, Wait!" class="cancel button" />
+			  <input type="button" value="Yes" class="yes button" />
+			</span>
+		      </div>
+		    </div>
+		  </form>
+		</div>
+
+		<div id="account-tips" class="panel">
+		  <div class="content">
+		    <h3 class="tips_and_tools">Tips &amp; Tools</h3>
+
+		    <div class="account-tips tips">
+		      <section>
+			<div class="unit">
+			  <h4>Account Name</h4>
+			  <p class="figure">
+			    <img src="" class="small" />
+			    <img src="" class="large" />
+			  </p>
+			  <p class="teaser">Nullam neque elit, blandit
+			    non vulputate et, varius ut sem.</p>
+			</div>
+		      </section>
+		    </div>
+
+		  </div>
+		</div>
+
+	      </section> <!-- #account -->
+
               <div class="clear"></div>
-            </div>
+            </div> <!-- role="main" -->
 
             <div id="help">
 	      <h2>NextRoom Help</h2>
