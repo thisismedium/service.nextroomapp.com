@@ -850,6 +850,10 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
       ev.preventDefault();
       ui.toggle('help');
     });
+
+    $('#close-help').click(function() {
+      ui.pop('help');
+    });
   }
 
   Help.prototype.show = function() {
