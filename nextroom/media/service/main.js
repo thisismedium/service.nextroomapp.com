@@ -914,12 +914,14 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
   }
 
   Help.prototype.show = function() {
+    $('body').addClass('help');
     this.elem.fadeIn('fast');
     return this;
   };
 
   Help.prototype.hide = function() {
     this.elem.fadeOut('fast');
+    $('body').removeClass('help');
     return this;
   };
 
