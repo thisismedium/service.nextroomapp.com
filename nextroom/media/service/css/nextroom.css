@@ -1018,6 +1018,7 @@ dimensions of the wrapper dynamically.
     width: 12px;
     height: 18px;
 }
+
 .slideshow > .prev {
     left: 0;
 }
@@ -1029,6 +1030,10 @@ dimensions of the wrapper dynamically.
 
 .slideshow > .disabled {
     opacity: 0.15;
+}
+
+.slideshow.single > .nav {
+    display: none;
 }
 
 .slideshow .viewport {

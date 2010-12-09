@@ -504,6 +504,12 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
     return this;
   };
 
+  Tips.prototype.expand = function(unit) {
+    unit = $(unit, this.el);
+    this._expand(unit, unit.siblings(':has(> .figure').andSelf());
+    return this;
+  };
+
   Tips.prototype._build = function(el) {
     var self = this,
         expandable = $('.unit:has(> .figure)', el);
@@ -730,6 +736,8 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
     this._end = slides.length - 1;
     wrap.width(this._width(slides.length));
 
+    this.el[(slides.length == 1) ? 'addClass' : 'removeClass']('single');
+
     return this;
   };
 
@@ -843,12 +851,18 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
   function Account(selector) {
     this.el = $(selector);
     this.cancel = new CancelAccount('#cancel-account');
+    this.tips = new Tips('#account-tips');
 
     var self = this;
 
     $('a[href=#!account/cancel]').click(function(ev) {
-      ev.preventDefault();
-      self.toggleCancel();
+      U.stop(ev);
+      self.cancel.toggle();
+    });
+
+    this.el.find('.show-help').click(function(ev) {
+      U.stop(ev);
+      self.tips.expand('.account-tips .unit:eq(0)');
     });
   }
 
@@ -873,16 +887,15 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
     this.cancel.hide();
   };
 
-  Account.prototype.toggleCancel = function() {
-    if (ui.isActive('account/cancel'))
-      ui.location('account');
-    else
-      ui.location('account/cancel');
-  };
-
   function CancelAccount(selector) {
     this.el = $(selector);
-    this.content = this.el.children('.content');
+    this.content = this.el.children('.block-content');
+
+    var self = this;
+
+    this.content.find('.cancel').click(function() {
+      self.toggle();
+    });
   }
 
   CancelAccount.prototype.show = function() {
@@ -894,6 +907,14 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
   CancelAccount.prototype.hide = function() {
     if (this.el.is('.active'))
       this.el.removeClass('active');
+    return this;
+  };
+
+  CancelAccount.prototype.toggle = function() {
+    if (ui.isActive('account/cancel'))
+      ui.location('account');
+    else
+      ui.location('account/cancel');
     return this;
   };
 
