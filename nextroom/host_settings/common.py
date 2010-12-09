@@ -26,3 +26,7 @@ INSTALLED_APPS = (
     'nextroom.apps.service',
 )
 
+EMAIL_HOST = 'relay.smtp.coptix.com'
+EMAIL_PORT = 25
+
+PASSWORD_RECOVERY_SENDER = 'info@nextroomapp.com'

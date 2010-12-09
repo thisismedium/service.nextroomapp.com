@@ -23,7 +23,7 @@ urlpatterns = patterns('',
     (r'^$', 'apps.service.views.web.home'),
 
     # Extra for testing
-    (r'^change-password/$', 'django.views.generic.simple.direct_to_template', {'template': 'service/admin/change_password.html', 'extra_context': {'media': '%sservice/' % settings.MEDIA_URL}}),
+    (r'^change-password/$', 'apps.service.views.web.change_password'),
         
 )
 

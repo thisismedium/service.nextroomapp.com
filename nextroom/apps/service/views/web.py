@@ -4,6 +4,9 @@ try:
 except ImportError:
     import json
 
+from random import choice
+import string
+
 # Django imports
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect
@@ -35,6 +38,9 @@ def authenticate(email=None, password=None):
     else:
         user = None
     return user
+
+def genTmpPwd(n):
+    return ''.join([choice(string.letters + string.digits) for i in xrange(n)])
 
 #######################################
 #   Web Admin views
@@ -77,6 +83,48 @@ def home(request):
         'user_types': User.TYPE_CHOICES,
         'add_types': User.ADD_CHOICES,
         'media': '%sservice/' % settings.MEDIA_URL
+    })
+
+def change_password(request):
+    # Reset user password & email
+    reset_sent, valid, mail_err = False, True, False
+    if request.method == 'POST':
+        # Process form input
+        email = request.POST.get('email', None)
+        if email is not None:
+            try:
+                user = User.objects.get(email=email)
+            except User.DoesNotExist:
+                valid = False
+            else:
+                # Set user password to temporary random password
+                pwd = genTmpPwd(8)
+                print pwd
+                user.set_password(pwd)                
+                user.save()
+                
+                # Send email to user
+                from django.core.mail import send_mail
+                
+                try:
+                    msg = "Your account password at www.nextroomapp.com has been reset to: %s" % pwd
+                    send_mail('NextRoom Password Recovery',
+                                msg,
+                                settings.PASSWORD_RECOVERY_SENDER,
+                                [user.email],
+                                fail_silently=False)
+                except:
+                    import traceback
+                    traceback.print_exc()
+                    mail_err = True
+                else:
+                    reset_sent = True
+    
+    return render_to_response('service/admin/change_password.html', {
+        'media': '%sservice/' % settings.MEDIA_URL,
+        'reset_sent': reset_sent,
+        'valid': valid,
+        'mail_err': mail_err
     })
 
 #######################################
