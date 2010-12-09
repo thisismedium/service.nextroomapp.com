@@ -360,7 +360,6 @@ class User(ApiModel):
 
         version = increment_version(version)
         self.version = version
-        self.password = self.password
         super(User, self).save(*args, **kwargs)
 
     def small_dict(self, curr_user):
