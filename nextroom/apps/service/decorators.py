@@ -94,7 +94,7 @@ def api_request(method):
     # Attempts to execute the method or handle error responses
     @functools.wraps(method)
     def internal(request, *args, **kwargs):
-        if request.META['CONTENT_TYPE'] == 'application/json':
+        if is_mime(request.META['CONTENT_TYPE'], 'application/json'):
             # This is good. Process request
             try:
                 return method(request, *args, **kwargs)
@@ -121,3 +121,13 @@ def pre_process(method):
         data = get_request_data(request)
         return method(request, model, id, user, data, *args, **kwargs)
     return internal
+
+def is_mime(value, mimetype):
+    """Check if value matches an expected mimetype.
+
+    >>> is_mime('text/plain', 'text/plain')
+    True
+    >>> is_mime('application/json; charset=UTF-8', 'application/json')
+    True
+    """
+    return value.split(';', 1)[0] == mimetype

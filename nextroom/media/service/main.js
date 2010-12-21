@@ -10,7 +10,11 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
   }
 
   function fail(err) {
-    U.error(err);
+    alertModal({
+      message: err,
+      confirm: 'OK',
+      className: 'alert-fail'
+    });
   }
 
   function mainView() {
@@ -372,7 +376,9 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
   };
 
   InstanceList.prototype._bind = function(item, data) {
-    return item && item
+    if (!item) return;
+    data = $.extend(item.data('value') || {}, data);
+    return item
       .data('value', data)
       .find('a')
         .html(data.name)
@@ -427,13 +433,16 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
       $('#template')
         .children(kind)
         .cloneTemplate()
-        .addClass('content')
-        .attr({ action: (action || uri), method: (method || 'put') })
-        .view(data)
-        .find('.cancel')
-          .click(function(ev) { self._cancel(ev); })
-          .end()
-        .appendTo(this.el.empty());
+          .addClass('content')
+          .attr({ action: (action || uri), method: (method || 'put') })
+          .view(data)
+          .find('.cancel')
+            .click(function(ev) { self._cancel(ev); })
+            .end()
+          .children('h3')
+            .html((method == 'post' ? 'New ' : '') + U.titleCase(probe[1]) + ' Details')
+            .end()
+          .appendTo(this.el.empty());
 
       this.el.data('uri', uri);
     }
@@ -539,7 +548,7 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
           })
           .show(related.index(unit));
 
-    $win.bind('keyup', keyup);
+    $win.bind('keydown', keydown);
     modal.on('close', close).open();
 
     function collapse() {
@@ -549,14 +558,18 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
 
     function close() {
       modal.destroy();
-      $win.unbind('keyup', keyup);
+      $win.unbind('keydown', keydown);
     }
 
-    function keyup(ev) {
-      if (ev.keyCode == 37)      // Left
+    function keydown(ev) {
+      if (ev.keyCode == 37) {      // Left
         slider.move(-1);
-      else if (ev.keyCode == 39) // Right
+        return false;
+      }
+      else if (ev.keyCode == 39) { // Right
         slider.move(+1);
+        return false;
+      }
     }
 
   };
@@ -586,7 +599,7 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
 
     modal.on('close', function() {
       modal.destroy();
-      opt.next(confirmed);
+      opt.next && opt.next(confirmed);
     });
 
     opt.className && modal.addClass(opt.className);
@@ -792,7 +805,7 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
   }
 
   function findEntry(panel, uri) {
-    return panel.find('.entry:has(a[href=#!' + uri + '])');
+    return panel.find('.entry:has(a[href=#!' + U.relativePath(uri) + '])');
   };
 
   function splitUri(uri) {

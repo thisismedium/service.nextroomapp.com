@@ -12,6 +12,7 @@ define(['exports'], function(exports) {
   exports.isEmpty = isEmpty;
   exports.titleCase = titleCase;
   exports.stop = stop;
+  exports.relativePath = relativePath;
 
   
   // ### Error ###
@@ -103,6 +104,10 @@ define(['exports'], function(exports) {
     event.stopPropagation();
     return event;
   };
+
+  function relativePath(uri) {
+    return uri.replace(/^\w+:\/+[^\/]+\//, '');
+  }
 
   
   // ### jQuery Methods ###
