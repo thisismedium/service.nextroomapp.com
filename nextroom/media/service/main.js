@@ -561,11 +561,17 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
 
   };
 
+  function alertModal(opt) {
+    opt.cancel = false;
+    return confirmModal(opt);
+  }
+
   function confirmModal(opt) {
     var modal = (new Modal()).addClass('confirm'),
         message = $('<p class="message"/>').html(opt.message),
-        cancel = $('<input type="button" class="cancel modal-close" />')
-          .attr('value', opt.cancel || 'Cancel'),
+        cancel = (opt.cancel === false) ? '' :
+          $('<input type="button" class="cancel modal-close" />')
+            .attr('value', opt.cancel || 'Cancel'),
         confirm = $('<input type="button" class="confirm" />')
           .attr('value', opt.confirm || 'OK'),
         buttons = $('<div class="buttons" />')
@@ -893,6 +899,15 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
         }
       });
     });
+
+    this.el.bind('cancel', function(ev) {
+      self.api.del('/account', function(err) {
+        if (err)
+          fail(err);
+        else
+          self.cancel.success();
+      });
+    });
   }
 
   Account.prototype.show = function() {
@@ -952,9 +967,16 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
 
     var self = this;
 
-    this.content.find('.cancel').click(function() {
-      self.toggle();
-    });
+    this.content
+      .find('.cancel')
+        .click(function() {
+          self.toggle();
+        })
+        .end()
+      .find('.yes')
+        .click(function() {
+          self.confirm();
+        });
   }
 
   CancelAccount.prototype.show = function() {
@@ -974,6 +996,30 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
       ui.location('account');
     else
       ui.location('account/cancel');
+    return this;
+  };
+
+  CancelAccount.prototype.confirm = function() {
+    var self = this;
+    confirmModal({
+      message: 'Cancel this Account?',
+      confirm: 'Yes, Cancel',
+      next: function(confirmed) {
+        confirmed ? self.el.trigger('cancel') : self.toggle();
+      },
+      className: 'confirm-cancel'
+    });
+    return this;
+  };
+
+  CancelAccount.prototype.success = function() {
+    var self = this;
+    alertModal({
+      message: 'Request received.',
+      confirm: 'OK',
+      next: function() { self.toggle(); },
+      className: 'alert-cancelled'
+    });
     return this;
   };
 
