@@ -110,11 +110,11 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
     });
 
     this.el.bind('submit', function(ev) {
-      ev.preventDefault();
-      var form = ev.target,
-          uri = form.action,
-          method = form.method,
-          value = $(form).formData();
+      var target = U.stop(ev).target,
+          form = $(target.form || form),
+          uri = form.attr('action'),
+          method = form.attr('data-method'),
+          value = form.formData();
 
       self.api[method](uri, value, function(err, data) {
         if (err) {
@@ -434,7 +434,7 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
         .children(kind)
         .cloneTemplate()
           .addClass('content')
-          .attr({ action: (action || uri), method: (method || 'put') })
+          .attr({ action: (action || uri), 'data-method': (method || 'put') })
           .view(data)
           .find('.cancel')
             .click(function(ev) { self._cancel(ev); })
@@ -534,7 +534,7 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
   };
 
   Tips.prototype._expand = function(unit, related) {
-    var $win = $(window),
+    var $win = $('html'),
         modal = new Modal()
           .addClass('expanded-tips')
           .appendTo('body'),
@@ -645,7 +645,7 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
 
   Modal.prototype.open = function() {
     var self = this,
-        $win = $(window),
+        $win = $('html'),
         mh = this._body.outerHeight(),
         wh = $win.height();
 
@@ -889,10 +889,11 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
     });
 
     this.el.bind('submit', function(ev) {
-      var el = U.stop(ev).target,
-          form = self.forms[el.id].saving(),
-          uri = el.action,
-          method = el.method,
+      var target = U.stop(ev).target,
+          el = $(target.form || target),
+          form = self.forms[el.attr('id')].saving(),
+          uri = el.attr('action'),
+          method = el.attr('data-method'),
           value = $.extend({}, self.data, form.value());
 
       self.api[method](uri, value, function(err, data) {
@@ -1041,7 +1042,7 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
 
     this.el = $(selector).attr({
       action: opt.action,
-      method: opt.method || 'put'
+      'data-method': opt.method || 'put'
     });
 
     this._input = this.el.find('[name]');

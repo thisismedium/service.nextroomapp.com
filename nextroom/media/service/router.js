@@ -118,7 +118,6 @@ define(['exports', 'util', 'jquery.history'], function(exports, U) {
     // slot, unload it first.
     function dispatch(index, uri, next) {
       var last = state[index];
-
       if (last && last.uri == uri)
         next();
       else if (!(load = self._findRoute('load', uri)))

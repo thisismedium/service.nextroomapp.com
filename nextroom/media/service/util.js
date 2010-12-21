@@ -89,7 +89,7 @@ define(['exports'], function(exports) {
     var index = 0;
     return function uniqueId(prefix) {
       index = (index + 1) % 100;
-      return (prefix || 'nr') + '-' + Date.now() + '-' + index;
+      return (prefix || 'nr') + '-' + (new Date()).getTime() + '-' + index;
     };
   })();
 
