@@ -36,7 +36,6 @@ define(['exports', 'util', 'jquery.history'], function(exports, U) {
       return hash && hash.replace(/^#!/, '');
     }
     else {
-      console.debug('location!', uri);
       window.location.href = this.href(uri);
       return this;
     }

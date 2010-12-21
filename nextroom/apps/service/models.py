@@ -258,27 +258,32 @@ class Practice(models.Model):
     def as_dict(self):
         # Return big dict of item attributes
         # We ensure we don't return _ attributes.
-        return build_dict(self.__dict__)
+        fields = ['practice_name', 'email']
+        return build_dict(self.__dict__, fields)
 
-    def build_errors(self, fields):
+    def build_errors(self, unique, required=()):
         """ Builds up errors dict.
 
         """
-        objs = self.__class__.objects.all().filter(practice=self.practice)
+        objs = self.__class__.objects.all()
 
         if self.pk:
             objs = objs.exclude(id=self.id)
 
-        for k in fields:
-            if getattr(self, k) == "":
+        for k in it.chain(unique, required):
+            if getattr(self, k) == '':
                 self.errors[k] = 'Empty'
-            elif getattr(self, k) in [getattr(o, k) for o in objs]:
+
+        for k in unique:
+            if k in self.errors:
+                continue
+            elif getattr(self, k) in set(getattr(o, k) for o in objs):
                 self.errors[k] = 'Duplicate'
 
     def validate(self):
         # See explanation of validate() on ApiModel class
         self.errors = {}
-        self.build_errors(['practice_name', 'email', 'app_auth_name'])
+        self.build_errors(['email'], ['practice_name'])
         # As long as email hasn't yet come back as Empty or Duplicate, check it is a valid address now
         if not self.errors.get('email'):
             if not email_re.match(self.email):

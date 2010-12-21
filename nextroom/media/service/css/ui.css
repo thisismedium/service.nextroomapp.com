@@ -40,3 +40,28 @@ form .errors > .active {
 }
 
 /*
+## Shield Form ##
+*/
+
+.shield .value {
+    /* Line the text up with the editable value. */
+    height: 30px;
+    line-height: 28px;
+    padding-left: 8px;
+}
+
+.shield div.input {
+    display: none;
+}
+
+.shield.active .value {
+    display: none;
+}
+
+.shield.active div.input {
+    display: block;
+}
+
+.shield.saving .save {
+    text-align: left;
+}

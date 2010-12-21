@@ -164,15 +164,23 @@ define(['exports'], function(exports) {
   };
 
   $.fn.showErrors = function(message, errors) {
+
+    if (!errors) {
+      errors = message;
+      message = null;
+    }
+
     var form = this,
         list = $('<ul class="errors">'),
-        title = $('<li class="active title" />')
-          .html(message),
+        title = null,
         timeout;
 
     form.removeErrors();
 
-    title.appendTo(list);
+    if (message)
+      title = $('<li class="active title" />')
+        .html(message)
+        .appendTo(list);
 
     $.each(errors, function(key, val) {
       var entry, input = form.find('[name=' + key + ']');
@@ -188,6 +196,10 @@ define(['exports'], function(exports) {
             .addClass('error');
       }
     });
+
+    if (!title)
+      title = list.children(':eq(0)')
+        .addClass('active');
 
     function focus(entry) {
       if (timeout) {

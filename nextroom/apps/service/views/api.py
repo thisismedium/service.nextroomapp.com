@@ -11,6 +11,8 @@ from django.core.serializers import serialize
 from nextroom.apps.service.decorators import web_auth, api_request, get_user
 from nextroom.apps.service.methods import process
 from nextroom.apps.service.responses import json_response
+from nextroom.apps.service.models import Practice
+
 
 # CONSTANTS
 USER_KEY = 'user'
@@ -23,7 +25,8 @@ USER_KEY = 'user'
 @api_request
 def account(request):
     # Processes & returns account-based requests
-    return json_response(process(request, 'practice'), get_user(request))
+    user = get_user(request)
+    return json_response(process(request, Practice, id=user.practice.pk), user)
 
 @web_auth
 @api_request

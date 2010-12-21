@@ -182,7 +182,6 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
   };
 
   App.prototype.unload = function(kind, edit, next) {
-    console.log('unload app?', edit, this.editor.uri(), this.editor.hasLoaded(edit), kind, this.items.hasLoaded(kind));
     if (!this.editor.hasLoaded(edit))
       this.editor.unload().hide();
     if (!this.items.hasLoaded(kind)) {
@@ -296,7 +295,6 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
   };
 
   InstanceList.prototype.select = function(uri) {
-    console.log('select', uri);
     selectEntry(this.el, uri);
     return this;
   };
@@ -306,7 +304,6 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
     if (this.list)
       this.list.children('.entry')
         .each(function(_, el) {
-          console.log('found value', el, $.data(el, 'value'));
           data.push({ uri: $.data(el, 'value').uri });
         });
     return data;
@@ -850,8 +847,15 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
 
   function Account(selector) {
     this.el = $(selector);
-    this.cancel = new CancelAccount('#cancel-account');
+    this.title = $('#practice-name-title');
+    this.data = {};
+    this.api = Server.createClient();
     this.tips = new Tips('#account-tips');
+    this.cancel = new CancelAccount('#cancel-account');
+    this.forms = {
+      'practice-email': new ShieldForm('#practice-email', { action: 'account/' }),
+      'practice-name': new ShieldForm('#practice-name', { action: 'account/' })
+    };
 
     var self = this;
 
@@ -863,6 +867,31 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
     this.el.find('.show-help').click(function(ev) {
       U.stop(ev);
       self.tips.expand('.account-tips .unit:eq(0)');
+    });
+
+    this.el.bind('submit', function(ev) {
+      var el = U.stop(ev).target,
+          form = self.forms[el.id].saving(),
+          uri = el.action,
+          method = el.method,
+          value = $.extend({}, self.data, form.value());
+
+      self.api[method](uri, value, function(err, data) {
+        if (err) {
+          if (err.status == 400)
+            form.showErrors(data);
+          else {
+            form.reset();
+            fail(err);
+          }
+        }
+        else {
+          self.title.html(data.practice_name);
+          form.update(data, function() {
+            if (!form.isSaving()) form.stopEditing();
+          });
+        }
+      });
     });
   }
 
@@ -879,12 +908,42 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
   };
 
   Account.prototype.load = function(uri) {
+    var self = this;
+
     if (uri == 'account/cancel')
       this.cancel.show();
+
+    this.api.get('account/', function(err, data) {
+      if (err)
+        fail(err);
+      else {
+        $.extend(self.data, data);
+        self.eachForm(function(_, form) {
+          form.load(self.data);
+        });
+      }
+    });
+
+    return this;
   };
 
-  Account.prototype.unload = function() {
+  Account.prototype.wait = function(next) {
+    this.api.stop(next);
+    return this;
+  };
+
+  Account.prototype.unload = function(uri, next) {
     this.cancel.hide();
+    this.eachForm(function(_, form) {
+      form.reset();
+    });
+    next();
+    return this;
+  };
+
+  Account.prototype.eachForm = function(fn) {
+    $.each(this.forms, fn);
+    return this;
   };
 
   function CancelAccount(selector) {
@@ -916,6 +975,111 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
     else
       ui.location('account/cancel');
     return this;
+  };
+
+  function ShieldForm(selector, opt) {
+    opt = opt || {};
+
+    this.el = $(selector).attr({
+      action: opt.action,
+      method: opt.method || 'put'
+    });
+
+    this._input = this.el.find('[name]');
+    this._name = this._input.attr('name');
+    this._save = this.el.find('.save');
+    this._value = this.el.find('.value');
+
+    var self = this;
+    this.el
+      .submit(function(ev) {
+        if (self.isSaving())
+          U.stop(ev);
+      })
+      .find('.edit').click(function(ev) {
+        U.stop(ev);
+        self.toggleEditing();
+      });
+  }
+
+  ShieldForm.prototype.load = function(data) {
+    return this.update(data);
+  };
+
+  ShieldForm.prototype.value = function() {
+    return this.el.formData();
+  };
+
+  ShieldForm.prototype.saving = function() {
+    this.el.removeErrors();
+    this._shieldsUp();
+    return this;
+  };
+
+  ShieldForm.prototype.isSaving = function() {
+    return this.el.is('.saving');
+  };
+
+  ShieldForm.prototype.update = function(data, next) {
+    this.el.formData(data);
+    this._value.text(this._input.val());
+    this._shieldsDown(true, next);
+    return this;
+  };
+
+  ShieldForm.prototype.reset = function() {
+    this._shieldsDown();
+    this._value.text(this._input.val());
+    return this;
+  };
+
+  ShieldForm.prototype.startEditing = function() {
+    this.el.addClass('active');
+    return this;
+  };
+
+  ShieldForm.prototype.stopEditing = function() {
+    this.el.removeClass('active');
+    this._shieldsDown();
+    return this;
+  };
+
+  ShieldForm.prototype.toggleEditing = function() {
+    return (this.el.is('.active')) ? this.stopEditing() : this.startEditing();
+  };
+
+  ShieldForm.prototype.showErrors = function(errors) {
+    this._shieldsDown();
+    this.el.showErrors(errors);
+    return this;
+  };
+
+  ShieldForm.prototype._shieldsUp = function() {
+    var self = this;
+    if (!this.isSaving()) {
+      this.el.addClass('saving');
+      this._save
+        .addClass('blocked')
+        .val('Saving...')
+        .data('width', this._save.outerWidth())
+        .animate({ width: '100%' }, 200)
+        .delay(600); // Stop _shieldsDown() from running immediately.
+    }
+  };
+
+  ShieldForm.prototype._shieldsDown = function(ok, next) {
+    var self = this;
+    if (this.isSaving()) {
+      this._save
+        .val(ok ? 'Saved' : 'Save')
+        .removeClass('blocked')
+        .animate({ width: this._save.data('width') }, 200, function() {
+          self.el.removeClass('saving');
+          self._save.css('width', '');
+          // Similar to .delay(600) in _shieldsUp()
+          next && setTimeout(next, 600);
+        });
+    }
   };
 
   
@@ -979,23 +1143,29 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
         next();
       });
     });
+
   });
 
   ui.load(/^account.*/, function(req, next) {
     main.nav.select('account');
-    main.account.show().load(req.uri);
+    main.account.load(req.uri).show();
     next();
   });
 
   ui.unload(/^account.*/, function(req, loading, next) {
-    var future = loading ? listUriSegments(loading.uri) : [];
+    var future = loading ? listUriSegments(loading.uri) : [],
+        acct = main.account;
 
-    main.account.unload(loading && loading.uri);
-    if ('account' != future[0]) {
-      main.nav.deselect('account');
-      main.account.hide();
-    }
-    next();
+    acct.wait(function() {
+      acct.unload(loading && loading.uri, function() {
+        if ('account' != future[0]) {
+          main.nav.deselect('account');
+          main.account.hide();
+        }
+        next();
+      });
+    });
+
   });
 
   ui.load(/^help/, function(req, next) {

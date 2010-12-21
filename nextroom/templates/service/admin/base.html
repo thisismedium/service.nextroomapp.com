@@ -28,7 +28,7 @@
     {% block body_content %}
     <div class="wrapper">
         <header>
-          <h1>{{user.practice}}</h1>
+          <h1 id="practice-name-title">{{user.practice}}</h1>
           <nav id="main-nav">
             <ul>
             	<li class="nav_application">
@@ -135,38 +135,40 @@
 		<div id="account-editor" class="panel">
 		  <h2 class="account">Account</h2>
 
-		  <div id="account-name" class="block">
+		  <form id="account-name" class="shield block">
 		    <div class="block-title">
 		      <h3>NextRoom App Account Name</h3>
 		      <a href="#" class="show-help action">?</a>
 		    </div>
 		    <div class="block-content">
-		      <div class="text">{{user.practice.app_auth_name}}</div>
+		      <p class="value">{{user.practice.app_auth_name}}</p>
 		    </div>
-		  </div>
+		  </form>
 
-		  <form id="practice-email" class="block">
+		  <form id="practice-email" class="shield block">
 		    <div class="block-title">
 		      <h3>Practice Contact Email</h3>
 		      <a href="#" class="edit action">Edit</a>
 		    </div>
 		    <div class="block-content">
+		      <p class="value"></p>
 		      <div class="input">
-                <span class="input"><input type="text" name="email" value="" /></span>
-                <input type="submit" value="Save" class="save" />
+			<span class="input"><input type="text" name="email" value="" /></span>
+			<input type="submit" value="Save" class="save" />
 		      </div>
 		    </div>
 		  </form>
 
-		  <form id="practice-name" class="block">
+		  <form id="practice-name" class="shield block">
 		    <div class="block-title">
 		      <h3>Practice Name</h3>
 		      <a href="#" class="edit action">Edit</a>
 		    </div>
 		    <div class="block-content">
+		      <p class="value"></p>
 		      <div class="shield input">
-                <span class="input"><input type="text" name="name" value="" /></span>
-                <input type="submit" value="Save" class="save" />
+			<span class="input"><input type="text" name="practice_name" value="" /></span>
+			<input type="submit" value="Save" class="save" />
 		      </div>
 		    </div>
 		  </form>
