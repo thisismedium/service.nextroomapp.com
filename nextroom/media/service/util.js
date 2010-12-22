@@ -144,7 +144,7 @@ define(['exports'], function(exports) {
 
     if (data !== undefined) {
       $.each(data, function(key, val) {
-        var input = form.find('[name=' + key + ']:input');
+        var input = form.find('[name=' + key + ']');
         if (input.is(':checkbox'))
           input.attr('checked', val ? 'checked' : '');
         else
@@ -154,14 +154,14 @@ define(['exports'], function(exports) {
     }
     else {
       data = {};
-      form.find('[name]:input').each(function() {
-        var input = $(this);
+      form.find('[name]').each(function() {
+        var input = $(this), name = input.attr('name');
         if (input.is(':checkbox')) {
           if (input.attr('checked'))
-            data[this.name] = input.val();
+            data[name] = input.val();
         }
         else
-          data[this.name] = input.val();
+          data[name] = input.val();
       });
       return data;
     }
@@ -294,27 +294,35 @@ define(['exports'], function(exports) {
 
   $._views = {};
 
-  $.fn.view = function initView(data) {
-    var registry = $._views;
-
+  $.fn.view = function(data) {
     return this.each(function(_, el) {
-      var ctor, name;
-
-      for (var i = 0, r = roles(el), l = r.length; i < l; i++) {
-        name = r[i];
-        if ((ctor = registry[r[i]])) {
-          ctor.call($(el), data);
-          break;
-        }
-      }
-
-      if (!ctor) {
-        console.error('No view', el, r);
-        throw new Error('No view found, tried [' + r.join(', ') + ']', 'for', el);
-      }
-
+      initView(el, data);
     });
   };
+
+  $.fn.initForm = function(data) {
+    return this
+      .find('[role]').view().end()
+      .formData(data);
+  };
+
+  function initView(el, data) {
+    var registry = $._views, ctor, name;
+
+    for (var i = 0, r = roles(el), l = r.length; i < l; i++) {
+      name = r[i];
+      if ((ctor = registry[r[i]])) {
+        return ctor.call($(el), data);
+      }
+    }
+
+    if (!ctor) {
+      console.error('No view', el, r);
+      throw new Error('No view found, tried [' + r.join(', ') + ']', 'for', el);
+    }
+
+    return undefined;
+  }
 
   function roles(el) {
     var result = words(el.getAttribute('role'));

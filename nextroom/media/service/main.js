@@ -1,4 +1,4 @@
-define(['./util', './router', './server', './mouse'], function(U, Router, Server) {
+define(['./util', './router', './server', './mouse', './ui'], function(U, Router, Server, UI) {
 
   function Main(selector) {
     this.el = $(selector);
@@ -111,7 +111,7 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
 
     this.el.bind('submit', function(ev) {
       var target = U.stop(ev).target,
-          form = $(target.form || form),
+          form = $(target.form || target),
           uri = form.attr('action'),
           method = form.attr('data-method'),
           value = form.formData();
@@ -129,6 +129,7 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
         }
         else {
           self.items.update(uri, value);
+          self.editor.saved(data);
         }
       });
     });
@@ -458,6 +459,10 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
     return this;
   };
 
+  Editor.prototype.saved = function(data) {
+    return this.removeErrors();
+  };
+
   Editor.prototype.removeErrors = function() {
     this.el.find('form').removeErrors();
     return this;
@@ -473,16 +478,17 @@ define(['./util', './router', './server', './mouse'], function(U, Router, Server
   };
 
   $.view('form', function(data) {
-    return this.formData(data);
+    return this.initForm(data);
   });
 
   $.view('user-form', function(data) {
     var website = this.find('.website-fields');
     return this
-      .formData(data)
+      .initForm(data)
       .find('[name=is_site_user]')
         .change(function() {
-          website[this.checked ? 'addClass' : 'removeClass']('active');
+          var checked = $(this).attr('aria-checked') == 'true';
+          website[checked ? 'addClass' : 'removeClass']('active');
         })
         .change()
         .end();

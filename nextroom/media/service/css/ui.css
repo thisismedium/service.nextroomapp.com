@@ -65,3 +65,38 @@ form .errors > .active {
 .shield.saving .save {
     text-align: left;
 }
+
+/*
+## Special Input Widgets ##
+
+These widgets operate by wrapping a real input in a styleable
+element. The opacity of the real input is set to zero to make it
+invisible, but still interactive.  Some javascript glue proxies DOM
+events from the real input into classes and jQuery methods, &c.
+
+*/
+
+[role="checkbox"] {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 1px solid black;
+    background-color: white;
+}
+
+    [role="checkbox"] input {
+    opacity: 0; filter: alpha(opacity=0);
+        display: inline-block;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+[role="checkbox"][aria-checked="true"] {
+    background-color: red;
+}
+
+[role="checkbox"].focus {
+    border-color: orange;
+}
