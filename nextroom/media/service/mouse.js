@@ -26,19 +26,22 @@ define(['exports'], function(exports) {
   };
 
   function draggable(opt) {
-    var item = $(this), body = $('body'), ghost, drops, over, pos;
+    var el = this, item = $(this), body = $('body'), ghost, drops, over, pos;
 
-    item.attr({ unselectable: 'on', draggable: 'on' }).mousedown(down);
+    item
+      .attr({ unselectable: 'on', draggable: 'false' })
+      .bind('dragstart', function() { return false; })
+      .mousedown(down);
 
     function down(ev) {
-      ev.preventDefault();
+      ev.preventDefault(); ev.stopPropagation();
       pos = item.offset();
       var bPos = body.offset();
       pos.left -= bPos.left;
       pos.top -= bPos.top;
       pos.offsetX = ev.pageX - pos.left;
       pos.offsetY = ev.pageY - pos.top;
-      $(window).mousemove(move).mouseup(up);
+      $('html').mousemove(move).mouseup(up);
     }
 
     function move(ev) {
@@ -50,14 +53,14 @@ define(['exports'], function(exports) {
 
     function up(ev) {
       ev.preventDefault();
-      $(window).unbind('mousemove', move).unbind('mouseup', up);
+      $('html').unbind('mousemove', move).unbind('mouseup', up);
       ghost && end();
     }
 
     function start() {
       ghost = makeGhost(item);
       drops = findDrops();
-      trigger(item, 'dragstart');
+      trigger(item, '_dragstart');
       return ghost;
     }
 
@@ -66,19 +69,19 @@ define(['exports'], function(exports) {
 
       if (over && (!target || (over.get(0) != target.get(0)))) {
         opt.over && over.removeClass(opt.over);
-        trigger(item, 'dragleave', data);
+        trigger(item, '_dragleave', data);
         over = null;
       }
 
       if (target && !over) {
         over = target;
         opt.over && over.addClass(opt.over);
-        trigger(item, 'dragenter', data);
+        trigger(item, '_dragenter', data);
       }
     }
 
     function end() {
-      trigger(item, 'dragend', { relatedTarget: over && over[0] });
+      trigger(item, '_dragend', { relatedTarget: over && over[0] });
       drop();
       ghost = drops = over = null;
     }
@@ -133,10 +136,10 @@ define(['exports'], function(exports) {
     selector = selector || '> *';
 
     return this.draggable(selector)
-      .bind('dragstart', start)
-      .bind('dragenter', enter)
-      .bind('dragleave', leave)
-      .bind('dragend', end);
+      .bind('_dragstart', start)
+      .bind('_dragenter', enter)
+      .bind('_dragleave', leave)
+      .bind('_dragend', end);
 
     function start(ev) {
       items = $(selector, context);
@@ -276,7 +279,7 @@ define(['exports'], function(exports) {
   };
 
   $.eachStyle = function(el, names, fn) {
-    var name, styles = computeStyle(el);
+    var name, val, styles = computeStyle(el);
 
     if (fn === undefined) {
       fn = names;
@@ -286,11 +289,21 @@ define(['exports'], function(exports) {
       names = styles;
 
     if (styles) {
-      for (var i = 0, l = names.length; i < l; i++) {
-        name = $.camelCase(names[i]);
-        name = $.cssProps[name] || name;
-        fn(name, $.css(el, name));
-      }
+      if (names.length !== undefined)
+        // W3C
+        for (var i = 0, l = names.length; i < l; i++) {
+          name = $.camelCase(names[i]);
+          name = $.cssProps[name] || name;
+          fn(name, $.css(el, name));
+        }
+      else
+        // IE
+        for (name in styles) {
+          // $.css() chokes on "borderWidth: 0px 0px 1px" for some reason.
+          try      { val = $.css(el, name); }
+          catch(_) { val = styles[name]; }
+          fn(name, val);
+        }
     }
 
     return el;
