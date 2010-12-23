@@ -271,7 +271,14 @@
               </li>
               <li class="field">
                 <label>Choose Color</label>
-                <input type="text" name="color" />
+		<span role="color" name="color">
+		  <datalist>
+		    <option value="#ff0000"></option>
+		    <option value="#00ff00"></option>
+		    <option value="#0000ff"></option>
+		    <option value="#666666"></option>
+		  </datalist>
+		</span>
               </li>
               <li class="field checkbox-field">
                 <label for="is-site-user">Web Access</label>

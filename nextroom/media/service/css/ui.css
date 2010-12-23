@@ -85,7 +85,7 @@ events from the real input into classes and jQuery methods, &c.
 }
 
     [role="checkbox"] input {
-    opacity: 0; filter: alpha(opacity=0);
+        opacity: 0; filter: alpha(opacity=0);
         display: inline-block;
         margin: 0;
         padding: 0;
@@ -98,5 +98,80 @@ events from the real input into classes and jQuery methods, &c.
 }
 
 [role="checkbox"].focus {
+    border-color: orange;
+}
+
+[role="color"] {
+    position: relative;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+}
+
+    [role="color"] input {
+        position: absolute; top: 0; left: 0; z-index: 2;
+        opacity: 0; filter: alpha(opacity=0);
+	display: inline-block;
+	margin: 0;
+	padding: 0;
+	border: none;
+	width: 100%;
+	height: 100%;
+	cursor: default;
+    }
+
+[role="color"] .value {
+    position: absolute; top: 0; left: 0; z-index: 1;
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+    border: 1px solid #666;
+    background-color: white;
+}
+
+[role="color"].hover .value {
+    border-color: black;
+}
+
+[role="color"].focus .value {
+    border-color: orange;
+}
+
+.modal.color-palette {
+    position: static;
+}
+
+.modal.color-palette .modal-overlay {
+    position: fixed;
+    background: none;
+    z-index: 10000;
+    opacity: 1;
+}
+
+.color-palette .modal-body {
+    position: absolute;
+    margin: 0;
+    width: 60px;
+    z-index: 10001;
+}
+
+.color-palette .modal-body > .modal-close {
+    display: none;
+}
+
+.color-palette .modal-content {
+    padding: 5px 0 0 5px;
+    background-color: white;
+}
+
+.color-palette .option {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin: 0 5px 5px 0;
+    border: 1px solid black;
+}
+
+.color-palette .option.active {
     border-color: orange;
 }

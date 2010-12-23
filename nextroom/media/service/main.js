@@ -651,11 +651,10 @@ define(['./util', './router', './server', './mouse', './ui'], function(U, Router
 
   Modal.prototype.open = function() {
     var self = this,
-        $win = $('html'),
         mh = this._body.outerHeight(),
-        wh = $win.height();
+        wh = $(window).height();
 
-    $win.bind('keyup', this.__keyup);
+    $('html').bind('keyup', this.__keyup);
 
     if (wh > mh)
       this._body.css('top', (wh - mh) / 2);
