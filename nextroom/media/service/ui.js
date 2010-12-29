@@ -59,6 +59,235 @@ define(['exports', './util'], function(exports, U) {
   };
 
   
+  // ## Select ##
+
+  $.view('select', function(data) {
+    this.data('input') || (new Select(this)).update(data);
+  });
+
+  function Select(el) {
+    var self = this;
+
+    el = this.el = $(el).data('input', this);
+
+    this._input = $('<input type="text" class="proxy" />')
+      .attr({ 'aria-hidden': 'true' })
+      .focus(function(e)  { return self.onFocus(e); })
+      .blur(function(e)   { return self.onBlur(e); })
+      .change(function(e) { return self.onChange(e); })
+      .keydown(function(e) { return self.onKeydown(e); })
+      .click(function(e) { return self.onClick(e); })
+      .mouseenter(function(e) { return self.onEnter(e); })
+      .mouseleave(function(e) { return self.onLeave(e); })
+      .appendTo(el);
+
+    this._value = $('<span class="value" />')
+      .appendTo(el);
+
+    this._list = el.children('datalist');
+  }
+
+  Select.prototype.value = function() {
+    return this._input.val();
+  };
+
+  Select.prototype.isOpen = function() {
+    return this.el.is('.active');
+  };
+
+  Select.prototype.isValid = function(value) {
+    return this._list.children('[value=' + value + ']').length > 0;
+  };
+
+  Select.prototype.valueOf = function(index) {
+    return this._list.children(':eq(' + index + ')').attr('value');
+  };
+
+  Select.prototype.update = function(data) {
+    this._input.val(this.isValid(data) ? data : this.valueOf(0));
+    this.onChange();
+    return this;
+  };
+
+  Select.prototype.toggleOptions = function() {
+    return (this.isOpen()) ? this.hideOptions() : this.showOptions();
+  };
+
+  Select.prototype.showOptions = function() {
+    if (!this.isOpen())
+      this._getOptions().open();
+    return this;
+  };
+
+  Select.prototype.hideOptions = function() {
+    if (this.isOpen())
+      this._getOptions().close();
+    return this;
+  };
+
+  Select.prototype.selectUp = function() {
+    return this._scan('prev');
+  };
+
+  Select.prototype.selectRight = function() {
+    return this._scan('next');
+  };
+
+  Select.prototype.selectDown = function() {
+    return this._scan('next');
+  };
+
+  Select.prototype.selectLeft = function() {
+    return this._scan('prev');
+  };
+
+  Select.prototype._scan = function(dir) {
+    var options = this._getOptions(),
+        choice = options.selected();
+
+    if ((choice = choice[dir]()).length > 0)
+      options[this.isOpen() ? 'select' : 'choose' ](choice.attr('value'));
+
+    return this;
+  };
+
+  Select.prototype.onFocus = function(ev) {
+    this.el.addClass('focus');
+  };
+
+  Select.prototype.onBlur = function(ev) {
+    this.el.removeClass('focus');
+  };
+
+  Select.prototype.onChange = function(ev) {
+    this._draw();
+  };
+
+  Select.prototype.onClick = function(ev) {
+    this.toggleOptions();
+  };
+
+  Select.prototype.onKeydown = function(ev) {
+    switch (ev.keyCode) {
+    case 32: // Space
+      this.showOptions();
+      break;
+
+    case 37: // Left
+      this.selectLeft();
+      break;
+
+    case 38: // Up
+      this.selectUp();
+      break;
+
+    case 39: // Right
+      this.selectRight();
+      break;
+
+    case 40: // Down
+      this.selectDown();
+      break;
+    };
+  };
+
+  Select.prototype.onEnter = function(ev) {
+    this.el.addClass('hover');
+  };
+
+  Select.prototype.onLeave = function(ev) {
+    this.el.removeClass('hover');
+  };
+
+  Select.prototype._draw = function(ev) {
+    this._value.html(this._list.find('[value=' + this._input.val() + ']').html());
+  };
+
+  Select.prototype._getOptions = function() {
+    if (!this._options) {
+      var self = this;
+      this._options = this._buildOptions(this._list.children(), this.value())
+        .appendTo('body')
+        .position('left top', this._value)
+        .on('clickout', function() {
+          this.close();
+          return false;
+        })
+        .on('open', function() {
+          self.el.addClass('active');
+          this.select(self.value());
+        })
+        .on('close', function() {
+          self.el.removeClass('active');
+          self._input.focus();
+        });
+    }
+    return this._options;
+  };
+
+  Select.prototype._buildOptions = function(options, value) {
+    var modal = new Modal().addClass('select-options');
+
+    options.each(function() {
+      var selected = (value == this.value) ? 'true' : 'false',
+          option = $('<span class="option" />')
+            .attr({
+                value: this.value,
+                'aria-selected': selected
+            })
+            .html(this.innerHTML)
+            .appendTo(modal);
+    });
+
+    var self = this,
+        choices = modal.find('.option')
+          .bind('mouseenter.select', function() {
+            select($(this));
+          })
+          .bind('click.select', function() {
+            choose($(this));
+            modal.close();
+          });
+
+    function select(el) {
+      modal.selected().removeClass('active');
+      el.addClass('active');
+      return el;
+    }
+
+    function choose(el) {
+      self.update(select(el).attr('value'));
+    }
+
+    function find(value) {
+      return choices.filter('[value=' + value + ']');
+    }
+
+    modal.selected = function() {
+      return choices.filter('.active');
+    };
+
+    modal.select = function(value) {
+      select(find(value));
+      return this;
+    };
+
+    modal.choose = function(value) {
+      choose(find(value));
+      return this;
+    };
+
+    modal.keyboard({
+      13: function() {  // Return
+        modal.selected().click();
+        return false;
+      }
+    });
+
+    return modal.select(value);
+  };
+
+  
   // ## Color Picker ##
 
   $.view('color', function(data) {

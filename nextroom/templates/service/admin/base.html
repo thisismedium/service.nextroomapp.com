@@ -259,12 +259,14 @@
                 <span class="input"><input type="text" name="name" placeholder="Name" /></span>
               </li>
               <li class="field">
-                <select name="type">
-                  <option value="">Choose...</option>
-                  {% for val, key in add_types %}
+		<span role="select" name="type">
+		  <datalist>
+                    <option value="">Choose...</option>
+                    {% for val, key in add_types %}
                     <option value="{{val}}">{{key}}</option>
-                  {% endfor %}
-                </select>
+                    {% endfor %}
+		  </datalist>
+		</span>
               </li>
               <li class="field">
                 <span class="input"><input type="text" name="pin" placeholder="PIN # (4-digit)" /></span>
@@ -306,8 +308,15 @@
                 <input type="text" name="name" disabled="disabled" />
               </li>
               <li class="field">
-                <a>Choose Color</a>
-                <input type="text" name="color" />
+                <label>Choose Color</label>
+		<span role="color" name="color">
+		  <datalist>
+		    <option value="#ff0000"></option>
+		    <option value="#00ff00"></option>
+		    <option value="#0000ff"></option>
+		    <option value="#666666"></option>
+		  </datalist>
+		</span>
               </li>
             </ul>
             <div class="buttons">
