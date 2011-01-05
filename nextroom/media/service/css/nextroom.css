@@ -34,6 +34,9 @@ h2 { font-size: 18px; }
 h3 { font-size: 12px; }
 
 a { color: #797979; }
+a:hover {
+    color: #17baab;
+}
 
 [unselectable=on] { -moz-user-select: none; -khtml-user-select: none; user-select: none; }
 
@@ -52,12 +55,20 @@ input[type=button] {
     cursor: pointer;
     position: relative;
 }
-input[type=submit]:hover, input[type=submit].blocked {
+input[type=submit]:hover,
+input[type=button]:hover,
+input[type=submit].blocked {
     background: #bfbfbf url(images/submit_button_bg_hover.png) 0 0 repeat-x;
     -moz-box-shadow: 0px 0px 0px #888;
     -webkit-box-shadow: 0px 0px 0px #888;
     box-shadow: 0px 0px 0px #888;
     border-color: #a2a2a2;
+}
+div.modal.confirm-cancel input[type=button]:hover, 
+div.modal.confirm-delete input[type=button]:hover {
+    background: #cc124f url(images/submit_button_red_bg_hover.png) 0 0 repeat-x;
+    text-shadow: 1px 1px 1px #a41243;
+    border-color: #ff568f;
 }
 input[type=submit]:active {
     top: -1px;
@@ -69,7 +80,8 @@ input[disabled=disabled] {
 
 }
 
-input.cancel {
+input.cancel, 
+input[type=button].cancel:hover {
     background: none;
     border: 0;
     color: #595959;
@@ -80,6 +92,25 @@ input.cancel {
     -webkit-box-shadow: 0px 0px 0px #888;
     box-shadow: 0px 0px 0px #888;
     border-radius: 0;
+}
+input[type=button].cancel:hover {
+    color: #17baab;
+}
+div.modal.confirm-cancel input.cancel, 
+div.modal.confirm-delete input.cancel {
+	float: left;
+	position: relative;
+	padding: 0;
+	text-indent: 0;
+	width: auto;
+	margin:0 0 0 30px;
+	line-height: 20px;
+	top: 0;
+}
+div.modal.confirm-cancel input.cancel:hover, 
+div.modal.confirm-delete input.cancel:hover {
+	background: none;
+    text-shadow: 0px 0px 0px #666;
 }
 
 form span.input {
@@ -142,9 +173,6 @@ form span.input {
     width: 310px;
     text-align: right;
 }
-#login_box a {
-    color: #17baab;
-}
 #login_box #forgot_password a {
     font-size: 12px;
     font-family: helvetica, arial, sans-serif;
@@ -173,6 +201,9 @@ form span.input input {
     border-bottom: 0;
     border-radius: 3px;
     width: 138px;
+}
+form li.error span.input input {
+	border: 1px solid #fb9fa0;
 }
 
 .panel form span.input {
@@ -364,6 +395,9 @@ footer img {
     list-style-type: none;
     margin-bottom: 0.6em;
 }
+.checkbox-field {
+	margin-top: 10px;
+}
 
 form h3,
 .field label {
@@ -374,18 +408,26 @@ form h3,
     font-family: helvetica, arial, sans-serif;
     text-transform: uppercase;
 }
+.field label {
+    font-size: 11px;
+    width: 100px;
+    display: inline-block;
+}
 form h3 {
     margin: 0 0 10px;
 }
 
 .checkbox-field label {
-    display: inline;
 }
 
 .buttons {
     margin-top: 0.4em;
     text-align: right;
 }
+div.modal.confirm-cancel .buttons, 
+div.modal.confirm-delete .buttons {
+	margin-top: 2.4em;
+} 
 
 
 /* ## App ## */
@@ -401,6 +443,7 @@ form h3 {
     padding-bottom: 1px;
     margin-right: 20px;
     width: 220px;
+    width: 219px;
 }
 #app #app-editor {
     width: 221px;
@@ -552,6 +595,10 @@ form h3 {
     font-size: 12px;
     font-family: helvetica, arial, sans-serif;
 }
+#app .sortable .entry.selected {
+	background-color: #f6f6f6;
+    color: #17baab;
+} 
 
 #app .sortable .entry:last-child {
     border-bottom: 1px solid #fff;
@@ -701,6 +748,8 @@ the shield slides back into a button shape.
 
 #account .block-title {
     position: relative;
+    border-bottom: 1px solid #d4d4d4;
+    padding-bottom: 5px;
 }
 
 #account .block-title h3 {
@@ -714,8 +763,21 @@ the shield slides back into a button shape.
     text-transform: none;
     border-right: 1px dashed #666;
 }
+#account #cancel-account .block-title {
+	border-bottom: 0;
+}
+#account #cancel-account.active .block-title {
+    border-bottom: 1px solid #d4d4d4;
+	padding-bottom: 10px;
+}
 #account #cancel-account .block-title h3 {
     border-right:0;
+}
+#account #cancel-account.active .block-title h3 { 
+    color: #17baab;
+}
+#account #cancel-account.active .block-title a.cancel {
+    background-position: 100% -28px;
 }
 
 #account .show-help {
@@ -736,6 +798,9 @@ the shield slides back into a button shape.
 }
 #account .edit:hover {
     background-position: 0 -21px;
+}
+#account .active .edit{
+	background-position: 0 -42px;
 }
 
 #account .cancel.action {
@@ -780,6 +845,9 @@ the shield slides back into a button shape.
     -webkit-box-shadow: 0px 0px 0px #888;
     box-shadow: 0px 0px 0px #888;
 }
+#account div.input input[type="submit"]:active {
+	background: #d0d0d0 url(images/account_save_active.png) 0 0 repeat-x;
+}
 
 #cancel-account .block-content {
     display: none;
@@ -787,6 +855,7 @@ the shield slides back into a button shape.
 
 #cancel-account.active .block-content {
     display: block;
+    color: #666;
 }
 
 #cancel-account .block-title .action {
@@ -800,6 +869,8 @@ the shield slides back into a button shape.
 #cancel-account .proceed label {
     display: inline-block;
     width: 50%;
+    font-weight: bold;
+    font-family: helvetica, arial, sans-serif;
 }
 
 #cancel-account .buttons {
@@ -873,6 +944,7 @@ the shield slides back into a button shape.
 
 body.help div[role='main'] {
     opacity: 0.3;
+    filter: alpha(opacity=0.3);
 }
 
 
@@ -995,8 +1067,8 @@ button and content. A modal is invisible unless it's active.
     display: block;
     width: 100%;
     height: 100%;
-    background-color: white;
-    opacity: 0.45;
+    background-color: #dcdcdc;
+    opacity: 0.65;
 }
 
 .modal-body {
@@ -1147,4 +1219,334 @@ in the current toolbar. Each tip is a slide. A larger figure is shown.
 
 .expanded-tips .unit .large {
     display: block;
+}
+
+
+
+/*
+## Delete/Cancel Item ##
+
+*/
+
+.confirm-cancel .modal-body, 
+.confirm-delete .modal-body {
+    width: 230px;
+}
+
+.confirm-cancel .modal-content, 
+.confirm-delete .modal-content {
+    background: #c6c6c6 url(images/delete_confirm_dialog_bg.png) 0 0 repeat-x;
+    border: 1px solid #fff;
+    border-radius: 5px;
+    -moz-box-shadow: 0px 0px 8px #666;
+    -webkit-box-shadow: 0px 0px 8px #666;
+    box-shadow: 0px 0px 8px #666;
+    padding: 10px;
+    font-family: helvetica, arial, sans-serif;
+    font-weight: bold;
+    color: #666;
+}
+.confirm-cancel .modal-content p, 
+.confirm-delete .modal-content p {
+	padding: 10px 10px 10px 40px;
+	background: #f2f2f2 url(images/delete_confirm_warning_icon.png) 10px 50% no-repeat;
+	border: 1px solid #fff;
+	border-radius: 5px;
+}
+/*
+## Form Errors ##
+
+Forms are structured as field lists. Each `li.field` has a `.input`
+child element.
+
+When a field is in an error state, the `li` gets an "error" class. All
+errors go into a ".error" element that's appended to the form.
+
+*/
+
+form {
+    position: relative;
+}
+
+form .error input {
+	border: 1px solid #fb9fa0;
+}
+
+form .errors {
+    display: block;
+    color:#f5616a; /* pink */
+}
+
+form .errors > * {
+    display: none;
+}
+
+form .errors > .active {
+    display: block;
+}
+
+#app-editor form.panel .errors {
+    position: absolute;
+    bottom: 5px;
+    left: 0;
+    padding: 10px;
+    font-size: 10px;
+    line-height: 11px;
+}
+
+/*
+## Shield Form ##
+*/
+
+.shield .value {
+    /* Line the text up with the editable value. */
+    height: 30px;
+    line-height: 28px;
+    padding-left: 8px;
+    color: #888;
+}
+
+.shield div.input {
+    display: none;
+}
+
+.shield.active .value {
+    display: none;
+}
+
+.shield.active div.input {
+    display: block;
+}
+
+.shield.saving .save {
+    text-align: left;
+}
+
+/*
+## Special Input Widgets ##
+
+These widgets operate by wrapping a real input in a styleable
+element. The opacity of the real input is set to zero to make it
+invisible, but still interactive.  Some javascript glue proxies DOM
+events from the real input into classes and jQuery methods, &c.
+
+*/
+
+/* ### Checkbox ### */
+
+[role="checkbox"] {
+    display: inline-block;
+    width: 23px;
+    height: 22px;
+    line-height: 22px;
+    background: url(images/checkbox_states.png) 0 0 no-repeat;
+    cursor: pointer;
+    margin-left: 3px;
+}
+
+    [role="checkbox"] input {
+        opacity: 0; filter: alpha(opacity=0);
+        display: inline-block;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+[role="checkbox"][aria-checked="true"] {
+    background-position: 0 -22px;
+}
+
+[role="checkbox"].focus {
+    background-position: 0 -22px;
+}
+
+/* ### Select ### */
+
+[role="select"] {
+    position: relative;
+    display: inline-block;
+    width: 191px;
+    height: 27px;
+}
+
+[role="select"] input {
+    position: absolute; top: 0; left: 0; z-index: 2;
+    opacity: 0; filter: alpha(opacity=0);
+	display: inline-block;
+	margin: 0;
+	padding: 0;
+	border: none;
+	width: 100%;
+	height: 100%;
+	cursor: default;
+    }
+
+[role="select"] .value {
+    position: absolute; top: 0; left: 0; z-index: 1;
+    display: inline-block;
+    width: 173px;
+    height: 17px;
+    padding: 5px 10px;
+    line-height: 17px;
+    overflow: hidden;
+    background: url(images/select_box_bg.png) 0 0 no-repeat;
+    font-family: helvetica, arial, sans-serif;
+    font-weight: bold;
+    font-size: 12px;
+    color: #666;
+}
+li.error [role="select"] .value {
+	border: 1px solid #fb9fa0;
+	border-radius: 5px;
+}
+
+[role="select"].hover .value {
+    border-color: black;
+}
+
+[role="select"].focus .value {
+    border-color: orange;
+}
+
+.modal.select-options {
+    position: static;
+}
+
+.modal.select-options .modal-overlay {
+    position: fixed;
+    background: none;
+    z-index: 10000;
+    opacity: 1;
+}
+
+.select-options .modal-body {
+    position: absolute;
+    margin: 0;
+    width: auto;
+    z-index: 10001;
+}
+
+.select-options .modal-body > .modal-close {
+    display: none;
+}
+
+.select-options .modal-content {
+    background-color: #e7e7e7;
+    border: 1px solid #bcbcbc;
+    border-radius: 3px;
+    -moz-box-shadow: 3px 1px 3px #666;
+    -webkit-box-shadow: 1px 3px 3px #666;
+    box-shadow: 3px 1px 3px #666;
+    font-family: helvetica, arial, sans-serif;
+    width: 193px;
+    font-weight: bold;
+    color: #666;
+}
+
+.select-options .option {
+    display: block;
+    width: auto;
+    min-width: 182px;
+    height: 17px;
+    line-height: 17px;
+    padding: 5px;
+    border-top: 1px solid #e7e7e7;
+    border-bottom: 1px solid #e7e7e7;
+    cursor: pointer;
+}
+
+.select-options .option.active {
+    background-color: #f6f6f6;
+    border-top: 1px solid #bcbcbc;
+    border-bottom: 1px solid #bcbcbc;
+    color: #32a89f;
+}
+
+/* ### Color Picker ### */
+
+[role="color"] {
+    position: relative;
+    display: inline-block;
+    width: 19px;
+    height: 23px;
+    background: url(images/color_pick_bg.png) 0 0 no-repeat;
+    padding: 5px;
+    margin-bottom: -13px;
+}
+
+[role="color"] input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    opacity: 0;
+    filter: alpha(opacity=0);
+	display: inline-block;
+	margin: 0;
+	padding: 0;
+	border: none;
+	width: 100%;
+	height: 100%;
+	cursor: default;
+    }
+
+[role="color"] .value {
+    position: absolute; top: 5px; left: 5px; z-index: 1;
+    display: inline-block;
+    width: 19px;
+    height: 18px;
+    background-color: white;
+}
+
+[role="color"].hover, 
+[role="color"].active {
+	background-position: 0 -33px;
+}
+
+[role="color"].focus .value {
+}
+
+.modal.color-palette {
+    position: static;
+}
+
+.modal.color-palette .modal-overlay {
+    position: fixed;
+    background: none;
+    z-index: 10000;
+    opacity: 1;
+}
+
+.color-palette .modal-body {
+    position: absolute;
+    margin: 0;
+    margin-top: 10px;
+    width: 140px;
+    z-index: 10001;
+    border: 1px solid #fff;
+    border-radius: 3px;
+    -moz-box-shadow: 0px 0px 5px #888;
+    -webkit-box-shadow: 0px 0px 5px #888;
+    box-shadow: 0px 0px 5px #888;
+}
+
+.color-palette .modal-body > .modal-close {
+    display: none;
+}
+
+.color-palette .modal-content {
+    padding: 5px 0 0 5px;
+    background: #ececec;
+}
+
+.color-palette .option {
+    display: inline-block;
+    width: 19px;
+    line-height: 19px;
+    height: 19px;
+    margin: 0 3px 1px 0;
+}
+
+.color-palette .option.active {
 }
