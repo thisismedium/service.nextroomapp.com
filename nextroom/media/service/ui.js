@@ -312,7 +312,7 @@ define(['exports', './util'], function(exports, U) {
       .mouseleave(function(e) { return self.onLeave(e); })
       .appendTo(el);
 
-    this._value = $('<span class="value" />')
+    this._value = $('<a class="value"><span class="gradient" /></a>')
       .appendTo(el);
 
     this._list = el.children('.datalist');
@@ -471,12 +471,13 @@ define(['exports', './util'], function(exports, U) {
 
     options.each(function() {
       var selected = (value == this.getAttribute('value')) ? 'true' : 'false',
-          option = $('<span class="option" />')
+          option = $('<a class="option" />')
             .css({ backgroundColor: this.getAttribute('value') })
             .attr({
                 value: this.getAttribute('value'),
                 'aria-selected': selected
             })
+            .append('<span class="gradient" />')
             .appendTo(modal);
     });
 
