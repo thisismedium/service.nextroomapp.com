@@ -33,7 +33,7 @@ h1 { font-size: 22px; }
 h2 { font-size: 18px; }
 h3 { font-size: 12px; }
 
-a { color: #797979; }
+a { color: #797979; outline: none; }
 a:hover {
     color: #17baab;
 }
@@ -269,7 +269,7 @@ form li.error span.input input {
 
 /* ## classes ## */
 .wrapper {
-    width: 960px;
+    width: 962px;
     margin: 0 auto;
     position: relative;
 }
@@ -443,7 +443,6 @@ div.modal.confirm-delete .buttons {
     padding-bottom: 1px;
     margin-right: 20px;
     width: 220px;
-    width: 219px;
 }
 #app #app-editor {
     width: 221px;
@@ -944,7 +943,7 @@ the shield slides back into a button shape.
 
 body.help div[role='main'] {
     opacity: 0.3;
-    filter: alpha(opacity=0.3);
+    filter: alpha(opacity=3);
 }
 
 
@@ -1069,6 +1068,7 @@ button and content. A modal is invisible unless it's active.
     height: 100%;
     background-color: #dcdcdc;
     opacity: 0.65;
+    filter: alpha(opacity=65);
 }
 
 .modal-body {
