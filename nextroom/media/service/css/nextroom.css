@@ -64,7 +64,7 @@ input[type=submit].blocked {
     box-shadow: 0px 0px 0px #888;
     border-color: #a2a2a2;
 }
-div.modal.confirm-cancel input[type=button]:hover, 
+div.modal.confirm-cancel input[type=button]:hover,
 div.modal.confirm-delete input[type=button]:hover {
     background: #cc124f url(images/submit_button_red_bg_hover.png) 0 0 repeat-x;
     text-shadow: 1px 1px 1px #a41243;
@@ -80,7 +80,7 @@ input[disabled=disabled] {
 
 }
 
-input.cancel, 
+input.cancel,
 input[type=button].cancel:hover {
     background: none;
     border: 0;
@@ -96,7 +96,7 @@ input[type=button].cancel:hover {
 input[type=button].cancel:hover {
     color: #17baab;
 }
-div.modal.confirm-cancel input.cancel, 
+div.modal.confirm-cancel input.cancel,
 div.modal.confirm-delete input.cancel {
 	float: left;
 	position: relative;
@@ -107,7 +107,7 @@ div.modal.confirm-delete input.cancel {
 	line-height: 20px;
 	top: 0;
 }
-div.modal.confirm-cancel input.cancel:hover, 
+div.modal.confirm-cancel input.cancel:hover,
 div.modal.confirm-delete input.cancel:hover {
 	background: none;
     text-shadow: 0px 0px 0px #666;
@@ -424,10 +424,10 @@ form h3 {
     margin-top: 0.4em;
     text-align: right;
 }
-div.modal.confirm-cancel .buttons, 
+div.modal.confirm-cancel .buttons,
 div.modal.confirm-delete .buttons {
 	margin-top: 2.4em;
-} 
+}
 
 
 /* ## App ## */
@@ -598,7 +598,7 @@ div.modal.confirm-delete .buttons {
 #app .sortable .entry.selected {
 	background-color: #f6f6f6;
     color: #17baab;
-} 
+}
 
 #app .sortable .entry:last-child {
     border-bottom: 1px solid #fff;
@@ -773,7 +773,7 @@ the shield slides back into a button shape.
 #account #cancel-account .block-title h3 {
     border-right:0;
 }
-#account #cancel-account.active .block-title h3 { 
+#account #cancel-account.active .block-title h3 {
     color: #17baab;
 }
 #account #cancel-account.active .block-title a.cancel {
@@ -1228,12 +1228,12 @@ in the current toolbar. Each tip is a slide. A larger figure is shown.
 
 */
 
-.confirm-cancel .modal-body, 
+.confirm-cancel .modal-body,
 .confirm-delete .modal-body {
     width: 230px;
 }
 
-.confirm-cancel .modal-content, 
+.confirm-cancel .modal-content,
 .confirm-delete .modal-content {
     background: #c6c6c6 url(images/delete_confirm_dialog_bg.png) 0 0 repeat-x;
     border: 1px solid #fff;
@@ -1246,7 +1246,7 @@ in the current toolbar. Each tip is a slide. A larger figure is shown.
     font-weight: bold;
     color: #666;
 }
-.confirm-cancel .modal-content p, 
+.confirm-cancel .modal-content p,
 .confirm-delete .modal-content p {
 	padding: 10px 10px 10px 40px;
 	background: #f2f2f2 url(images/delete_confirm_warning_icon.png) 10px 50% no-repeat;
@@ -1330,6 +1330,13 @@ element. The opacity of the real input is set to zero to make it
 invisible, but still interactive.  Some javascript glue proxies DOM
 events from the real input into classes and jQuery methods, &c.
 
+### Note about `height: 0\9' hack ###
+
+IE shows a caret even though the text input is transparent. Make it
+height 0 only for IE since other browsers will consider the input
+"disabled" with a height of 0. The "\9" hack targets any version of IE
+in standards mode.
+
 */
 
 /* ### Checkbox ### */
@@ -1358,7 +1365,7 @@ events from the real input into classes and jQuery methods, &c.
 }
 
 [role="checkbox"].focus {
-    background-position: 0 -22px;
+    /*background-position: 0 -22px;*/
 }
 
 /* ### Select ### */
@@ -1368,6 +1375,10 @@ events from the real input into classes and jQuery methods, &c.
     display: inline-block;
     width: 191px;
     height: 27px;
+}
+
+.datalist {
+    display: none;
 }
 
 [role="select"] input {
@@ -1380,6 +1391,7 @@ events from the real input into classes and jQuery methods, &c.
 	width: 100%;
 	height: 100%;
 	cursor: default;
+	height: 0\9;
     }
 
 [role="select"] .value {
@@ -1489,6 +1501,7 @@ li.error [role="select"] .value {
 	width: 100%;
 	height: 100%;
 	cursor: default;
+	height: 0\9;
     }
 
 [role="color"] .value {
@@ -1499,7 +1512,7 @@ li.error [role="select"] .value {
     background-color: white;
 }
 
-[role="color"].hover, 
+[role="color"].hover,
 [role="color"].active {
 	background-position: 0 -33px;
 }

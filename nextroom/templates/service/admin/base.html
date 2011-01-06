@@ -318,12 +318,12 @@
               </li>
               <li class="field">
 		<span role="select" name="type">
-		  <datalist>
-                    <option value="">Choose...</option>
+		  <span class="datalist">
+                    <span class="option" value="">Choose...</span>
                     {% for val, key in add_types %}
-                    <option value="{{val}}">{{key}}</option>
+                    <span value="{{val}}">{{key}}</span>
                     {% endfor %}
-		  </datalist>
+		  </span>
 		</span>
               </li>
               <li class="field">
@@ -332,20 +332,20 @@
               <li class="field">
                 <label>Choose Color</label>
 		<span role="color" name="color">
-		  <datalist>
-		    <option value="#ff0000"></option>
-		    <option value="#00ff00"></option>
-		    <option value="#0000ff"></option>
-		    <option value="#666666"></option>
-		    <option value="#ff0000"></option>
-		    <option value="#00ff00"></option>
-		    <option value="#0000ff"></option>
-		    <option value="#666666"></option>
-		    <option value="#ff0000"></option>
-		    <option value="#00ff00"></option>
-		    <option value="#0000ff"></option>
-		    <option value="#666666"></option>
-		  </datalist>
+		  <span class="datalist">
+		    <span class="option" value="#ff0000"></span>
+		    <span class="option" value="#00ff00"></span>
+		    <span class="option" value="#0000ff"></span>
+		    <span class="option" value="#666666"></span>
+		    <span class="option" value="#ff0000"></span>
+		    <span class="option" value="#00ff00"></span>
+		    <span class="option" value="#0000ff"></span>
+		    <span class="option" value="#666666"></span>
+		    <span class="option" value="#ff0000"></span>
+		    <span class="option" value="#00ff00"></span>
+		    <span class="option" value="#0000ff"></span>
+		    <span class="option" value="#666666"></span>
+		  </span>
 		</span>
               </li>
               <li class="field checkbox-field">

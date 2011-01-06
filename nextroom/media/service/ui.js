@@ -68,7 +68,9 @@ define(['exports', './util'], function(exports, U) {
   function Select(el) {
     var self = this;
 
-    el = this.el = $(el).data('input', this);
+    el = this.el = $(el)
+      .data('input', this)
+      .click(function(e) { return self.onClick(e); });
 
     this._input = $('<input type="text" class="proxy" />')
       .attr({ 'aria-hidden': 'true' })
@@ -76,7 +78,6 @@ define(['exports', './util'], function(exports, U) {
       .blur(function(e)   { return self.onBlur(e); })
       .change(function(e) { return self.onChange(e); })
       .keydown(function(e) { return self.onKeydown(e); })
-      .click(function(e) { return self.onClick(e); })
       .mouseenter(function(e) { return self.onEnter(e); })
       .mouseleave(function(e) { return self.onLeave(e); })
       .appendTo(el);
@@ -84,7 +85,7 @@ define(['exports', './util'], function(exports, U) {
     this._value = $('<span class="value" />')
       .appendTo(el);
 
-    this._list = el.children('datalist');
+    this._list = el.children('.datalist');
   }
 
   Select.prototype.value = function() {
@@ -229,10 +230,10 @@ define(['exports', './util'], function(exports, U) {
     var modal = new Modal().addClass('select-options');
 
     options.each(function() {
-      var selected = (value == this.value) ? 'true' : 'false',
+      var selected = (value == this.getAttribute('value')) ? 'true' : 'false',
           option = $('<span class="option" />')
             .attr({
-                value: this.value,
+                value: this.getAttribute('value'),
                 'aria-selected': selected
             })
             .html(this.innerHTML)
@@ -297,7 +298,9 @@ define(['exports', './util'], function(exports, U) {
   function ColorPicker(el) {
     var self = this;
 
-    el = this.el = $(el).data('input', this);
+    el = this.el = $(el)
+      .data('input', this)
+      .click(function(e) { return self.onClick(e); });
 
     this._input = $('<input type="text" class="proxy" />')
       .attr({ 'aria-hidden': 'true' })
@@ -305,7 +308,6 @@ define(['exports', './util'], function(exports, U) {
       .blur(function(e)   { return self.onBlur(e); })
       .change(function(e) { return self.onChange(e); })
       .keydown(function(e) { return self.onKeydown(e); })
-      .click(function(e) { return self.onClick(e); })
       .mouseenter(function(e) { return self.onEnter(e); })
       .mouseleave(function(e) { return self.onLeave(e); })
       .appendTo(el);
@@ -313,7 +315,7 @@ define(['exports', './util'], function(exports, U) {
     this._value = $('<span class="value" />')
       .appendTo(el);
 
-    this._list = el.children('datalist');
+    this._list = el.children('.datalist');
   }
 
   ColorPicker.prototype.value = function() {
@@ -468,11 +470,11 @@ define(['exports', './util'], function(exports, U) {
     var modal = new Modal().addClass('color-palette');
 
     options.each(function() {
-      var selected = (value == this.value) ? 'true' : 'false',
+      var selected = (value == this.getAttribute('value')) ? 'true' : 'false',
           option = $('<span class="option" />')
-            .css({ backgroundColor: this.value })
+            .css({ backgroundColor: this.getAttribute('value') })
             .attr({
-                value: this.value,
+                value: this.getAttribute('value'),
                 'aria-selected': selected
             })
             .appendTo(modal);
