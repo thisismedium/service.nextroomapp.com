@@ -675,17 +675,25 @@ div.modal.confirm-delete .buttons {
 }
 
 .sortable > .before {
-    margin-top: -5px;
-    border-top: 5px solid #666;
+    margin-top: -3px;
+    border-top: 3px solid #666;
     border-top-left-radius: 0;
     border-top-right-radius: 0;
 }
 
 .sortable > .after {
     margin-bottom: 0px;
-    border-bottom: 5px solid #666;
+    border-bottom: 3px solid #666;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
+}
+
+li.ghost {
+    border: 1px solid #666 !important;
+    border-radius: 0 !important;
+}
+li.ghost button {
+    display: none !important;
 }
 
 #app .sortable > .saving {
@@ -1535,7 +1543,7 @@ li.error [role="select"] .value {
     position: absolute;
     margin: 0;
     margin-top: 10px;
-    width: 140px;
+    width: 139px;
     z-index: 10001;
     border: 1px solid #fff;
     border-radius: 3px;
@@ -1549,7 +1557,7 @@ li.error [role="select"] .value {
 }
 
 .color-palette .modal-content {
-    padding: 5px 0 0 5px;
+    padding: 6px 0 2px 5px;
     background: #ececec;
 }
 
@@ -1559,6 +1567,13 @@ li.error [role="select"] .value {
     line-height: 19px;
     height: 19px;
     margin: 0 3px 1px 0;
+}
+[role="color"] .value .gradient, 
+.color-palette .option .gradient {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: url(images/color_picker_gradient.png) 0 0 repeat-x;
 }
 
 .color-palette .option.active {
