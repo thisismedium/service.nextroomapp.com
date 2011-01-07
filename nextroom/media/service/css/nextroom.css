@@ -39,9 +39,9 @@ a:hover {
 }
 
 input:focus,
-[role="checkbox"].focus, 
+[role="checkbox"].focus,
 [role="select"].focus {
-    outline: 1px solid #b1d8d1; 
+    outline: 1px solid #b1d8d1;
     border-radius: 3px;
 }
 
@@ -230,7 +230,7 @@ form li.error span.input input {
     border-bottom: 1px solid #fff;
 }
 
-#header_background a {
+#logo {
     display: block;
     width: 92px;
     height: 95px;
@@ -270,7 +270,7 @@ form li.error span.input input {
 
 #content {
     position: relative;
-    padding: 100px 0 0;
+    padding: 50px 0 0;
 }
 
 
@@ -302,18 +302,16 @@ a.up {
 header {
     position: absolute;
     width: 860px;
-    top: -46px;
+    top: 0;
     right: 0;
     margin-bottom: 2em;
 }
 
-header h1 {
+#practice-name-title {
     font-family: arial;
     font-weight: bold;
     font-size: 19px;
-    position: absolute;
-    top: 60px;
-    left: 0;
+    padding: 60px 0 0 102px;
     color: #838384;
     text-shadow: 1px 1px 1px #fff;
 }
@@ -389,6 +387,10 @@ footer img {
     display: none;
 }
 
+[role="main"] > section.active {
+    display: block;
+}
+
 #template {
     display: none;
 }
@@ -453,18 +455,32 @@ div.modal.confirm-delete .buttons {
 }
 #app #app-editor {
     width: 221px;
+    opacity: 0;
 }
 #app.user-selected #app-editor {
     background: url(images/watermark_users.png) 50% 0 no-repeat;
+    opacity: 1;
+    -webkit-transition: opacity 0.5s linear;
+    -moz-transition: opacity 0.5s linear;
 }
+
 #app.room-selected #app-editor {
     background: url(images/watermark_rooms.png) 50% 0 no-repeat;
+    opacity: 1;
+    -webkit-transition: opacity 0.5s linear;
+    -moz-transition: opacity 0.5s linear;
 }
 #app.task-selected #app-editor {
     background: url(images/watermark_tasks.png) 50% 0 no-repeat;
+    opacity: 1;
+    -webkit-transition: opacity 0.5s linear;
+    -moz-transition: opacity 0.5s linear;
 }
 #app.note-selected #app-editor {
     background: url(images/watermark_notes.png) 50% 0 no-repeat;
+    opacity: 1;
+    -webkit-transition: opacity 0.5s linear;
+    -moz-transition: opacity 0.5s linear;
 }
 #app .panel:last-child {
     margin-right: 0;
@@ -513,8 +529,10 @@ div.modal.confirm-delete .buttons {
     top: 0;
     left: 0;
     display: block;
-    opacity: 0;
+    opacity: 1;
     left: -100%;
+    -webkit-transition: opacity: 0.2s linear;
+    -moz-transition: opacity: 0.2s linear;
 }
 
 #app .active > .content, #app .static > .content {
@@ -524,7 +542,6 @@ div.modal.confirm-delete .buttons {
 
 .panel > .stub {
     height: 400px;
-    background-color: #ddd;
 }
 
 .header, .entry {
@@ -900,73 +917,6 @@ the shield slides back into a button shape.
     display: none;
 }
 
-/* ## Help ## */
-
-#help {
-    position: absolute;
-    top:0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(255,255,255,0);
-    display: none;
-}
-#help #help_box {
-    position: absolute;
-    top: 10px;
-    right: 116px;
-    width: 318px;
-    height: 210px;
-    background: #dfdfdf url(images/help_bg.png) repeat-x 0 0;
-    border: 1px solid #c7c7c7;
-    border-radius: 5px;
-}
-
-#help #help_box h2 {
-    text-indent: -9999px;
-    background: url(images/h2_NextRoom_help.png) 0 0 no-repeat;
-    width: 100%;
-    height: 39px;
-    margin: 24px 0 0 24px
-}
-#help #help_box p {
-    font-size: 11px;
-    color: #828282;
-    margin: 10px 24px 0;;
-}
-#help #help_box .buttons {
-    background: url(images/help_close_bg.png) 0 0 repeat-x;
-    width: 100%;
-    height: 44px;
-    border: 1px solid #049b85;
-    border-top: 0;
-    position: absolute;
-    left: -1px;
-    bottom: -1px;
-    -webkit-border-bottom-right-radius: 5px;
-    -webkit-border-bottom-left-radius: 5px;
-    -moz-border-radius-bottomright: 5px;
-    -moz-border-radius-bottomleft: 5px;
-    border-bottom-right-radius: 5px;
-    border-bottom-left-radius: 5px;
-}
-#help #help_box .buttons input {
-    font-size: 11px;
-    position: absolute;
-    right: 15px;
-    bottom: 10px;
-    -moz-box-shadow: 0px 1px 3px #119d92;
-    -webkit-box-shadow: 0px 1px 3px #119d92;
-    box-shadow: 0px 1px 3px #119d92;
-}
-
-body.help div[role='main'] {
-    opacity: 0.3;
-    filter: alpha(opacity=3);
-}
-
-
-
 .up {
     display: block;
     margin-top: 1em;
@@ -978,6 +928,15 @@ body.help div[role='main'] {
     text-decoration: none;
 }
 
+#app-tips.panel > .content {
+    left: 0;
+    visibility: hidden;
+}
+
+#app-tips.active > .content {
+    visibility: visible;
+}
+
 #app-tips h3 {
     font-size: 1.4em;
     font-weight: bold;
@@ -985,14 +944,17 @@ body.help div[role='main'] {
 }
 
 .tips {
-    display: none;
+    position: absolute; top: 0; left: 0;
+    visibility: hidden;
+    opacity: 0;
+    -webkit-transition: opacity 0.2s linear;
+    -moz-transition: opacity 0.2s linear;
 }
 
-.user-selected .user-tips,
-.room-selected .room-tips,
-.task-selected .task-tips,
-.note-selected .note-tips {
-    display: block;
+.active-tip {
+    position: relative;
+    visibility: visible;
+    opacity: 1;
 }
 
 .unit {
@@ -1072,10 +1034,13 @@ button and content. A modal is invisible unless it's active.
     height: 100%;
     visibility: hidden;
     z-index: 10000;
+    opacity: 0;
+    -webkit-transition: opacity 0.1s linear;
 }
 
 .modal.active {
     visibility: visible;
+    opacity: 1;
 }
 
 .modal-overlay {
@@ -1094,6 +1059,12 @@ button and content. A modal is invisible unless it's active.
     position: relative;
     margin: 0 auto;
     width: auto;
+    opacity: 0;
+    -webkit-transition: opacity 0.2s linear;
+}
+
+.modal.active .modal-body {
+    opacity: 1;
 }
 
 .modal-close {
@@ -1110,6 +1081,86 @@ button and content. A modal is invisible unless it's active.
 .modal-content {
     overflow: hidden;
 }
+
+/* ## Help ## */
+
+.modal.help {
+    z-index: 5000;
+}
+
+.modal.help .modal-body {
+    position: absolute;
+    padding-top: 10px;
+    padding-right: 12px;
+}
+
+.modal.help .modal-body > .modal-close {
+    display: none;
+}
+
+#help {
+    display: none;
+    position: relative;
+    width: 318px;
+    height: 210px;
+    background: #dfdfdf url(images/help_bg.png) repeat-x 0 0;
+    border: 1px solid #c7c7c7;
+    border-radius: 5px;
+}
+
+    .modal #help {
+	display: block;
+    }
+
+#help h2 {
+    text-indent: -9999px;
+    background: url(images/h2_NextRoom_help.png) 0 0 no-repeat;
+    width: 100%;
+    height: 39px;
+    margin: 24px 0 0 24px
+}
+#help p {
+    font-size: 11px;
+    color: #828282;
+    margin: 10px 24px 0;;
+}
+#help .buttons {
+    background: url(images/help_close_bg.png) 0 0 repeat-x;
+    width: 100%;
+    height: 44px;
+    border: 1px solid #049b85;
+    border-top: 0;
+    position: absolute;
+    left: -1px;
+    bottom: -1px;
+    -webkit-border-bottom-right-radius: 5px;
+    -webkit-border-bottom-left-radius: 5px;
+    -moz-border-radius-bottomright: 5px;
+    -moz-border-radius-bottomleft: 5px;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
+#help .buttons input {
+    font-size: 11px;
+    position: absolute;
+    right: 15px;
+    bottom: 10px;
+    -moz-box-shadow: 0px 1px 3px #119d92;
+    -webkit-box-shadow: 0px 1px 3px #119d92;
+    box-shadow: 0px 1px 3px #119d92;
+}
+
+#help-overlay {
+    z-index: 5000;
+}
+
+    #header_background {
+	position: fixed;
+    }
+
+    #header_background, footer, header {
+	z-index: 6000;
+    }
 
 /*
 ## Slideshow ##
@@ -1452,9 +1503,9 @@ li.error [role="select"] .value {
 
 .modal.select-options .modal-overlay {
     position: fixed;
-    background: none;
+    opacity: 0;
+    filter: alpha(opacity=0);
     z-index: 10000;
-    opacity: 1;
 }
 
 .select-options .modal-body {
@@ -1552,9 +1603,8 @@ li.error [role="select"] .value {
 
 .modal.color-palette .modal-overlay {
     position: fixed;
-    background: none;
-    z-index: 10000;
-    opacity: 1;
+    opacity: 0;
+    filter: alpha(opacity=0);
 }
 
 .color-palette .modal-body {
@@ -1589,7 +1639,7 @@ li.error [role="select"] .value {
     border: 2px solid #ececec;
     cursor: pointer;
 }
-[role="color"] .value .gradient, 
+[role="color"] .value .gradient,
 .color-palette .option .gradient {
     display: block;
     width: 100%;

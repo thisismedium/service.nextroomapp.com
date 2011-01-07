@@ -1,4 +1,4 @@
-define(['./util', './router', './server', './mouse', './ui'], function(U, Router, Server, UI) {
+define(['./util', './router', './server', './ui', './mouse'], function(U, Router, Server, UI) {
 
   function Main(selector) {
     this.el = $(selector);
@@ -69,7 +69,7 @@ define(['./util', './router', './server', './mouse', './ui'], function(U, Router
 
     this.el.bind('del', function(ev, data) {
       var item = self.items.find(data.uri).addClass('saving'),
-          title = 'Delete ' + self.items.kind() + ' ' + data.title + '?';
+          title = 'Delete ' + self.items.kind() + ' ' + data.name + '?';
 
       confirmDelete(title, function(confirmed) {
         if (confirmed)
@@ -136,14 +136,14 @@ define(['./util', './router', './server', './mouse', './ui'], function(U, Router
   }
 
   App.prototype.show = function(fn) {
-    if (!this.el.is(':visible'))
-      this.el.fadeIn('fast', fn);
+    if (!this.el.is('.active'))
+      showSection(this.el);
     return this;
   };
 
   App.prototype.hide = function(fn) {
-    if (this.el.is(':visible'))
-      this.el.fadeOut('fast', fn);
+    if (this.el.is('.active'))
+      hideSection(this.el);
     return this;
   };
 
@@ -200,15 +200,17 @@ define(['./util', './router', './server', './mouse', './ui'], function(U, Router
   App.prototype.select = function(uri) {
     if (!uri)
       return this.deselect();
-    this.el.addClass(U.basename(uri) + '-selected');
+
+    var kind = U.basename(uri);
+    this.el.addClass(kind + '-selected');
     this.menu.select(uri);
-    this.tips.show();
+    this.tips.show(kind);
     return this;
   };
 
   App.prototype.deselect = function() {
     this.el.attr('className', this.el.attr('className').replace(/\w+-selected/g, ''));
-    this.tips.hide();
+    //this.tips.hide();
     return this;
   };
 
@@ -249,12 +251,12 @@ define(['./util', './router', './server', './mouse', './ui'], function(U, Router
   };
 
   InstanceList.prototype.show = function() {
-    this.el.addClass('active');
+    showPanels(this.el);
     return this;
   };
 
   InstanceList.prototype.hide = function() {
-    this.el.removeClass('active');
+    hidePanels(this.el);
     return this;
   };
 
@@ -416,12 +418,12 @@ define(['./util', './router', './server', './mouse', './ui'], function(U, Router
   };
 
   Editor.prototype.show = function() {
-    this.el.addClass('active');
+    showPanels(this.el);
     return this;
   };
 
   Editor.prototype.hide = function() {
-    this.el.removeClass('active');
+    hidePanels(this.el);
     return this;
   };
 
@@ -507,13 +509,27 @@ define(['./util', './router', './server', './mouse', './ui'], function(U, Router
     });
   }
 
-  Tips.prototype.show = function() {
+  Tips.prototype.show = function(kind) {
     this.el.addClass('active');
+    if (kind) {
+      var probe = this.el.find('.' + kind + '-tips');
+      if (!probe.is('.active-tip')) {
+        this.el.find('.active-tip').removeClass('active-tip');
+        adjustHeight(this.el.children('.content'), probe.height(), function() {
+          probe.addClass('active-tip');
+        });
+      }
+    }
     return this;
   };
 
   Tips.prototype.hide = function() {
     this.el.removeClass('active');
+    var probe = this.el.find('.active-tip');
+    if (probe.length > 0) {
+      probe.removeClass('active-tip');
+      adjustHeight(this.el.children('.content'), 0);
+    }
     return this;
   };
 
@@ -648,6 +664,10 @@ define(['./util', './router', './server', './mouse', './ui'], function(U, Router
   Modal.prototype.on = function(name, fn) {
     this.opt[name] = fn;
     return this;
+  };
+
+  Modal.prototype.isOpen = function() {
+    return this.el.is('.active');
   };
 
   Modal.prototype.open = function() {
@@ -846,26 +866,45 @@ define(['./util', './router', './server', './mouse', './ui'], function(U, Router
     });
   }
 
-  // FIXME: convert show/hide panels to CSS3 transitions.
+  function showPanels(panels) {
+    return panels.each(function() {
+      var content = $('> .content', this);
+      content
+        .stop(true, true)
+        .data('shutter.left', content.offset().left)
+        .animate({ opacity: 1, left: 0 }, 'fast', 'swing');
+    }).addClass('active');
+  }
 
-  // function showPanels(panels) {
-  //   return panels.each(function() {
-  //     var content = $('> .content', this);
-  //     content
-  //       .stop(true, true)
-  //       .data('shutter.left', content.offset().left)
-  //       .animate({ opacity: 1, left: 0 }, 'fast', 'swing');
-  //   }).addClass('active');
-  // }
+  function hidePanels(panels) {
+    return panels.removeClass('active');
+    // return panels.each(function() {
+    //   var content = $('> .content', this);
+    //   content
+    //     .stop(true, true)
+    //     .animate({ opacity: 0, left: -1 * content.data('shutter.left') }, 'fast', 'swing');
+    // }).removeClass('active');
+  }
 
-  // function hidePanels(panels) {
-  //   return panels.each(function() {
-  //     var content = $('> .content', this);
-  //     content
-  //       .stop(true, true)
-  //       .animate({ opacity: 0, left: -1 * content.data('shutter.left') }, 'fast', 'swing');
-  //   }).removeClass('active');
-  // }
+  function showSection(section) {
+    return section.css('opacity', 0)
+      .addClass('active')
+      .animate({ opacity: 1 }, 'fast', 'swing');
+  }
+
+  function hideSection(section) {
+    return section.removeClass('active');
+  }
+
+  function adjustHeight(area, delta, fn) {
+    return area.each(function() {
+      var self = $(this);
+      if (self.data('adjust.height') === undefined)
+        self.data('adjust.height', self.height());
+      self.stop(true)
+        .animate({ height: self.data('adjust.height') + delta }, 'fast', 'swing', fn);
+    });
+  }
 
   
   // ### Account ###
@@ -930,15 +969,15 @@ define(['./util', './router', './server', './mouse', './ui'], function(U, Router
     });
   }
 
-  Account.prototype.show = function() {
-    if (!this.el.is(':visible'))
-      this.el.fadeIn('fast');
+  Account.prototype.show = function(fn) {
+    if (!this.el.is('.active'))
+      showSection(this.el);
     return this;
   };
 
-  Account.prototype.hide = function() {
-    if (this.el.is(':visible'))
-      this.el.fadeOut('fast');
+  Account.prototype.hide = function(fn) {
+    if (this.el.is('.active'))
+      hideSection(this.el);
     return this;
   };
 
@@ -1153,27 +1192,34 @@ define(['./util', './router', './server', './mouse', './ui'], function(U, Router
   // ## Help ##
 
   function Help(selector) {
-    this.elem = $(selector);
+    this.modal = (new UI.Modal({ close: close }))
+      .addClass('help')
+      .position('right below', '#main-nav .nav_help')
+      .appendTo('body');
 
-    $('a[href=#!help]').click(function(ev) {
+    $(selector)
+      .appendTo(this.modal);
+
+    $('a[href=#!help], #close-help').click(function(ev) {
       ev.preventDefault();
       ui.toggle('help');
     });
 
-    $('#close-help').click(function() {
+    function close() {
       ui.pop('help');
-    });
+    }
+
   }
 
   Help.prototype.show = function() {
-    $('body').addClass('help');
-    this.elem.fadeIn('fast');
+    if (!this.modal.isOpen())
+      this.modal.open();
     return this;
   };
 
   Help.prototype.hide = function() {
-    this.elem.fadeOut('fast');
-    $('body').removeClass('help');
+    if (this.modal.isOpen())
+      this.modal.close();
     return this;
   };
 

@@ -21,32 +21,31 @@
 
     <div id="header_background" class="shadow">
         <div class="wrapper">
-            <a href="/">NextRoom</a>
+            <a id="logo" href="/">NextRoom</a>
+            <header>
+              <nav id="main-nav">
+		<ul>
+            	  <li class="nav_application">
+                    <a href="#!app">Application</a>
+            	  </li>
+            	  <li class="nav_account">
+                    <a href="#!account">Account</a>
+            	  </li>
+            	  <li class="nav_help">
+                    <a href="#!help">Help</a>
+            	  </li>
+            	  <li class="nav_logout">
+                    <a href="/logout/">Logout</a>
+            	  </li>
+		</ul>
+              </nav>
+            </header>
         </div>
     </div>
 
     {% block body_content %}
     <div class="wrapper">
-        <header>
-          <h1 id="practice-name-title">{{user.practice}}</h1>
-          <nav id="main-nav">
-            <ul>
-            	<li class="nav_application">
-                    <a href="#!app">Application</a>
-            	</li>
-            	<li class="nav_account">
-                    <a href="#!account">Account</a>
-            	</li>
-            	<li class="nav_help">
-                    <a href="#!help">Help</a>
-            	</li>
-            	<li class="nav_logout">
-                    <a href="/logout/">Logout</a>
-            	</li>
-            </ul>
-          </nav>
-        </header>
-
+      <h1 id="practice-name-title">{{user.practice}}</h1>
         <div id="content">
             <div role="main">
               <section id="app">
@@ -276,18 +275,14 @@
             </div> <!-- role="main" -->
 
             <div id="help">
-                <div id="help_box">
-                  <h2>NextRoom Help</h2>
+              <h2>NextRoom Help</h2>
 
-                  <p>For support or additional help please email us at <a href="mailto:support@nextroomapp.com">support@nextroomapp.com</a>. For phone support call (423) 380-8727.</p>
+              <p>For support or additional help please email us at <a href="mailto:support@nextroomapp.com">support@nextroomapp.com</a>. For phone support call (423) 380-8727.</p>
 
-
-                  <div class="buttons">
-                    <input id="close-help" type="button" value="Close" />
-                  </div>
-                </div>
+              <div class="buttons">
+                <input id="close-help" type="button" value="Close" />
+              </div>
             </div>
-
 
             <div id="template">
               <!-- This form is used for Room, Note, and Task details. -->

@@ -80,6 +80,7 @@ define(['exports', 'util'], function(exports, U) {
     opt.url = opt.uri;
     opt.contentType = 'application/json';
     opt.data = opt.data && JSON.stringify(opt.data);
+    opt.cache = false;
 
     opt.beforeSend = function(xhr) {
       opt.xhr = xhr;

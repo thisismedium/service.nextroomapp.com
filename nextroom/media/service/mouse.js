@@ -301,7 +301,7 @@ define(['exports'], function(exports) {
         for (name in styles) {
           // $.css() chokes on "borderWidth: 0px 0px 1px" for some reason.
           try      { val = $.css(el, name); }
-          catch(_) { val = styles[name]; }
+          catch(_) { try { val = styles[name]; } catch(__) { } }
           fn(name, val);
         }
     }

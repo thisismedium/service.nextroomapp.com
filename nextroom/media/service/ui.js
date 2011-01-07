@@ -532,6 +532,8 @@ define(['exports', './util'], function(exports, U) {
   
   // ## Modal ##
 
+  exports.Modal = Modal;
+
   function Modal(opt) {
     var self = this,
         el = $('<div class="modal"><div class="modal-overlay" /></div>'),
@@ -577,6 +579,10 @@ define(['exports', './util'], function(exports, U) {
       self._body.css(findPosition(self._body, rel, xpos, ypos));
     };
     return this;
+  };
+
+  Modal.prototype.isOpen = function() {
+    return this.el.is('.active');
   };
 
   Modal.prototype.open = function() {
