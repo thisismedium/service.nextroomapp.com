@@ -38,6 +38,13 @@ a:hover {
     color: #17baab;
 }
 
+input:focus,
+[role="checkbox"].focus, 
+[role="select"].focus {
+    outline: 1px solid #b1d8d1; 
+    border-radius: 3px;
+}
+
 [unselectable=on] { -moz-user-select: none; -khtml-user-select: none; user-select: none; }
 
 input[type=submit],
@@ -598,6 +605,12 @@ div.modal.confirm-delete .buttons {
 	background-color: #f6f6f6;
     color: #17baab;
 }
+#app .sortable .entry.dragging {
+    color: #999;
+}
+#app .sortable .entry.dragging button {
+    display: none;
+}
 
 #app .sortable .entry:last-child {
     border-bottom: 1px solid #fff;
@@ -666,6 +679,16 @@ div.modal.confirm-delete .buttons {
     background-position: 0 -48px;
 }
 
+#app .entry.over .indicator {
+    display: block;
+    width: 100%;
+    height: 3px;
+    background: #999;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
+
 .special .delete {
     display: none;
 }
@@ -674,19 +697,7 @@ div.modal.confirm-delete .buttons {
     cursor: move;
 }
 
-.sortable > .before {
-    margin-top: -3px;
-    border-top: 3px solid #666;
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
-}
 
-.sortable > .after {
-    margin-bottom: 0px;
-    border-bottom: 3px solid #666;
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
-}
 
 li.ghost {
     border: 1px solid #666 !important;
@@ -1285,6 +1296,12 @@ form .errors {
     color:#f5616a; /* pink */
 }
 
+#account form .errors {
+    position: absolute;
+    left: 320px;
+    bottom: 20px;
+}
+
 form .errors > * {
     display: none;
 }
@@ -1381,7 +1398,7 @@ in standards mode.
 [role="select"] {
     position: relative;
     display: inline-block;
-    width: 191px;
+    width: 193px;
     height: 27px;
 }
 
@@ -1521,6 +1538,7 @@ li.error [role="select"] .value {
 }
 
 [role="color"].hover,
+[role="color"].focus,
 [role="color"].active {
 	background-position: 0 -33px;
 }
@@ -1543,7 +1561,7 @@ li.error [role="select"] .value {
     position: absolute;
     margin: 0;
     margin-top: 10px;
-    width: 139px;
+    width: 163px;
     z-index: 10001;
     border: 1px solid #fff;
     border-radius: 3px;
@@ -1567,6 +1585,9 @@ li.error [role="select"] .value {
     line-height: 19px;
     height: 19px;
     margin: 0 3px 1px 0;
+    margin: 0 3px 0 0;
+    border: 2px solid #ececec;
+    cursor: pointer;
 }
 [role="color"] .value .gradient, 
 .color-palette .option .gradient {
@@ -1577,4 +1598,8 @@ li.error [role="select"] .value {
 }
 
 .color-palette .option.active {
+    border: 2px solid white;
+    -moz-box-shadow: 0px 0px 5px #888;
+    -webkit-box-shadow: 0px 0px 5px #888;
+    box-shadow: 0px 0px 5px #888;
 }
