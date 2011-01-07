@@ -58,9 +58,10 @@ def login(request):
     
     if request.method == 'POST':
         # Process form
-        email = request.POST.get('email', None)
-        password = request.POST.get('password', None)
+        email = request.POST.get('email') or None
+        password = request.POST.get('password') or None
         if email is None or password is None:
+            print "got None"
             valid = False
         else:
             user = authenticate(email,password)
