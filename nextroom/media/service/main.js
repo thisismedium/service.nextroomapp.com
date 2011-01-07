@@ -371,7 +371,8 @@ define(['./util', './router', './server', './mouse', './ui'], function(U, Router
       .wrap('<li class="entry" />')
       .parent()
         .addClass(item.special ? 'special' : '')
-        .append(del);
+        .append(del)
+        .append('<span class="indicator" />');
 
     this._bind(elem, item).appendTo(list);
   };
@@ -1142,7 +1143,7 @@ define(['./util', './router', './server', './mouse', './ui'], function(U, Router
           self.el.removeClass('saving');
           self._save.css('width', '');
           // Similar to .delay(600) in _shieldsUp()
-          next && setTimeout(next, 600);
+          setTimeout(function() { self._save.val('Save'); next && next(); }, 600);
         });
     }
   };
