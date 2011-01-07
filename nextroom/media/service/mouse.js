@@ -60,7 +60,7 @@ define(['exports'], function(exports) {
     function start() {
       ghost = makeGhost(item);
       drops = findDrops();
-      trigger(item, '_dragstart');
+      trigger(item.addClass('dragging'), '_dragstart');
       return ghost;
     }
 
@@ -81,7 +81,7 @@ define(['exports'], function(exports) {
     }
 
     function end() {
-      trigger(item, '_dragend', { relatedTarget: over && over[0] });
+      trigger(item.removeClass('dragging'), '_dragend', { relatedTarget: over && over[0] });
       drop();
       ghost = drops = over = null;
     }
