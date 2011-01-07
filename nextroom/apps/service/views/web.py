@@ -29,15 +29,19 @@ USER_KEY = 'user'
 def authenticate(email=None, password=None):
     # Verifies an email/password combination is correct
     # Returns User object if found, else None
-    users = User.objects.filter(email=email)
-    user = None
-    for u in users:
-        if u.check_password(password):
-            user = u
-            break
+    if email is None or password is None:
+        return None
     else:
+        users = User.objects.filter(email=email)
         user = None
-    return user
+        for u in users:
+            if u.check_password(password):
+                user = u
+                break
+        else:
+            user = None
+        return user
+    
 
 def genTmpPwd(n):
     return ''.join([choice(string.letters + string.digits) for i in xrange(n)])
@@ -51,19 +55,22 @@ def login(request):
     valid, user = True, request.session.get(USER_KEY)
     if isinstance(user, User):
         return HttpResponseRedirect('/#!app')
-
+    
     if request.method == 'POST':
         # Process form
         email = request.POST.get('email', None)
         password = request.POST.get('password', None)
-        user = authenticate(email,password)
-        if user is not None and isinstance(user, User):
-            request.session[USER_KEY] = user
-            return HttpResponseRedirect('/#!app')
-        else:
-            request.session[USER_KEY] = None
+        if email is None or password is None:
             valid = False
-
+        else:
+            user = authenticate(email,password)
+            if user is not None and isinstance(user, User):
+                request.session[USER_KEY] = user
+                return HttpResponseRedirect('/#!app')
+            else:
+                request.session[USER_KEY] = None
+                valid = False
+    
     return render_to_response('service/admin/login.html', {
         'valid':valid,
         'media': '%sservice/' % settings.MEDIA_URL
