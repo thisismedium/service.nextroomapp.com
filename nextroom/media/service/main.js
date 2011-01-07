@@ -1024,6 +1024,7 @@ define(['./util', './router', './server', './mouse', './ui'], function(U, Router
     confirmModal({
       message: 'Cancel this Account?',
       confirm: 'Yes, Cancel',
+      cancel: 'No, wait!',
       next: function(confirmed) {
         confirmed ? self.el.trigger('cancel') : self.toggle();
       },
