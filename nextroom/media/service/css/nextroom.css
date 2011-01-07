@@ -1204,11 +1204,11 @@ in the current toolbar. Each tip is a slide. A larger figure is shown.
 }
 .expanded-tips .glare {
     position: absolute;
-    right: 19px;
-    top: 70px;
-    background: url(images/lightbox_iphone_glare.png) 0 0 no-repeat;
-    width: 67px;
-    height: 143px;
+    left: 0;
+    top: 0;
+    background: url(images/lightbox_iphone_w_glare.png) 0 0 no-repeat;
+    width: 200px;
+    height: 395px;
 }
 
 .expanded-tips .unit {
