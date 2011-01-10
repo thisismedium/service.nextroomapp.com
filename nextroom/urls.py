@@ -10,20 +10,20 @@ urlpatterns = patterns('',
     (r'^admin/(.*)', admin.site.root),
     
     # svc/ URLs for iPhone app
-    (r'^svc/', include('apps.service.urls')),
+    (r'^svc/', include('nextroom.apps.service.urls')),
     
     # API URLs
-    (r'^app/([^/]+)$', 'apps.service.views.api.app_model'),
-    (r'^app/([^/]+)/(\d+)$', 'apps.service.views.api.app_instance'),
-    (r'^account/$', 'apps.service.views.api.account'),
+    (r'^app/([^/]+)$', 'nextroom.apps.service.views.api.app_model'),
+    (r'^app/([^/]+)/(\d+)$', 'nextroom.apps.service.views.api.app_instance'),
+    (r'^account/$', 'nextroom.apps.service.views.api.account'),
     
     # Web URLs
-    (r'^login/$', 'apps.service.views.web.login'),
-    (r'^logout/$', 'apps.service.views.web.logout'),
-    (r'^$', 'apps.service.views.web.home'),
+    (r'^login/$', 'nextroom.apps.service.views.web.login'),
+    (r'^logout/$', 'nextroom.apps.service.views.web.logout'),
+    (r'^$', 'nextroom.apps.service.views.web.home'),
 
     # Extra for testing
-    (r'^change-password/$', 'apps.service.views.web.change_password'),
+    (r'^change-password/$', 'nextroom.apps.service.views.web.change_password'),
         
 )
 

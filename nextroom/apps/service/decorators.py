@@ -1,8 +1,5 @@
 # Python imports
-try:
-    import simplejson as json
-except ImportError:
-    import json
+import json
 import functools
 
 # NextRoom imports

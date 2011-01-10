@@ -1,6 +1,6 @@
 from django.conf.urls.defaults import *
 
-urlpatterns = patterns('apps.service.views.app',
+urlpatterns = patterns('nextroom.apps.service.views.app',
     (r'^auth/', 'app_login'),
     (r'^name_check/(?P<practice>.*)/', 'verify_account_exists'),
     (r'^pin_check/', 'pin_check'),

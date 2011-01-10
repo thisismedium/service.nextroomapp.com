@@ -1,8 +1,5 @@
 # Python imports
-try:
-    import simplejson as json
-except ImportError:
-    import json
+import json
 
 # Django imports
 from django.core.exceptions import FieldError
