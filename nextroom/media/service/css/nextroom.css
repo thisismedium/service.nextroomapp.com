@@ -1,5 +1,4 @@
 @import url(reset.css);
-@import url(ui.css);
 
 /* ## Base ## */
 
@@ -307,6 +306,8 @@ header {
     right: 0;
     margin-bottom: 2em;
 }
+
+    html.login header { display: none; }
 
 #practice-name-title {
     font-family: arial;
