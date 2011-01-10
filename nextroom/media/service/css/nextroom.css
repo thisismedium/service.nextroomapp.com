@@ -244,7 +244,8 @@ form li.error span.input input {
 #password_reset,
 #login_box {
     width: 440px;
-    margin: 100px auto 0;
+    margin: 0 auto;
+    padding-top: 100px;
     position: relative;
 }
 
