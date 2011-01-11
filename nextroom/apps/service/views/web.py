@@ -96,7 +96,7 @@ def change_password(request):
     reset_sent, valid, mail_err = False, True, False
     if request.method == 'POST':
         # Process form input
-        email = request.POST.get('email', None)
+        email = request.POST.get('email') or None
         if email is not None:
             try:
                 user = User.objects.get(email=email)
@@ -125,6 +125,8 @@ def change_password(request):
                     mail_err = True
                 else:
                     reset_sent = True
+        else:
+            valid = False
     
     return render_to_response('service/admin/change_password.html', {
         'media': '%sservice/' % settings.MEDIA_URL,
