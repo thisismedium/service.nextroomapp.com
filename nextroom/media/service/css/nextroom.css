@@ -40,8 +40,8 @@ a:hover {
 input:focus,
 [role="checkbox"].focus,
 [role="select"].focus {
-    outline: 1px solid #b1d8d1;
-    border-radius: 3px;
+    outline: 1px solid #595959;
+    border-radius: 2px;
 }
 
 [unselectable=on] { -moz-user-select: none; -khtml-user-select: none; user-select: none; }
@@ -50,31 +50,28 @@ input[type=submit],
 input[type=button] {
     background: #a9a9a9 url(images/submit_button_bg.png) 0 0 repeat-x;
     border: 1px solid #848484;
-    border-radius: 5px;
+    border-radius: 3px;
     color: #fff;
-    padding: 5px 10px;
+    padding: 5px 6px;
     margin: 0;
     text-shadow: 1px 1px 1px #717171;
-    -moz-box-shadow: 0px 1px 3px #888;
-    -webkit-box-shadow: 0px 1px 3px #888;
-    box-shadow: 0px 1px 3px #888;
+    -moz-box-shadow: 0px 1px 1px #888;
+    -webkit-box-shadow: 0px 1px 1px #888;
+    box-shadow: 0px 1px 1px #888;
     cursor: pointer;
-    position: relative;
 }
 input[type=submit]:hover,
 input[type=button]:hover,
 input[type=submit].blocked {
     background: #bfbfbf url(images/submit_button_bg_hover.png) 0 0 repeat-x;
-    -moz-box-shadow: 0px 0px 0px #888;
-    -webkit-box-shadow: 0px 0px 0px #888;
-    box-shadow: 0px 0px 0px #888;
     border-color: #a2a2a2;
 }
 div.modal.confirm-cancel input[type=button]:hover,
 div.modal.confirm-delete input[type=button]:hover {
     background: #cc124f url(images/submit_button_red_bg_hover.png) 0 0 repeat-x;
     text-shadow: 1px 1px 1px #a41243;
-    border-color: #ff568f;
+    border-color: #c40e49;
+    border-top-color: #fd568e;
 }
 input[type=submit]:active {
     top: -1px;
@@ -104,12 +101,12 @@ input[type=button].cancel:hover {
 }
 div.modal.confirm-cancel input.cancel,
 div.modal.confirm-delete input.cancel {
-	float: left;
-	position: relative;
+	position: static;
 	padding: 0;
 	text-indent: 0;
 	width: auto;
-	margin:0 0 0 30px;
+	margin:0 10px 0 0;
+	display: inline-block;
 	line-height: 20px;
 	top: 0;
 }
@@ -121,7 +118,7 @@ div.modal.confirm-delete input.cancel:hover {
 
 form span.input {
     border: 1px solid #fff;
-    border-radius: 5px;
+    border-radius: 3px;
     display: block;
     width: 150px;
 }
@@ -158,7 +155,7 @@ form span.input {
     padding: 40px 40px 10px 88px;
     background: #f3f3f3 url(images/password_reset_error.png) 0 0 repeat-x;
     border: 1px solid #fff;
-    border-radius: 5px;
+    border-radius: 3px;
     width: 300px;
     -moz-box-shadow: 0px 1px 1px #888;
     -webkit-box-shadow: 0px 1px 1px #888;
@@ -168,7 +165,7 @@ form span.input {
     padding: 40px 40px 10px 88px;
     background: #f3f3f3 url(images/password_reset_success.png) 0 0 repeat-x;
     border: 1px solid #fff;
-    border-radius: 5px;
+    border-radius: 3px;
     width: 300px;
     -moz-box-shadow: 0px 1px 1px #888;
     -webkit-box-shadow: 0px 1px 1px #888;
@@ -188,6 +185,7 @@ form span.input {
     width: 320px;
     background: #f3f3f3 url(images/panel_bg.png) 0 0 repeat-x;
     border: 1px solid #fff;
+    border-radius: 2px;
     -moz-box-shadow: 0px 1px 1px #888;
     -webkit-box-shadow: 0px 1px 1px #888;
     box-shadow: 0px 1px 1px #888;
@@ -205,11 +203,14 @@ form span.input input {
     border: 1px solid #e3e3df;
     border-top-color: #bdbcb9;
     border-bottom: 0;
-    border-radius: 3px;
+    border-radius: 2px;
     width: 138px;
+    font-size: 12px;
+    font-family: verdana, sans-serif;
+    color: #797979;
 }
 form li.error span.input input {
-	border: 1px solid #fb9fa0;
+	border: 1px solid #ff9f9f;
 }
 
 .panel form span.input {
@@ -432,12 +433,22 @@ form h3 {
 }
 
 .buttons {
-    margin-top: 0.4em;
+    margin-top: 30px;
     text-align: right;
 }
 div.modal.confirm-cancel .buttons,
 div.modal.confirm-delete .buttons {
 	margin-top: 2.4em;
+}
+
+.buttons hr {
+    background: url(images/separator_line.png) 0 0 repeat-x;
+	position: absolute;
+	left: 0px;
+	bottom: 34px;
+	width: 220px;
+	border: 0;
+	height: 2px;
 }
 
 
@@ -492,7 +503,7 @@ div.modal.confirm-delete .buttons {
 #app-tips div.content {
     background: #f3f3f3 url(images/panel_bg.png) 0 0 repeat-x;
     border: 1px solid #fff;
-    border-radius: 5px;
+    border-radius: 3px;
     width: 218px;
     -moz-box-shadow: 0px 1px 1px #888;
     -webkit-box-shadow: 0px 1px 1px #888;
@@ -550,7 +561,7 @@ div.modal.confirm-delete .buttons {
     position: relative;
     display: block;
     list-style-type: none;
-    border-radius: 5px;
+    border-radius: 3px;
     margin: 0 0 5px 0;
     background: #efefef url(images/button_gradient.png) 0 0 repeat-x;
     color: #6c6c6c;
@@ -563,12 +574,12 @@ div.modal.confirm-delete .buttons {
     margin: 0;
     height: 42px;
     border-radius: 0;
-    -webkit-border-top-left-radius: 5px;
-    -webkit-border-top-right-radius: 5px;
-    -moz-border-radius-topleft: 5px;
-    -moz-border-radius-topright: 5px;
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
+    -webkit-border-top-left-radius: 3px;
+    -webkit-border-top-right-radius: 3px;
+    -moz-border-radius-topleft: 3px;
+    -moz-border-radius-topright: 3px;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
 }
 
 .header .title {
@@ -633,12 +644,12 @@ div.modal.confirm-delete .buttons {
 
 #app .sortable .entry:last-child {
     border-bottom: 1px solid #fff;
-    -webkit-border-bottom-left-radius: 5px;
-    -webkit-border-bottom-right-radius: 5px;
-    -moz-border-radius-bottomleft: 5px;
-    -moz-border-radius-bottomright: 5px;
-    border-bottom-left-radius: 5px;
-    border-bottom-right-radius: 5px;
+    -webkit-border-bottom-left-radius: 3px;
+    -webkit-border-bottom-right-radius: 3px;
+    -moz-border-radius-bottomleft: 3px;
+    -moz-border-radius-bottomright: 3px;
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
     -moz-box-shadow: 0px 1px 1px #888;
     -webkit-box-shadow: 0px 1px 1px #888;
     box-shadow: 0px 1px 1px #888;
@@ -692,10 +703,10 @@ div.modal.confirm-delete .buttons {
     border: 0;
 }
 #app .entry .delete:hover {
-    background-position: 0 -24px;
+    background-position: 0 -25px;
 }
 #app .entry .delete:active {
-    background-position: 0 -48px;
+    background-position: 0 -50px;
 }
 
 #app .entry.over .indicator {
@@ -1006,6 +1017,9 @@ the shield slides back into a button shape.
     background: url(images/sidebar_lightbox_mag_wrap.png) 0 0 no-repeat;
     text-indent: -9999px;
 }
+.unit .figure .expand:hover {
+    background: url(images/sidebar_lightbox_mag_wrap_hover.png) 0 0 no-repeat;
+}
 
 .unit > .expand {
     display: block;
@@ -1107,7 +1121,7 @@ button and content. A modal is invisible unless it's active.
     height: 210px;
     background: #dfdfdf url(images/help_bg.png) repeat-x 0 0;
     border: 1px solid #c7c7c7;
-    border-radius: 5px;
+    border-radius: 3px;
 }
 
     .modal #help {
@@ -1125,6 +1139,7 @@ button and content. A modal is invisible unless it's active.
     font-size: 11px;
     color: #828282;
     margin: 10px 24px 0;;
+    line-height: 15px;
 }
 #help .buttons {
     background: url(images/help_close_bg.png) 0 0 repeat-x;
@@ -1135,12 +1150,12 @@ button and content. A modal is invisible unless it's active.
     position: absolute;
     left: -1px;
     bottom: -1px;
-    -webkit-border-bottom-right-radius: 5px;
-    -webkit-border-bottom-left-radius: 5px;
-    -moz-border-radius-bottomright: 5px;
-    -moz-border-radius-bottomleft: 5px;
-    border-bottom-right-radius: 5px;
-    border-bottom-left-radius: 5px;
+    -webkit-border-bottom-right-radius: 3px;
+    -webkit-border-bottom-left-radius: 3px;
+    -moz-border-radius-bottomright: 3px;
+    -moz-border-radius-bottomleft: 3px;
+    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 3px;
 }
 #help .buttons input {
     font-size: 11px;
@@ -1238,7 +1253,7 @@ in the current toolbar. Each tip is a slide. A larger figure is shown.
 .expanded-tips .modal-content {
     background: #efefef url(images/lightbox_tips_tools_header.png) 0 0 no-repeat;
     border: 1px solid #fff;
-    border-radius: 5px;
+    border-radius: 3px;
     width: 100%;
     -moz-box-shadow: 0px 0px 8px #888;
     -webkit-box-shadow: 0px 0px 8px #888;
@@ -1309,7 +1324,7 @@ in the current toolbar. Each tip is a slide. A larger figure is shown.
 .confirm-delete .modal-content {
     background: #c6c6c6 url(images/delete_confirm_dialog_bg.png) 0 0 repeat-x;
     border: 1px solid #fff;
-    border-radius: 5px;
+    border-radius: 3px;
     -moz-box-shadow: 0px 0px 8px #666;
     -webkit-box-shadow: 0px 0px 8px #666;
     box-shadow: 0px 0px 8px #666;
@@ -1323,7 +1338,7 @@ in the current toolbar. Each tip is a slide. A larger figure is shown.
 	padding: 10px 10px 10px 40px;
 	background: #f2f2f2 url(images/delete_confirm_warning_icon.png) 10px 50% no-repeat;
 	border: 1px solid #fff;
-	border-radius: 5px;
+	border-radius: 3px;
 }
 /*
 ## Form Errors ##
@@ -1346,13 +1361,16 @@ form .error input {
 
 form .errors {
     display: block;
-    color:#f5616a; /* pink */
+    color:#ff9f9f; /* pink */
 }
 
 #account form .errors {
     position: absolute;
     left: 320px;
     bottom: 20px;
+}
+#account form .errors li {
+    font-size: 12px;
 }
 
 form .errors > * {
@@ -1488,7 +1506,7 @@ in standards mode.
 }
 li.error [role="select"] .value {
 	border: 1px solid #fb9fa0;
-	border-radius: 5px;
+	border-radius: 3px;
 }
 
 [role="select"].hover .value {
@@ -1524,7 +1542,7 @@ li.error [role="select"] .value {
 .select-options .modal-content {
     background-color: #e7e7e7;
     border: 1px solid #bcbcbc;
-    border-radius: 3px;
+    border-radius: 2px;
     -moz-box-shadow: 3px 1px 3px #666;
     -webkit-box-shadow: 1px 3px 3px #666;
     box-shadow: 3px 1px 3px #666;
@@ -1547,7 +1565,7 @@ li.error [role="select"] .value {
 }
 
 .select-options .option.active {
-    background-color: #f6f6f6;
+    background: #f6f6f6 url(images/select_option_hover.png) 0 100% repeat-x;
     border-top: 1px solid #bcbcbc;
     border-bottom: 1px solid #bcbcbc;
     color: #32a89f;
