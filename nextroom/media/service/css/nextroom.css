@@ -60,8 +60,8 @@ input[type=button] {
     box-shadow: 0px 1px 1px #888;
     cursor: pointer;
     font-family: "Helvetica W02 Rounded Bd";
-    line-height: 12px;
-    font-size: 12px;
+    line-height: 11px;
+    font-size: 11px;
 }
 input[type=submit]:hover,
 input[type=button]:hover,
@@ -92,8 +92,6 @@ input[type=button].cancel:hover {
     border: 0;
     color: #595959;
     text-decoration: underline;
-    font-size: 11px;
-    line-height: 13px;
     text-shadow: 0px 0px 0px #717171;
     -moz-box-shadow: 0px 0px 0px #888;
     -webkit-box-shadow: 0px 0px 0px #888;
@@ -537,7 +535,7 @@ div.modal.confirm-delete .buttons {
 
 
 #app .panel input[type=submit] {
-    padding: 6px 6px 4px 6px;
+    padding: 7px 8px 4px 8px;
     font-size: 11px;
     line-height: 11px;
 }
@@ -794,6 +792,7 @@ the shield slides back into a button shape.
     -moz-border-radius-bottomleft: 8px;
     border-bottom-right-radius: 8px;
     border-bottom-left-radius: 8px;
+    padding-top: 14px;
 }
 #account-editor > h3 {
 
@@ -891,8 +890,8 @@ the shield slides back into a button shape.
 }
 #account div.input input[type="submit"] {
     position: absolute;
-    top:0px;
-    right:-1px;
+    top: 1px;
+    right: -1px;
     font-size: 12px;
     padding: 8px 8px 5px;
     -moz-box-shadow: 0px 0px 0px #888;
@@ -1145,7 +1144,7 @@ button and content. A modal is invisible unless it's active.
     font-size: 11px;
     color: #828282;
     margin: 10px 24px 0;;
-    line-height: 15px;
+    line-height: 16px;
 }
 #help .buttons {
     background: url(images/help_close_bg.png) 0 0 repeat-x;
@@ -1407,6 +1406,7 @@ form .errors > .active {
     line-height: 28px;
     padding-left: 8px;
     color: #888;
+    font-size: 12px;
 }
 
 .shield div.input {
