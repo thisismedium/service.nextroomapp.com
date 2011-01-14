@@ -60,6 +60,7 @@ input[type=button] {
     box-shadow: 0px 1px 1px #888;
     cursor: pointer;
     font-family: "Helvetica W02 Rounded Bd";
+    font-weight: normal;
     line-height: 11px;
     font-size: 11px;
 }
@@ -314,7 +315,7 @@ header {
 
 #practice-name-title {
     font-family: "Helvetica W02 Rounded Bd", arial;
-    font-weight: bold;
+    font-weight: normal;
     font-size: 19px;
     padding: 60px 0 0 102px;
     color: #838384;
@@ -630,7 +631,7 @@ div.modal.confirm-delete .buttons {
     padding: 0 0 0 30px;
     height: 32px;
     line-height: 34px;
-    font-weight: bold;
+    font-weight: normal;
     font-size: 12px;
     font-family: "Helvetica W02 Rounded Bd", helvetica, arial, sans-serif;
 }
@@ -811,7 +812,7 @@ the shield slides back into a button shape.
     color: #666;
     font-family: "Helvetica W02 Rounded Bd", helvetica, arial, sans-serif;
     font-size: 13px;
-    font-weight: bold;
+    font-weight: normal;
     text-transform: none;
     border-right: 1px dashed #666;
 }
@@ -922,7 +923,7 @@ the shield slides back into a button shape.
 #cancel-account .proceed label {
     display: inline-block;
     width: 50%;
-    font-weight: bold;
+    font-weight: normal;
     font-family: "Helvetica W02 Rounded Bd";
 }
 
@@ -1345,6 +1346,7 @@ in the current toolbar. Each tip is a slide. A larger figure is shown.
 	border: 1px solid #fff;
 	border-radius: 3px;
     font-family: "Helvetica W02 Rounded Bd";
+    font-weight: normal;
 }
 /*
 ## Form Errors ##
