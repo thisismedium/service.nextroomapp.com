@@ -40,7 +40,7 @@ a:hover {
 input:focus,
 [role="checkbox"].focus,
 [role="select"].focus {
-    outline: 1px solid #595959;
+    outline: 1px auto #595959;
     border-radius: 2px;
 }
 
@@ -636,7 +636,7 @@ div.modal.confirm-delete .buttons {
     font-family: "Helvetica W02 Rounded Bd", helvetica, arial, sans-serif;
 }
 #app .sortable .entry.selected {
-	background-color: #f6f6f6;
+    background-color: #f6f6f6;
     color: #17baab;
 }
 #app .sortable .entry.dragging {
@@ -742,7 +742,8 @@ li.ghost button {
 }
 
 #app .sortable > .saving {
-    background-color: #fbffd3;
+    background-color: #fbffd3 !important;
+    -webkit-transition: background-color 0.2s linear;
 }
 
 .user-detail .website-fields {
@@ -1364,8 +1365,13 @@ form {
 }
 
 form .error input {
-	border: 1px solid #fb9fa0;
+    border: 1px solid #fb9fa0;
 }
+
+    form .error input:focus {
+	border: none;
+	outline-color: #fb9fa0;
+    }
 
 form .errors {
     display: block;
@@ -1448,6 +1454,7 @@ in standards mode.
 
 [role="checkbox"] {
     display: inline-block;
+    position: relative;
     width: 23px;
     height: 22px;
     line-height: 22px;
@@ -1458,7 +1465,8 @@ in standards mode.
 
     [role="checkbox"] input {
         opacity: 0; filter: alpha(opacity=0);
-        display: inline-block;
+	display: block;
+	position: absolute; top: 0; left: 0;
         margin: 0;
         padding: 0;
         width: 100%;
@@ -1513,17 +1521,21 @@ in standards mode.
     font-size: 12px;
     color: #666;
 }
-li.error [role="select"] .value {
-	border: 1px solid #fb9fa0;
-	border-radius: 3px;
+
+li.error [role="select"] {
+    border: 1px solid #fb9fa0;
+    border-radius: 3px;
 }
+
+    li.error [role="select"].focus {
+	outline-color: #fb9fa0;
+    }
 
 [role="select"].hover .value {
     border-color: black;
 }
 
 [role="select"].focus .value {
-    border-color: orange;
 }
 
 .modal.select-options {

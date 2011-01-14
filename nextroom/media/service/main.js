@@ -57,9 +57,9 @@ define(['./util', './router', './server', './ui', './mouse'], function(U, Router
     var self = this;
 
     this.el.bind('sorted', function(ev) {
-      ev.changed.addClass('saving');
+      saving(ev.changed);
       self.api.put(self.items.uri(), self.items.value(), function(err) {
-        err ? fail(err) : ev.changed.removeClass('saving');
+        err ? fail(err) : doneSaving(ev.changed);
       });
     });
 
@@ -68,14 +68,14 @@ define(['./util', './router', './server', './ui', './mouse'], function(U, Router
     });
 
     this.el.bind('del', function(ev, data) {
-      var item = self.items.find(data.uri).addClass('saving'),
+      var item = saving(self.items.find(data.uri)),
           title = 'Delete ' + self.items.kind() + ' ' + data.name + '?';
 
       confirmDelete(title, function(confirmed) {
         if (confirmed)
           deleteItem(data.uri, item);
         else
-          item.removeClass('saving');
+          doneSaving(item);
       });
     });
 
@@ -93,7 +93,7 @@ define(['./util', './router', './server', './ui', './mouse'], function(U, Router
         if (err)
           fail(err);
         else {
-          item.removeClass('saving');
+          doneSaving(item);
           self.items.remove(uri);
           if (ui.isActive(uri))
             ui.location(U.dirname(uri));
@@ -102,7 +102,7 @@ define(['./util', './router', './server', './ui', './mouse'], function(U, Router
     }
 
     this.el.bind('up', function(ev) {
-      mainView().scrollTo(self.items.el);
+      mainView().scrollTo(0);
     });
 
     this.el.bind('cancel', function(ev, uri) {
@@ -116,6 +116,10 @@ define(['./util', './router', './server', './ui', './mouse'], function(U, Router
           method = form.attr('data-method'),
           value = form.formData();
 
+      if (method != 'post')
+        saving(self.items.find(uri));
+      self.editor.saving();
+
       self.api[method](uri, value, function(err, data) {
         if (err) {
           if (err.status == 400)
@@ -125,10 +129,12 @@ define(['./util', './router', './server', './ui', './mouse'], function(U, Router
         }
         else if (method == 'post') {
           self.items.push(data);
-          ui.location(data.uri);
+          doneSaving(saving(self.items.find(data.uri)));
+          self.editor.saved();
         }
         else {
-          self.items.update(uri, value);
+          self.items.update(uri, data);
+          doneSaving(self.items.find(data.uri));
           self.editor.saved(data);
         }
       });
@@ -193,6 +199,10 @@ define(['./util', './router', './server', './ui', './mouse'], function(U, Router
       this.deselect();
       this.items.unload().hide();
     }
+    if (!kind) {
+      this.menu.deselect();
+      this.tips.hide();
+    }
     next();
     return this;
   };
@@ -210,7 +220,6 @@ define(['./util', './router', './server', './ui', './mouse'], function(U, Router
 
   App.prototype.deselect = function() {
     this.el.attr('className', this.el.attr('className').replace(/\w+-selected/g, ''));
-    //this.tips.hide();
     return this;
   };
 
@@ -229,6 +238,11 @@ define(['./util', './router', './server', './ui', './mouse'], function(U, Router
 
   AppMenu.prototype.find = function(uri) {
     return findEntry(this.el, uri);
+  };
+
+  AppMenu.prototype.deselect = function() {
+    this.el.find('.selected').removeClass('selected');
+    return this;
   };
 
   
@@ -288,6 +302,11 @@ define(['./util', './router', './server', './ui', './mouse'], function(U, Router
   };
 
   InstanceList.prototype.update = function(uri, data) {
+    this._bind(this.find(uri), data);
+    return this;
+  };
+
+  InstanceList.prototype.replace = function(uri, data) {
     this._bind(this.find(uri), data);
     return this;
   };
@@ -369,7 +388,6 @@ define(['./util', './router', './server', './ui', './mouse'], function(U, Router
       });
 
     var elem = $('<a/>')
-      .attr({ href: ui.href(item.uri) })
       .wrap('<li class="entry" />')
       .parent()
         .addClass(item.special ? 'special' : '')
@@ -386,6 +404,7 @@ define(['./util', './router', './server', './ui', './mouse'], function(U, Router
       .data('value', data)
       .find('a')
         .html(data.name)
+        .attr('href', ui.href(data.uri))
       .end();
   };
 
@@ -462,7 +481,15 @@ define(['./util', './router', './server', './ui', './mouse'], function(U, Router
     return this;
   };
 
+  Editor.prototype.saving = function() {
+    this._startSaving();
+    return this;
+  };
+
   Editor.prototype.saved = function(data) {
+    this._doneSaving();
+    if (data === undefined)
+      resetForm(this.el.find('form'));
     return this.removeErrors();
   };
 
@@ -472,6 +499,7 @@ define(['./util', './router', './server', './ui', './mouse'], function(U, Router
   };
 
   Editor.prototype.showErrors = function(errors) {
+    this._doneSaving(true);
     this.el.find('form').showErrors('Fix the errors.', errors);
     return this;
   };
@@ -479,6 +507,23 @@ define(['./util', './router', './server', './ui', './mouse'], function(U, Router
   Editor.prototype._cancel = function(ev) {
     this.el.trigger('cancel', [this.uri()]);
   };
+
+  Editor.prototype._startSaving = function() {
+    var button = this.el.find('[type=submit]');
+    button
+      .data('saving', { orig: button.attr('value'), when: new Date().getTime() })
+      .attr('value', 'Saving...');
+  };
+
+  Editor.prototype._doneSaving = function(flush) {
+    var button = this.el.find('[type=submit]'),
+        saving = button.data('saving'),
+        delta = Math.max(0, 400 - (new Date().getTime() - saving.when));
+    setTimeout(function() {
+      button.attr('value', saving.orig);
+    }, flush ? 0 : delta);
+  };
+
 
   $.view('form', function(data) {
     return this.initForm(data);
@@ -830,6 +875,21 @@ define(['./util', './router', './server', './ui', './mouse'], function(U, Router
       .addClass('selected');
   }
 
+  function saving(items) {
+    return items.addClass('saving');
+  }
+
+  function doneSaving(items) {
+    setTimeout(function() { items.removeClass('saving'); }, 200);
+    return items;
+  }
+
+  function resetForm(form) {
+    form[0].reset();
+    form.find(':input:eq(0)').get(0).focus();
+    return form;
+  }
+
   function findEntry(panel, uri) {
     return panel.find('.entry:has(a[href=#!' + U.relativePath(uri) + '])');
   };
@@ -878,12 +938,6 @@ define(['./util', './router', './server', './ui', './mouse'], function(U, Router
 
   function hidePanels(panels) {
     return panels.removeClass('active');
-    // return panels.each(function() {
-    //   var content = $('> .content', this);
-    //   content
-    //     .stop(true, true)
-    //     .animate({ opacity: 0, left: -1 * content.data('shutter.left') }, 'fast', 'swing');
-    // }).removeClass('active');
   }
 
   function showSection(section) {
