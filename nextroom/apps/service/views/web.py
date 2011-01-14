@@ -39,7 +39,7 @@ def authenticate(email=None, password=None):
         else:
             user = None
         return user
-    
+
 
 def genTmpPwd(n):
     return ''.join([choice(string.letters + string.digits) for i in xrange(n)])
@@ -53,7 +53,7 @@ def login(request):
     valid, user = True, request.session.get(USER_KEY)
     if isinstance(user, User):
         return HttpResponseRedirect('/#!app')
-    
+
     if request.method == 'POST':
         # Process form
         email = request.POST.get('email') or None
@@ -69,7 +69,7 @@ def login(request):
             else:
                 request.session[USER_KEY] = None
                 valid = False
-    
+
     return render_to_response('service/admin/login.html', {
         'valid':valid,
         'media': '%sservice/' % settings.MEDIA_URL
@@ -86,6 +86,7 @@ def home(request):
     user = request.session.get(USER_KEY, None)
     return render_to_response('service/admin/base.html', {
         'user': user,
+        'practice_name': user.practice.practice_name.title(),
         'user_types': User.TYPE_CHOICES,
         'add_types': User.ADD_CHOICES,
         'media': '%sservice/' % settings.MEDIA_URL
@@ -106,12 +107,12 @@ def change_password(request):
                 # Set user password to temporary random password
                 pwd = genTmpPwd(8)
                 print pwd
-                user.set_password(pwd)                
+                user.set_password(pwd)
                 user.save()
-                
+
                 # Send email to user
                 from django.core.mail import send_mail
-                
+
                 try:
                     msg = "Your account password at www.nextroomapp.com has been reset to: %s" % pwd
                     send_mail('NextRoom Password Recovery',
@@ -127,7 +128,7 @@ def change_password(request):
                     reset_sent = True
         else:
             valid = False
-    
+
     return render_to_response('service/admin/change_password.html', {
         'media': '%sservice/' % settings.MEDIA_URL,
         'reset_sent': reset_sent,

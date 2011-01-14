@@ -951,7 +951,7 @@ define(['./util', './router', './server', './ui', './mouse'], function(U, Router
           }
         }
         else {
-          self.title.html(data.practice_name);
+          self.title.html(U.titleCase(data.practice_name));
           form.update(data, function() {
             if (!form.isSaving()) form.stopEditing();
           });
