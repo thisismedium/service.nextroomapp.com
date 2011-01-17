@@ -3,6 +3,6 @@ import servermedium.django.filters as f
 
 config = SiteServerConfig()
                             
-config.add_filter(f.if_host("tennessee.mdnews.com",[f.redirect("(.*)","http://tnvalley.mdnews.com%s")]))
+
 
 SiteServer(config).runserver(globals())
