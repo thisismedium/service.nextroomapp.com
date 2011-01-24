@@ -649,22 +649,10 @@ define(['./util', './router', './server', './ui', './mouse'], function(U, Router
     this.el = $(selector);
     this.app = app;
 
-    var self = this,
-        items = app.items,
-        editor = app.editor;
-
-    this.el
-      .click(function(ev) {
-        if (items.hasLoaded('app/room')) {
-          ev.preventDefault();
-
-          if (editor.uri())
-            editor.unload().hide();
-          app.items.unload().hide();
-
-          self.reset();
-        }
-      });
+    var self = this;
+    this.el.click(function(ev) {
+      self.onClick(ev);
+    });
   }
 
   ResetRooms.prototype.reset = function() {
@@ -681,6 +669,47 @@ define(['./util', './router', './server', './ui', './mouse'], function(U, Router
       else
         ui.location('app/room');
     }
+  };
+
+  ResetRooms.prototype.softReset = function() {
+    var items = this.app.items,
+        editor = this.app.editor;
+
+    if (editor.uri())
+      editor.unload().hide();
+    app.items.unload().hide();
+    self.reset();
+    return this;
+  };
+
+  ResetRooms.prototype.confirm = function(ok) {
+    var self = this;
+
+    confirmModal({
+      message: 'Reset rooms and queue?',
+      confirm: 'Yes, Reset',
+      cancel: 'Cancel',
+      next: function(confirmed) {
+        if (confirmed)
+          ok.call(self);
+      },
+      className: 'confirm-reset'
+    });
+
+    return this;
+  };
+
+  ResetRooms.prototype.onClick = function(ev) {
+    var self = this,
+        items = this.app.items;
+
+    ev.preventDefault();
+    this.confirm(function() {
+      if (items.hasLoaded('app/room'))
+        self.softReset();
+      else
+        ui.location('reset-rooms');
+    });
   };
 
   function alertModal(opt) {
