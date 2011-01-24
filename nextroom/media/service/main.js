@@ -53,6 +53,7 @@ define(['./util', './router', './server', './ui', './mouse'], function(U, Router
     this.items = new InstanceList('#app-kind');
     this.editor = new Editor('#app-editor');
     this.tips = new Tips('#app-tips');
+    this.resetRooms = new ResetRooms('#reset-rooms', this);
 
     var self = this;
 
@@ -640,6 +641,46 @@ define(['./util', './router', './server', './ui', './mouse'], function(U, Router
       }
     }
 
+  };
+
+  // This is an optimization to prevent the whole UI from "flashing"
+  // when the rooms list is already showing.
+  function ResetRooms(selector, app) {
+    this.el = $(selector);
+    this.app = app;
+
+    var self = this,
+        items = app.items,
+        editor = app.editor;
+
+    this.el
+      .click(function(ev) {
+        if (items.hasLoaded('app/room')) {
+          ev.preventDefault();
+
+          if (editor.uri())
+            editor.unload().hide();
+          app.items.unload().hide();
+
+          self.reset();
+        }
+      });
+  }
+
+  ResetRooms.prototype.reset = function() {
+    var self = this,
+        api = this.app.api;
+
+    api.post('reset-rooms/', {}, function(err) {
+      err ? fail(err) : done();
+    });
+
+    function done() {
+      if (ui.isActive('app/room'))
+        self.app.load('app/room');
+      else
+        ui.location('app/room');
+    }
   };
 
   function alertModal(opt) {
@@ -1344,6 +1385,11 @@ define(['./util', './router', './server', './ui', './mouse'], function(U, Router
   ui.unload(/^help/, function(req, _, next) {
     main.help.hide();
     main.nav.deselect('help');
+    next();
+  });
+
+  ui.load(/^reset-rooms/, function(req, next) {
+    main.app.resetRooms.reset();
     next();
   });
 

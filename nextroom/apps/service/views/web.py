@@ -141,22 +141,6 @@ def change_password(request):
 #######################################
 
 @web_auth
-def reset_rooms(request):
-    # Resets Rooms at end of day
-    for r in Room.objects.all():
-        r.assignedto.clear()
-        r.notes.clear()
-        r.tasks.clear()
-        r.status = "C"
-        r.timestampinqueue = None
-        r.lasttimeinqueue = None
-        r.save()
-    for u in User.objects.all():
-        u.num_accepted = 0
-        u.save()
-    return HttpResponseRedirect('/')
-
-@web_auth
 def screen_display(request):
     try:
         practice = Practice.objects.get(account_name=practice)

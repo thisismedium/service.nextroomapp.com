@@ -317,7 +317,7 @@ header {
     font-family: "Helvetica W02 Rounded Bd", arial;
     font-weight: normal;
     font-size: 19px;
-    padding: 60px 0 0 102px;
+    padding: 10px 0 0 102px;
     color: #838384;
     text-shadow: 1px 1px 1px #fff;
 }
@@ -382,9 +382,29 @@ footer {
     bottom: 0;
     background: #ececec url(images/footer_bg.png) 0 0 repeat-x;
 }
+
 footer img {
     margin: 10px 0 0 10px;
 }
+
+footer .footer-nav {
+    display: inline-block;
+    margin-left: 5px;
+}
+
+footer .footer-nav a {
+    color: #666;
+    font-family: "Helvetica W02 Rounded Bd", helvetica, arial, sans-serif;
+    font-size: 13px;
+    font-weight: normal;
+    text-transform: none;
+    line-height: 30px;
+    text-decoration: none;
+}
+
+    footer .footer-nav a:hover {
+	color: #17baab;
+    }
 
 
 /* ## Main ## */
@@ -1109,6 +1129,11 @@ button and content. A modal is invisible unless it's active.
 
 .modal.help {
     z-index: 5000;
+    position: static;
+}
+
+.modal.help .modal-overlay {
+    position: fixed;
 }
 
 .modal.help .modal-body {
@@ -1179,7 +1204,7 @@ button and content. A modal is invisible unless it's active.
 }
 
     #header_background {
-	position: fixed;
+	position: relative;
     }
 
     #header_background, footer, header {

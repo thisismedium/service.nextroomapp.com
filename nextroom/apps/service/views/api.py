@@ -37,3 +37,24 @@ def app_model(request, model):
 def app_instance(request, model, id):
     # Process & returns instance-based requests
     return json_response(process(request, model, int(id)), get_user(request))
+
+@web_auth
+@api_request
+def reset_rooms(request):
+    return json_response(None)
+
+    # FIXME: Bob, check this logic.
+    # Resets Rooms at end of day
+    # for r in Room.objects.all():
+    #     r.assignedto.clear()
+    #     r.notes.clear()
+    #     r.tasks.clear()
+    #     r.status = "C"
+    #     r.timestampinqueue = None
+    #     r.lasttimeinqueue = None
+    #     r.save()
+    # for u in User.objects.all():
+    #     u.num_accepted = 0
+    #     u.save()
+    # return HttpResponseRedirect('/')
+
