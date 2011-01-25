@@ -72,7 +72,7 @@ define(['./util', './router', './server', './ui', './mouse'], function(U, Router
       var item = saving(self.items.find(data.uri)),
           title = 'Delete ' + self.items.kind() + ' ' + data.name + '?';
 
-      confirmDelete(title, function(confirmed) {
+      confirmDelete(U.removeRepeats(title), function(confirmed) {
         if (confirmed)
           deleteItem(data.uri, item);
         else

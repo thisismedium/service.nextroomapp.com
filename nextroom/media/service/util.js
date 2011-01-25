@@ -5,6 +5,7 @@ define(['exports'], function(exports) {
   exports.toArray = toArray;
   exports.words = words;
   exports.strip = strip;
+  exports.removeRepeats = removeRepeats;
   exports.join = join;
   exports.dirname = dirname;
   exports.basename = basename;
@@ -47,6 +48,14 @@ define(['exports'], function(exports) {
 
   function strip(s) {
     return (s || '').replace(/^\s*|\s*$/, '');
+  }
+
+  // Remove repeated words in a sentence. For example:
+  //
+  //     removeRepeats("Delete Task Task 1")
+  //     => "Delete Task 1"
+  function removeRepeats(sentence) {
+    return sentence.replace(/(\S+)\s+\1(\s+|$)/g, '$1$2');
   }
 
   function join() {
