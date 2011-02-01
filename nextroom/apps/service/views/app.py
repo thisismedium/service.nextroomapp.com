@@ -23,11 +23,15 @@ USER_KEY = 'user'
 
 def throw_xml_error():
     return render_to_response('service/app/base.xml', {'results': None, 'version': '', 'status': 'error', 'notify': 'No'}, mimetype="text/xml")
+    
+
 
 def convertColors(user):
     from nextroom.utils.webcolors import hex_to_rgb
     user.colorr, user.colorg, user.colorb = hex_to_rgb(user.color) if user.color is not None or user.color != '' else ''
     return user
+    
+
 
 ################################
 #   iPhone views
@@ -49,6 +53,8 @@ def app_login(request):
                 return HttpResponse("TRUE")
     else:
         return HttpResponse("FALSE")
+    
+
 
 def verify_account_exists(request, practice):
     try:
@@ -57,10 +63,11 @@ def verify_account_exists(request, practice):
         return HttpResponse("FALSE")
     else:
         return HttpResponse("TRUE")
+    
+
 
 def pin_check(request):
     if request.method == 'GET':
-
         # First ensure we have a valid User making this request
         userid = request.GET.get('user')
         pin = request.GET.get('pin')
@@ -72,6 +79,8 @@ def pin_check(request):
             return HttpResponse("TRUE")
     else:
         return HttpResponse("FALSE")
+    
+
 
 @app_auth
 def get_rooms(request):
@@ -82,20 +91,20 @@ def get_rooms(request):
         status = 'current'
         rooms = None
         notify = 'NO'
-
+        
         if not versionNumber or versionNumber == "none":
-            rooms = Room.objects.all().distinct().order_by('status', 'timestampinqueue', 'lasttimeinqueue', 'name')
+            rooms = Room.objects.filter(practice=user.practice).distinct().order_by('status', 'timestampinqueue', 'lasttimeinqueue', 'name')
             status = 'update'
             notify = 'YES'
-
+            
             rooms_version = increment_type_version('room')
-
+            
             try:
                 user_version = user.version
             except Version.DoesNotExist:
                 user_version = increment_user_version(user)
         else:
-
+            
             roomsVersionNumber = versionNumber[0:32]
             userVersionNumber = versionNumber[32:64]
             #   Check to see if this user already has a version, otherwise it's the first time and we'll create a version for them
@@ -103,7 +112,7 @@ def get_rooms(request):
                 user_version = user.version
             except Version.DoesNotExist:
                 user_version = increment_user_version(user)
-
+            
             #   Figure out what version was passed in
             try:
                 rooms_version = Version.objects.get(versionNumber=roomsVersionNumber)
@@ -114,46 +123,49 @@ def get_rooms(request):
                 except Version.DoesNotExist:
                     #   So, maybe we never created a version for rooms, create it now
                     rooms_version = increment_type_version('room')
-
+            
             #   Now, see if that version is the current version for rooms
             if roomsVersionNumber != rooms_version.versionNumber:
                 rooms = Room.objects.all().filter(practice=user.practice).order_by('status','timestampinqueue', 'lasttimeinqueue', 'name')
                 status = 'update'
-
+            
             #   Now see if the version for the user is different, if so we'll notify
             if userVersionNumber != user_version.versionNumber:
                 notify = 'YES'
-
+            
         return render_to_response('service/app/rooms.xml', {'results': rooms, 'version': "%s%s" % (rooms_version.versionNumber, user_version.versionNumber), 'status': status, 'notify': notify}, mimetype="text/xml")
+        
+
 
 @app_auth
 def get_room(request):
     if request.method == 'GET':
-
+        
         room_id = request.GET.get("room")
         room = Room.objects.get(pk=room_id)
-
+        
         return render_to_response('service/app/room.xml', {'room': room}, mimetype="text/xml")
+    
+
 
 @app_auth
 def get_tags(request, type):
     if request.method == 'GET':
         # First ensure we have a valid User making this request
-
+        
         user = request.session.get(USER_KEY)
         version = request.GET.get('version')
         status = 'current'
         tags = None
         notify = 'NO'
-
+        
         #   Get the current version for notes
         try:
             current_version = Version.objects.get(type=type)
         except Version.DoesNotExist:
             current_version = increment_type_version(type)
             status = 'update'
-
-
+        
         #   Compare the current version with the version that was passed
         if version != current_version.versionNumber:
             if type == 'note':
@@ -162,8 +174,11 @@ def get_tags(request, type):
                 tags = Task.objects.all().filter(practice=user.practice).order_by('sort_order')
             status = 'update'
             notify = 'YES'
-
+        
         return render_to_response('service/app/tags.xml', {'results': tags, 'version': current_version.versionNumber, 'status': status, 'notify': notify}, mimetype="text/xml")
+        
+    
+
 
 def get_users(request, practice):
     if request.method == 'GET':
@@ -176,23 +191,24 @@ def get_users(request, practice):
             status = 'current'
             users = []
             notify = 'NO'
-
+            
             #   Get the current version for _users
             try:
                 current_version = Version.objects.get(type='_users')
             except Version.DoesNotExist:
                 current_version = increment_type_version('_users')
                 status = 'update'
-
-
+            
             #   Compare the current version with the version that was passed
             if version != current_version.versionNumber:
                 users = User.objects.all().filter(practice=practice).exclude(type='site').order_by('name','type')
                 status = 'update'
-
+            
             users = map(convertColors, users)
-
+            
             return render_to_response('service/app/users.xml', {'results': users, 'version': current_version.versionNumber, 'status': status, 'notify': notify}, mimetype="text/xml")
+            
+
 
 @app_auth
 def update_room(request):
@@ -300,3 +316,6 @@ def update_room(request):
         rooms_version = Version.objects.filter(type='room').order_by("-lastChange")[0]
         
         return render_to_response('service/app/rooms.xml', {'results': rooms, 'version': "%s%s" % (rooms_version.versionNumber, user.version.versionNumber), 'status': 'update', 'notify': 'YES'}, mimetype="text/xml")
+        
+    
+
