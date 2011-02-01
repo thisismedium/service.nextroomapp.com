@@ -375,6 +375,10 @@ class User(ApiModel):
     email = models.EmailField(blank=True, null=True)
     password = models.CharField(max_length=128, blank=True, null=True)
     
+    def clear(self):
+        self.num_accepted = 0
+        self.save()
+    
     def set_password(self, raw_password):
         # Taken from Django.contrib.auth.models.User.set_password()
         import random
@@ -515,6 +519,15 @@ class Room(ApiModel):
         for user in self.assignedto.all():
             increment_user_version(user)
     
+    
+    def clear(self):
+        self.assignedto.clear()
+        self.notes.clear()
+        self.tasks.clear()
+        self.status = "C"
+        self.timestampinqueue = None
+        self.lasttimeinqueue = None
+        self.save()
     
     def __unicode__(self):
         return "%s" % self.name
