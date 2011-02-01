@@ -8,7 +8,7 @@ from django.core.serializers import serialize
 from nextroom.apps.service.decorators import web_auth, api_request, get_user
 from nextroom.apps.service.methods import process
 from nextroom.apps.service.responses import json_response
-from nextroom.apps.service.models import Practice
+from nextroom.apps.service.models import Practice, Room, User
 
 
 # CONSTANTS
@@ -41,20 +41,12 @@ def app_instance(request, model, id):
 @web_auth
 @api_request
 def reset_rooms(request):
+    for r in Room.objects.all():
+        r.clear()
+    
+    for u in User.objects.all():
+        u.clear()
+    
     return json_response(None)
-
-    # FIXME: Bob, check this logic.
-    # Resets Rooms at end of day
-    # for r in Room.objects.all():
-    #     r.assignedto.clear()
-    #     r.notes.clear()
-    #     r.tasks.clear()
-    #     r.status = "C"
-    #     r.timestampinqueue = None
-    #     r.lasttimeinqueue = None
-    #     r.save()
-    # for u in User.objects.all():
-    #     u.num_accepted = 0
-    #     u.save()
-    # return HttpResponseRedirect('/')
+    
 
