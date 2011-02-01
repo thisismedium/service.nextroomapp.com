@@ -677,8 +677,8 @@ define(['./util', './router', './server', './ui', './mouse'], function(U, Router
 
     if (editor.uri())
       editor.unload().hide();
-    app.items.unload().hide();
-    self.reset();
+    items.unload().hide();
+    this.reset();
     return this;
   };
 
