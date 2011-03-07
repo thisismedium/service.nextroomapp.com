@@ -93,7 +93,7 @@ def get_rooms(request):
         notify = 'NO'
         
         if not versionNumber or versionNumber == "none":
-            rooms = Room.objects.filter(practice=user.practice).distinct().order_by('status', 'timestampinqueue', 'lasttimeinqueue', 'name')
+            rooms = Room.objects.filter(practice=user.practice).distinct().order_by('sort_order', 'status', 'timestampinqueue', 'lasttimeinqueue', 'name')
             status = 'update'
             notify = 'YES'
             
@@ -126,7 +126,7 @@ def get_rooms(request):
             
             #   Now, see if that version is the current version for rooms
             if roomsVersionNumber != rooms_version.versionNumber:
-                rooms = Room.objects.all().filter(practice=user.practice).order_by('status','timestampinqueue', 'lasttimeinqueue', 'name')
+                rooms = Room.objects.all().filter(practice=user.practice).order_by('sort_order', 'status','timestampinqueue', 'lasttimeinqueue', 'name')
                 status = 'update'
             
             #   Now see if the version for the user is different, if so we'll notify
@@ -201,7 +201,7 @@ def get_users(request, practice):
             
             #   Compare the current version with the version that was passed
             if version != current_version.versionNumber:
-                users = User.objects.all().filter(practice=practice).exclude(type='site').order_by('name','type')
+                users = User.objects.all().filter(practice=practice).exclude(type='site').order_by('sort_order', 'name','type')
                 status = 'update'
             
             users = map(convertColors, users)
