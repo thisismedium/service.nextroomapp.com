@@ -2,8 +2,9 @@
 <html class="{% block html_class %}{% endblock %}">
   <head>
     <title>{{user.practice}} // NextRoom</title>
+
     <link rel="stylesheet" type="text/css" href="{{media}}css/nextroom.css" />
-    <link rel="shortcut icon" href=/media/images/favicon.ico>
+    <link rel="shortcut icon" href="/media/images/favicon.ico" />
 
     <script type="text/javascript">
      document.createElement('header');
@@ -30,12 +31,18 @@
             	  <li class="nav_application">
                     <a href="#!app">Application</a>
             	  </li>
+            	  <li class="nav_admin">
+                    <a href="#!admin">Admin</a>
+            	  </li>
             	  <li class="nav_account">
                     <a href="#!account">Account</a>
             	  </li>
             	  <li class="nav_help">
                     <a href="#!help">Help</a>
             	  </li>
+		  <li class="nav_who">
+		    <span>Welcome {{user.name}}</span>
+		  </li>
             	  <li class="nav_logout">
                     <a href="/logout/">Logout</a>
             	  </li>
@@ -50,21 +57,21 @@
       <h1 id="practice-name-title">{{practice_name}}</h1>
         <div id="content">
             <div role="main">
-              <section id="app">
+              <section id="admin">
 
-		<div id="app-menu" class="panel static">
+		<div id="admin-menu" class="panel static">
 		  <ul class="content">
-                    <li class="entry menu_users"><a href="#!app/user">Users</a></li>
-                    <li class="entry menu_rooms"><a href="#!app/room">Rooms</a></li>
-                    <li class="entry menu_tasks"><a href="#!app/task">Tasks</a></li>
-                    <li class="entry menu_notes"><a href="#!app/note">Notes</a></li>
+                    <li class="entry menu_users"><a href="#!admin/user">Users</a></li>
+                    <li class="entry menu_rooms"><a href="#!admin/room">Rooms</a></li>
+                    <li class="entry menu_tasks"><a href="#!admin/task">Tasks</a></li>
+                    <li class="entry menu_notes"><a href="#!admin/note">Notes</a></li>
 		  </ul>
 		</div>
 
-		<div id="app-kind" class="panel"><div class="content stub"></div></div>
-		<div id="app-editor" class="panel"><div class="content stub"></div></div>
+		<div id="admin-kind" class="panel"><div class="content stub"></div></div>
+		<div id="admin-editor" class="panel"><div class="content stub"></div></div>
 
-		<div id="app-tips" class="panel">
+		<div id="admin-tips" class="panel">
 		  <div class="content">
 		    <h3 class="tips_and_tools">Tips &amp; Tools</h3>
 
@@ -193,7 +200,7 @@
 		  </div>
 		</div>
 
-              </section> <!-- #app -->
+              </section> <!-- #admin -->
 
 	      <section id="account">
 		<div id="account-editor" class="panel">

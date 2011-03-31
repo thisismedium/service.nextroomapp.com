@@ -477,12 +477,12 @@ div.modal.confirm .buttons {
 }
 
 
-/* ## App ## */
+/* ## Admin ## */
 
-#app {
+#admin {
 }
 
-#app .panel {
+#admin .panel {
     position: relative;
     display: block;
     float: left;
@@ -491,41 +491,41 @@ div.modal.confirm .buttons {
     margin-right: 20px;
     width: 220px;
 }
-#app #app-editor {
+#admin #admin-editor {
     width: 221px;
     opacity: 0;
 }
-#app.user-selected #app-editor {
+#admin.user-selected #admin-editor {
     background: url(images/watermark_users.png) 50% 0 no-repeat;
     opacity: 1;
     -webkit-transition: opacity 0.5s linear;
     -moz-transition: opacity 0.5s linear;
 }
 
-#app.room-selected #app-editor {
+#admin.room-selected #admin-editor {
     background: url(images/watermark_rooms.png) 50% 0 no-repeat;
     opacity: 1;
     -webkit-transition: opacity 0.5s linear;
     -moz-transition: opacity 0.5s linear;
 }
-#app.task-selected #app-editor {
+#admin.task-selected #admin-editor {
     background: url(images/watermark_tasks.png) 50% 0 no-repeat;
     opacity: 1;
     -webkit-transition: opacity 0.5s linear;
     -moz-transition: opacity 0.5s linear;
 }
-#app.note-selected #app-editor {
+#admin.note-selected #admin-editor {
     background: url(images/watermark_notes.png) 50% 0 no-repeat;
     opacity: 1;
     -webkit-transition: opacity 0.5s linear;
     -moz-transition: opacity 0.5s linear;
 }
-#app .panel:last-child {
+#admin .panel:last-child {
     margin-right: 0;
 }
 
-#app-editor form.panel,
-#app-tips div.content {
+#admin-editor form.panel,
+#admin-tips div.content {
     background: #f3f3f3 url(images/panel_bg.png) 0 0 repeat-x;
     border: 1px solid #fff;
     border-radius: 3px;
@@ -534,11 +534,11 @@ div.modal.confirm .buttons {
     -webkit-box-shadow: 0px 1px 1px #888;
     box-shadow: 0px 1px 1px #888;
 }
-#app-editor form.panel {
+#admin-editor form.panel {
     padding: 10px;
     width: 199px;
 }
-#app-tips h3.tips_and_tools {
+#admin-tips h3.tips_and_tools {
     text-indent: -9999px;
     width: 195px;
     height: 38px;
@@ -547,23 +547,23 @@ div.modal.confirm .buttons {
 
 }
 
-#app-tips section {
+#admin-tips section {
     padding: 10px 11px;
     background: url(images/tips_and_tools_section_hr.png) 0 0 no-repeat;
 }
-#app-tips section:first-child {
+#admin-tips section:first-child {
     background: none;
     padding-top: 0;
 }
 
 
-#app .panel input[type=submit] {
+#admin .panel input[type=submit] {
     padding: 7px 8px 4px 8px;
     font-size: 11px;
     line-height: 11px;
 }
 
-#app .panel > .content {
+#admin .panel > .content {
     position: relative;
     top: 0;
     left: 0;
@@ -574,7 +574,7 @@ div.modal.confirm .buttons {
     -moz-transition: opacity: 0.2s linear;
 }
 
-#app .active > .content, #app .static > .content {
+#admin .active > .content, #admin .static > .content {
     opacity: 1;
     left: 0;
 }
@@ -596,7 +596,7 @@ div.modal.confirm .buttons {
     font-weight: bold;
 }
 
-#app .header {
+#admin .header {
     margin: 0;
     height: 42px;
     border-radius: 0;
@@ -617,34 +617,34 @@ div.modal.confirm .buttons {
     font-style: italic;
 }
 
-#app .entry:hover {
+#admin .entry:hover {
     color: #0cac98;
 }
 
-#app #app-menu .entry {
+#admin #admin-menu .entry {
     width: 220px;
     height: 45px;
     overflow: hidden;
     border: 0;
     background: none;
 }
-#app #app-menu li a {
+#admin #admin-menu li a {
     display: block;
     background: url(images/sidebar_nav.png) 0 0 no-repeat;
     width: 440px;
     height: 100%;
     text-indent: -9999px;
 }
-#app #app-menu li.menu_rooms a { background-position: 0 -51px; }
-#app #app-menu li.menu_tasks a { background-position: 0 -102px; }
-#app #app-menu li.menu_notes a { background-position: 0 -154px; }
+#admin #admin-menu li.menu_rooms a { background-position: 0 -51px; }
+#admin #admin-menu li.menu_tasks a { background-position: 0 -102px; }
+#admin #admin-menu li.menu_notes a { background-position: 0 -154px; }
 
-#app #app-menu li.selected a,
-#app #app-menu li a:hover {
+#admin #admin-menu li.selected a,
+#admin #admin-menu li a:hover {
     margin-left: -220px;
 }
 
-#app .sortable .entry {
+#admin .sortable .entry {
     border-radius: 0;
     border-bottom: 0;
     border-top-color: #9e9e9e;
@@ -657,18 +657,18 @@ div.modal.confirm .buttons {
     font-size: 12px;
     font-family: "Helvetica W02 Rounded Bd", helvetica, arial, sans-serif;
 }
-#app .sortable .entry.selected {
+#admin .sortable .entry.selected {
     background-color: #f6f6f6;
     color: #17baab;
 }
-#app .sortable .entry.dragging {
+#admin .sortable .entry.dragging {
     color: #999;
 }
-#app .sortable .entry.dragging button {
+#admin .sortable .entry.dragging button {
     display: none;
 }
 
-#app .sortable .entry:last-child {
+#admin .sortable .entry:last-child {
     border-bottom: 1px solid #fff;
     -webkit-border-bottom-left-radius: 3px;
     -webkit-border-bottom-right-radius: 3px;
@@ -699,7 +699,7 @@ div.modal.confirm .buttons {
     right: 10px;
 }
 
-#app .header .add {
+#admin .header .add {
     background: url(images/button_add_bg.png) 0 0 repeat-x;
     line-height: 14px;
     height: 23px;
@@ -710,14 +710,14 @@ div.modal.confirm .buttons {
     text-indent: -9999px;
     border: 0;
 }
-#app .header .add:hover {
+#admin .header .add:hover {
     background-position: 0 -23px;
 }
-#app .header .add:active {
+#admin .header .add:active {
     background-position: 0 -46px;
 }
 
-#app .entry .delete {
+#admin .entry .delete {
     bottom: 3px;
     background: url(images/button_delete_bg.png) 0 0 repeat-x;
     height: 24px;
@@ -728,14 +728,14 @@ div.modal.confirm .buttons {
     text-indent: -9999px;
     border: 0;
 }
-#app .entry .delete:hover {
+#admin .entry .delete:hover {
     background-position: 0 -25px;
 }
-#app .entry .delete:active {
+#admin .entry .delete:active {
     background-position: 0 -50px;
 }
 
-#app .entry.over .indicator {
+#admin .entry.over .indicator {
     display: block;
     width: 100%;
     height: 3px;
@@ -763,7 +763,7 @@ li.ghost button {
     display: none !important;
 }
 
-#app .sortable > .saving {
+#admin .sortable > .saving {
     background-color: #fbffd3 !important;
     -webkit-transition: background-color 0.2s linear;
 }
@@ -970,16 +970,16 @@ the shield slides back into a button shape.
     text-decoration: none;
 }
 
-#app-tips.panel > .content {
+#admin-tips.panel > .content {
     left: 0;
     visibility: hidden;
 }
 
-#app-tips.active > .content {
+#admin-tips.active > .content {
     visibility: visible;
 }
 
-#app-tips h3 {
+#admin-tips h3 {
     font-size: 1.4em;
     font-weight: bold;
     margin-bottom: 1em;
@@ -1419,7 +1419,7 @@ form .errors > .active {
     display: block;
 }
 
-#app-editor form.panel .errors {
+#admin-editor form.panel .errors {
     position: absolute;
     bottom: 5px;
     left: 0;

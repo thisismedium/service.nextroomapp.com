@@ -27,14 +27,14 @@ def account(request):
 
 @web_auth
 @api_request
-def app_model(request, model):
+def admin_model(request, model):
     # Processes & returns model-based requests
     return json_response(process(request, model, id=None), get_user(request))
 
 
 @web_auth
 @api_request
-def app_instance(request, model, id):
+def admin_instance(request, model, id):
     # Process & returns instance-based requests
     return json_response(process(request, model, int(id)), get_user(request))
 
@@ -43,10 +43,10 @@ def app_instance(request, model, id):
 def reset_rooms(request):
     for r in Room.objects.all():
         r.clear()
-    
+
     for u in User.objects.all():
         u.clear()
-    
+
     return json_response(None)
-    
+
 

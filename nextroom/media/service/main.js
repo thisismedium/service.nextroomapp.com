@@ -3,7 +3,7 @@ define(['./util', './router', './server', './ui', './mouse'], function(U, Router
   function Main(selector) {
     this.el = $(selector);
     this.nav = new Nav('#main-nav');
-    this.app = new App('#app');
+    this.admin = new Admin('#admin');
     this.help = new Help('#help');
     this.account = new Account('#account');
     this.view = null;
@@ -43,16 +43,16 @@ define(['./util', './router', './server', './ui', './mouse'], function(U, Router
   };
 
   
-  // ## App ##
+  // ## Admin ##
 
-  function App(selector) {
+  function Admin(selector) {
     this.el = $(selector);
     this.api = new Server.createClient();
 
-    this.menu = new AppMenu('#app-menu');
-    this.items = new InstanceList('#app-kind');
-    this.editor = new Editor('#app-editor');
-    this.tips = new Tips('#app-tips');
+    this.menu = new AppMenu('#admin-menu');
+    this.items = new InstanceList('#admin-kind');
+    this.editor = new Editor('#admin-editor');
+    this.tips = new Tips('#admin-tips');
     this.resetRooms = new ResetRooms('#reset-rooms', this);
 
     var self = this;
@@ -142,24 +142,24 @@ define(['./util', './router', './server', './ui', './mouse'], function(U, Router
     });
   }
 
-  App.prototype.show = function(fn) {
+  Admin.prototype.show = function(fn) {
     if (!this.el.is('.active'))
       showSection(this.el);
     return this;
   };
 
-  App.prototype.hide = function(fn) {
+  Admin.prototype.hide = function(fn) {
     if (this.el.is('.active'))
       hideSection(this.el);
     return this;
   };
 
-  App.prototype.wait = function(next) {
+  Admin.prototype.wait = function(next) {
     this.api.stop(next);
     return this;
   };
 
-  App.prototype.load = function(kind, edit) {
+  Admin.prototype.load = function(kind, edit) {
     var self = this,
         need = [null, null],
         newItem = false;
@@ -193,7 +193,7 @@ define(['./util', './router', './server', './ui', './mouse'], function(U, Router
     return this;
   };
 
-  App.prototype.unload = function(kind, edit, next) {
+  Admin.prototype.unload = function(kind, edit, next) {
     if (!this.editor.hasLoaded(edit))
       this.editor.unload().hide();
     if (!this.items.hasLoaded(kind)) {
@@ -208,7 +208,7 @@ define(['./util', './router', './server', './ui', './mouse'], function(U, Router
     return this;
   };
 
-  App.prototype.select = function(uri) {
+  Admin.prototype.select = function(uri) {
     if (!uri)
       return this.deselect();
 
@@ -219,7 +219,7 @@ define(['./util', './router', './server', './ui', './mouse'], function(U, Router
     return this;
   };
 
-  App.prototype.deselect = function() {
+  Admin.prototype.deselect = function() {
     this.el.attr('className', this.el.attr('className').replace(/\w+-selected/g, ''));
     return this;
   };
@@ -401,6 +401,7 @@ define(['./util', './router', './server', './ui', './mouse'], function(U, Router
   InstanceList.prototype._bind = function(item, data) {
     if (!item) return;
     data = $.extend(item.data('value') || {}, data);
+    console.log('BIND', item, data);
     return item
       .data('value', data)
       .find('a')
@@ -645,9 +646,9 @@ define(['./util', './router', './server', './ui', './mouse'], function(U, Router
 
   // This is an optimization to prevent the whole UI from "flashing"
   // when the rooms list is already showing.
-  function ResetRooms(selector, app) {
+  function ResetRooms(selector, admin) {
     this.el = $(selector);
-    this.app = app;
+    this.admin = admin;
 
     var self = this;
     this.el.click(function(ev) {
@@ -657,23 +658,23 @@ define(['./util', './router', './server', './ui', './mouse'], function(U, Router
 
   ResetRooms.prototype.reset = function() {
     var self = this,
-        api = this.app.api;
+        api = this.admin.api;
 
     api.post('reset-rooms/', {}, function(err) {
       err ? fail(err) : done();
     });
 
     function done() {
-      if (ui.isActive('app/room'))
-        self.app.load('app/room');
+      if (ui.isActive('admin/room'))
+        self.app.load('admin/room');
       else
-        ui.location('app/room');
+        ui.location('admin/room');
     }
   };
 
   ResetRooms.prototype.softReset = function() {
-    var items = this.app.items,
-        editor = this.app.editor;
+    var items = this.admin.items,
+        editor = this.admin.editor;
 
     if (editor.uri())
       editor.unload().hide();
@@ -701,11 +702,11 @@ define(['./util', './router', './server', './ui', './mouse'], function(U, Router
 
   ResetRooms.prototype.onClick = function(ev) {
     var self = this,
-        items = this.app.items;
+        items = this.admin.items;
 
     ev.preventDefault();
     this.confirm(function() {
-      if (items.hasLoaded('app/room'))
+      if (items.hasLoaded('admin/room'))
         self.softReset();
       else
         ui.location('reset-rooms');
@@ -1354,28 +1355,28 @@ define(['./util', './router', './server', './ui', './mouse'], function(U, Router
       main;
 
   ui.load(/^$/, function(req, next) {
-    ui.location('app');
+    ui.location('admin');
     next();
   });
 
-  ui.load(/^app.*/, function(req, next) {
+  ui.load(/^admin.*/, function(req, next) {
     var uris = listUriSegments(req.uri),
-        app = main.app;
+        admin = main.admin;
 
-    main.nav.select('app');
-    app.show().load(uris[1], uris[2]);
+    main.nav.select('admin');
+    admin.show().load(uris[1], uris[2]);
     next();
   });
 
-  ui.unload(/^app.*/, function(req, loading, next) {
+  ui.unload(/^admin.*/, function(req, loading, next) {
     var future = loading ? listUriSegments(loading.uri) : [],
-        app = main.app;
+        admin = main.admin;
 
-    app.wait(function() {
-      app.unload(future[1], future[2], function() {
-        if ('app' != future[0]) {
-          main.nav.deselect('app');
-          app.hide();
+    admin.wait(function() {
+      admin.unload(future[1], future[2], function() {
+        if ('admin' != future[0]) {
+          main.nav.deselect('admin');
+          admin.hide();
         }
         next();
       });
@@ -1418,7 +1419,7 @@ define(['./util', './router', './server', './ui', './mouse'], function(U, Router
   });
 
   ui.load(/^reset-rooms/, function(req, next) {
-    main.app.resetRooms.reset();
+    main.admin.resetRooms.reset();
     next();
   });
 
