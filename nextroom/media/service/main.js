@@ -401,7 +401,6 @@ define(['./util', './router', './server', './ui', './mouse'], function(U, Router
   InstanceList.prototype._bind = function(item, data) {
     if (!item) return;
     data = $.extend(item.data('value') || {}, data);
-    console.log('BIND', item, data);
     return item
       .data('value', data)
       .find('a')
@@ -1349,39 +1348,45 @@ define(['./util', './router', './server', './ui', './mouse'], function(U, Router
   };
 
   
+  // ## Panels ##
+
+  function Panels(route, view, name) {
+    ui.load(route, function(req, next) {
+      var uris = listUriSegments(req.uri);
+
+      main.nav.select(name);
+      view.show().load(uris[1], uris[2]);
+      next();
+    });
+
+    ui.unload(route, function(req, loading, next) {
+      var future = loading ? listUriSegments(loading.uri) : [];
+
+      view.wait(function() {
+        view.unload(future[1], future[2], function() {
+          if (name != future[0]) {
+            main.nav.deselect(name);
+            view.hide();
+          }
+          next();
+        });
+      });
+    });
+  }
+
+  
   // ## Start ##
 
   var ui = Router.createRouter(),
       main;
 
+  function addRoutes() {
+    Panels(/^admin.*/, main.admin, 'admin');
+  }
+
   ui.load(/^$/, function(req, next) {
     ui.location('admin');
     next();
-  });
-
-  ui.load(/^admin.*/, function(req, next) {
-    var uris = listUriSegments(req.uri),
-        admin = main.admin;
-
-    main.nav.select('admin');
-    admin.show().load(uris[1], uris[2]);
-    next();
-  });
-
-  ui.unload(/^admin.*/, function(req, loading, next) {
-    var future = loading ? listUriSegments(loading.uri) : [],
-        admin = main.admin;
-
-    admin.wait(function() {
-      admin.unload(future[1], future[2], function() {
-        if ('admin' != future[0]) {
-          main.nav.deselect('admin');
-          admin.hide();
-        }
-        next();
-      });
-    });
-
   });
 
   ui.load(/^account.*/, function(req, next) {
@@ -1425,6 +1430,7 @@ define(['./util', './router', './server', './ui', './mouse'], function(U, Router
 
   $(function() {
     main = new Main('[role=main]');
+    addRoutes();
     ui.listen();
   });
 
