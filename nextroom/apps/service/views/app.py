@@ -23,14 +23,14 @@ USER_KEY = 'user'
 
 def throw_xml_error():
     return render_to_response('service/app/base.xml', {'results': None, 'version': '', 'status': 'error', 'notify': 'No'}, mimetype="text/xml")
-    
+
 
 
 def convertColors(user):
     from nextroom.utils.webcolors import hex_to_rgb
     user.colorr, user.colorg, user.colorb = hex_to_rgb(user.color) if user.color is not None or user.color != '' else ''
     return user
-    
+
 
 
 ################################
@@ -53,7 +53,7 @@ def app_login(request):
                 return HttpResponse("TRUE")
     else:
         return HttpResponse("FALSE")
-    
+
 
 
 def verify_account_exists(request, practice):
@@ -63,7 +63,7 @@ def verify_account_exists(request, practice):
         return HttpResponse("FALSE")
     else:
         return HttpResponse("TRUE")
-    
+
 
 
 def pin_check(request):
@@ -79,7 +79,7 @@ def pin_check(request):
             return HttpResponse("TRUE")
     else:
         return HttpResponse("FALSE")
-    
+
 
 
 @app_auth
@@ -91,20 +91,20 @@ def get_rooms(request):
         status = 'current'
         rooms = None
         notify = 'NO'
-        
+
         if not versionNumber or versionNumber == "none":
             rooms = Room.objects.filter(practice=user.practice).distinct().order_by('sort_order', 'status', 'timestampinqueue', 'lasttimeinqueue', 'name')
             status = 'update'
             notify = 'YES'
-            
+
             rooms_version = increment_type_version('room')
-            
+
             try:
                 user_version = user.version
             except Version.DoesNotExist:
                 user_version = increment_user_version(user)
         else:
-            
+
             roomsVersionNumber = versionNumber[0:32]
             userVersionNumber = versionNumber[32:64]
             #   Check to see if this user already has a version, otherwise it's the first time and we'll create a version for them
@@ -112,7 +112,7 @@ def get_rooms(request):
                 user_version = user.version
             except Version.DoesNotExist:
                 user_version = increment_user_version(user)
-            
+
             #   Figure out what version was passed in
             try:
                 rooms_version = Version.objects.get(versionNumber=roomsVersionNumber)
@@ -123,49 +123,49 @@ def get_rooms(request):
                 except Version.DoesNotExist:
                     #   So, maybe we never created a version for rooms, create it now
                     rooms_version = increment_type_version('room')
-            
+
             #   Now, see if that version is the current version for rooms
             if roomsVersionNumber != rooms_version.versionNumber:
                 rooms = Room.objects.all().filter(practice=user.practice).order_by('sort_order', 'status','timestampinqueue', 'lasttimeinqueue', 'name')
                 status = 'update'
-            
+
             #   Now see if the version for the user is different, if so we'll notify
             if userVersionNumber != user_version.versionNumber:
                 notify = 'YES'
-            
+
         return render_to_response('service/app/rooms.xml', {'results': rooms, 'version': "%s%s" % (rooms_version.versionNumber, user_version.versionNumber), 'status': status, 'notify': notify}, mimetype="text/xml")
-        
+
 
 
 @app_auth
 def get_room(request):
     if request.method == 'GET':
-        
+
         room_id = request.GET.get("room")
         room = Room.objects.get(pk=room_id)
-        
+
         return render_to_response('service/app/room.xml', {'room': room}, mimetype="text/xml")
-    
+
 
 
 @app_auth
 def get_tags(request, type):
     if request.method == 'GET':
         # First ensure we have a valid User making this request
-        
+
         user = request.session.get(USER_KEY)
         version = request.GET.get('version')
         status = 'current'
         tags = None
         notify = 'NO'
-        
+
         #   Get the current version for notes
         try:
             current_version = Version.objects.get(type=type)
         except Version.DoesNotExist:
             current_version = increment_type_version(type)
             status = 'update'
-        
+
         #   Compare the current version with the version that was passed
         if version != current_version.versionNumber:
             if type == 'note':
@@ -174,10 +174,10 @@ def get_tags(request, type):
                 tags = Task.objects.all().filter(practice=user.practice).order_by('sort_order')
             status = 'update'
             notify = 'YES'
-        
+
         return render_to_response('service/app/tags.xml', {'results': tags, 'version': current_version.versionNumber, 'status': status, 'notify': notify}, mimetype="text/xml")
-        
-    
+
+
 
 
 def get_users(request, practice):
@@ -191,23 +191,23 @@ def get_users(request, practice):
             status = 'current'
             users = []
             notify = 'NO'
-            
+
             #   Get the current version for _users
             try:
                 current_version = Version.objects.get(type='_users')
             except Version.DoesNotExist:
                 current_version = increment_type_version('_users')
                 status = 'update'
-            
+
             #   Compare the current version with the version that was passed
             if version != current_version.versionNumber:
                 users = User.objects.all().filter(practice=practice).exclude(type='site').order_by('sort_order', 'name','type')
                 status = 'update'
-            
+
             users = map(convertColors, users)
-            
+
             return render_to_response('service/app/users.xml', {'results': users, 'version': current_version.versionNumber, 'status': status, 'notify': notify}, mimetype="text/xml")
-            
+
 
 
 @app_auth
@@ -220,10 +220,10 @@ def update_room(request):
         print room_xml
         from xml.dom import minidom
         xmldoc = minidom.parseString(room_xml)
-        
+
         roomnode = xmldoc.firstChild
         print roomnode
-        
+
         assignedto_names = roomnode.getAttribute("assignedto").split(',')
         print assignedto_names
         notes_names = roomnode.getAttribute("notes").split(',')
@@ -238,16 +238,16 @@ def update_room(request):
         print status
         timestampinqueue = roomnode.getAttribute("timestampinqueue")
         print timestampinqueue
-        
+
         room = Room.objects.get(pk=room_id)
         print room
         if room.name != roomnumber:
             print "name & number don't match!! FUCK"
             #   A dumb sanity check
             return throw_xml_error()
-        
-        
-        
+
+
+
         #   Clear the assignedto users from the room, we're reloading
         room.assignedto.clear()
         print "cleared assignedto"
@@ -261,7 +261,7 @@ def update_room(request):
                     #   One of the assigned to users is unknown, throw an error
                     print "NO USER"
                     return throw_xml_error()
-                
+
                 room.assignedto.add(assignee)
                 print "added assignee"
                 if assignee.type == '_doctor':
@@ -272,7 +272,7 @@ def update_room(request):
                     print "update all nurses"
                     for u in User.objects.all().filter(type='nurse').filter(practice=user.practice):
                         u.save()
-        
+
         #   Clear the notes from the room, we're reloading
         room.notes.clear()
         print "cleared notes"
@@ -285,7 +285,7 @@ def update_room(request):
                 except Note.DoesNotExist:
                     print "NO NOTE"
                     return throw_xml_error()
-                
+
                 room.notes.add(note)
                 print "added note"
         #   Clear the tasks from the room, we're reloading
@@ -300,22 +300,22 @@ def update_room(request):
                 except Task.DoesNotExist:
                     print "NO TASK"
                     return throw_xml_error()
-                
+
                 room.tasks.add(task)
                 print "added task"
-        
+
         if room.status != status and status == 'A':
             print "increase user's num_accepted"
             user.num_accepted += 1
             user.save()
-        
+
         room.status = status
         room.save()
         print "saved ROOM"
         rooms = Room.objects.filter(practice=user.practice).order_by('status','timestampinqueue', 'lasttimeinqueue', 'sort_order')
         rooms_version = Version.objects.filter(type='room').order_by("-lastChange")[0]
-        
+
         return render_to_response('service/app/rooms.xml', {'results': rooms, 'version': "%s%s" % (rooms_version.versionNumber, user.version.versionNumber), 'status': 'update', 'notify': 'YES'}, mimetype="text/xml")
-        
-    
+
+
 
