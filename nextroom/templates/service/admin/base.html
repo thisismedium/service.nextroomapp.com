@@ -17,7 +17,7 @@
      document.createElement('footer');
     </script>
 
-    <script type="text/javascript" src="//fast.fonts.com/jsapi/89d3f2df-bab6-4f1e-8756-cfb20d2aba67.js"></script>
+    <!-- FIXME <script type="text/javascript" src="//fast.fonts.com/jsapi/89d3f2df-bab6-4f1e-8756-cfb20d2aba67.js"></script> -->
 
   </head>
   <body>
@@ -57,14 +57,28 @@
       <h1 id="practice-name-title">{{practice_name}}</h1>
         <div id="content">
             <div role="main">
+
+	      <section id="app">
+
+		<div id="app-menu" class="root-menu panel static">
+		  <ul class="content">
+                    <li class="entry queue"><a href="#!app/queue">Queue</a></li>
+                    <li class="entry empty"><a href="#!app/empty">Empty</a></li>
+                    <li class="entry accepted"><a href="#!app/accepted">Accepted</a></li>
+                    <li class="entry staff"><a href="#!app/staff">Staff</a></li>
+		  </ul>
+		</div> <!-- #app-menu -->
+
+	      </section> <!-- #app -->
+
               <section id="admin">
 
-		<div id="admin-menu" class="panel static">
+		<div id="admin-menu" class="root-menu panel static">
 		  <ul class="content">
-                    <li class="entry menu_users"><a href="#!admin/user">Users</a></li>
-                    <li class="entry menu_rooms"><a href="#!admin/room">Rooms</a></li>
-                    <li class="entry menu_tasks"><a href="#!admin/task">Tasks</a></li>
-                    <li class="entry menu_notes"><a href="#!admin/note">Notes</a></li>
+                    <li class="entry users"><a href="#!admin/user">Users</a></li>
+                    <li class="entry rooms"><a href="#!admin/room">Rooms</a></li>
+                    <li class="entry tasks"><a href="#!admin/task">Tasks</a></li>
+                    <li class="entry notes"><a href="#!admin/note">Notes</a></li>
 		  </ul>
 		</div>
 

@@ -2,6 +2,8 @@ define(['exports'], function(exports) {
 
   exports.noop = exports.error = noop;
   exports.Error = Error;
+  exports.inherits = inherits;
+  exports.nextTick = nextTick;
   exports.toArray = toArray;
   exports.words = words;
   exports.strip = strip;
@@ -34,10 +36,20 @@ define(['exports'], function(exports) {
   
   // ### Helpful Methods ###
 
-  function toArray(seq) {
-    var list = new Array(seq.length);
-    for (var i = 0, l = seq.length; i < l; i++)
-      list[i] = seq[i];
+  function inherits(ctor, base) {
+    $.extend(ctor.prototype, base.prototype);
+    return ctor;
+  }
+
+  function nextTick(callback) {
+    setTimeout(callback, 0);
+  }
+
+  function toArray(seq, offset) {
+    offset = offset || 0;
+    var list = new Array(seq.length - offset);
+    for (var i = offset, l = seq.length; i < l; i++)
+      list[i - offset] = seq[i];
     return list;
   }
 

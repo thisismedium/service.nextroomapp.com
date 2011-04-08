@@ -1,8 +1,10 @@
-define(['./util', './router', './server', './ui', './mouse'], function(U, Router, Server, UI) {
+define(['./util', './router', './server', './xmlapi', './ui', './mouse'],
+function(U, Router, Server, XmlApi, UI) {
 
   function Main(selector) {
     this.el = $(selector);
     this.nav = new Nav('#main-nav');
+    this.app = new App('#app');
     this.admin = new Admin('#admin');
     this.help = new Help('#help');
     this.account = new Account('#account');
@@ -40,6 +42,50 @@ define(['./util', './router', './server', './ui', './mouse'], function(U, Router
 
   Nav.prototype.find = function(name) {
     return this.el.find('li:has([href="#!' + name + '"])');
+  };
+
+  
+  // ## App ##
+
+  function App(selector) {
+    this.el = $(selector);
+
+    (this.api = new XmlApi.Client())
+      .on('update', function(rooms) {
+        console.log('ROOMS', rooms);
+      });
+  }
+
+  App.prototype.show = function() {
+    if (!this.el.is('.active')) {
+      showSection(this.el);
+      this.api.resume();
+    }
+    return this;
+  };
+
+  App.prototype.hide = function() {
+    if (this.el.is('.active')) {
+      hideSection(this.el);
+    }
+    return this;
+  };
+
+  App.prototype.wait = function(next) {
+    this.api.pause();
+    next();
+    return this;
+  };
+
+  App.prototype.load = function(kind, detail) {
+    // FIXME
+    return this;
+  };
+
+  App.prototype.unload = function(kind, edit, next) {
+    // FIXME
+    next();
+    return this;
   };
 
   
@@ -1361,7 +1407,6 @@ define(['./util', './router', './server', './ui', './mouse'], function(U, Router
 
     ui.unload(route, function(req, loading, next) {
       var future = loading ? listUriSegments(loading.uri) : [];
-
       view.wait(function() {
         view.unload(future[1], future[2], function() {
           if (name != future[0]) {
@@ -1382,6 +1427,7 @@ define(['./util', './router', './server', './ui', './mouse'], function(U, Router
 
   function addRoutes() {
     Panels(/^admin.*/, main.admin, 'admin');
+    Panels(/^app.*/, main.app, 'app');
   }
 
   ui.load(/^$/, function(req, next) {

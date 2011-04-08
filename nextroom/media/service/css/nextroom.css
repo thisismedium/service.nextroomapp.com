@@ -631,32 +631,43 @@ div.modal.confirm .buttons {
     font-style: italic;
 }
 
-#admin .entry:hover {
-    color: #0cac98;
-}
+/* FIXME: was this OK to remove? */
+/* #admin .entry:hover { */
+/*     color: #0cac98; */
+/* } */
 
-#admin #admin-menu .entry {
+
+/* ## Root Menu */
+
+.root-menu .entry {
     width: 220px;
     height: 45px;
     overflow: hidden;
     border: 0;
     background: none;
 }
-#admin #admin-menu li a {
+
+.root-menu a {
     display: block;
     background: url(images/sidebar_nav.png) 0 0 no-repeat;
     width: 440px;
     height: 100%;
     text-indent: -9999px;
 }
-#admin #admin-menu li.menu_rooms a { background-position: 0 -51px; }
-#admin #admin-menu li.menu_tasks a { background-position: 0 -102px; }
-#admin #admin-menu li.menu_notes a { background-position: 0 -154px; }
 
-#admin #admin-menu li.selected a,
-#admin #admin-menu li a:hover {
+.root-menu .selected a,
+.root-menu a:hover {
     margin-left: -220px;
 }
+
+/* FIXME */
+#app-menu a { background: none; text-indent: 0; }
+#app-menu .selected a, .root-menu a:hover { margin: auto; }
+
+#admin-menu .users a { background-position: 0 0; }
+#admin-menu .rooms a { background-position: 0 -51px; }
+#admin-menu .tasks a { background-position: 0 -102px; }
+#admin-menu .notes a { background-position: 0 -154px; }
 
 #admin .sortable .entry {
     border-radius: 0;
